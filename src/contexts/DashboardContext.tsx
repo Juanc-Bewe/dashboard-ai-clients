@@ -18,23 +18,23 @@ const serializeFiltersToQuery = (filters: DashboardFilters): URLSearchParams => 
 
 const parseQueryToFilters = (searchParams: URLSearchParams): Partial<DashboardFilters> => {
   const filters: Partial<DashboardFilters> = {};
-  
+
   const startDate = searchParams.get('startDate');
   const endDate = searchParams.get('endDate');
   const enterprises = searchParams.get('enterprises');
-  
+
   if (startDate && /^\d{4}-\d{2}-\d{2}$/.test(startDate)) {
     filters.startDate = startDate;
   }
-  
+
   if (endDate && /^\d{4}-\d{2}-\d{2}$/.test(endDate)) {
     filters.endDate = endDate;
   }
-  
+
   if (enterprises) {
     filters.enterpriseIds = enterprises.split(',').filter(id => id.trim() !== '');
   }
-  
+
   return filters;
 };
 

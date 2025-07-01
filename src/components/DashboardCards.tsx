@@ -105,7 +105,7 @@ const MetricCard: React.FC<MetricCardProps> = ({
               </Tooltip>
             </div>
             {change && (
-              <div className="flex items-center text-sm gap-1">
+              <div className="hidden md:flex items-center text-sm gap-1">
                 {getTrendIcon()}
                 <span className={`font-medium ${getChangeColor()}`}>
                   {change}
@@ -113,9 +113,17 @@ const MetricCard: React.FC<MetricCardProps> = ({
               </div>
             )}
           </div>
-          <p className="text-2xl font-bold">
+          <p className="text-2xl font-bold mb-2 md:mb-0">
             {formatValue(value, format)}
           </p>
+          {change && (
+            <div className="flex md:hidden items-center text-sm gap-1 mt-2">
+              {getTrendIcon()}
+              <span className={`font-medium ${getChangeColor()}`}>
+                {change}
+              </span>
+            </div>
+          )}
         </div>
       </CardBody>
     </Card>
@@ -186,10 +194,17 @@ export const DashboardCards: React.FC = () => {
       previousValue: previousMetrics?.identificationPercentage,
       format: 'percentage' as const,
     },
+    {
+      title: 'Messages/Conv',
+      tooltip: 'Median number of messages exchanged per conversation',
+      value: metrics?.medianMessagesPerConversation ?? 0,
+      previousValue: previousMetrics?.medianMessagesPerConversation,
+      format: 'decimal' as const,
+    },
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
       {mainMetrics.map((metric, index) => (
         <MetricCard
           key={`${metric.title}-${index}`}
