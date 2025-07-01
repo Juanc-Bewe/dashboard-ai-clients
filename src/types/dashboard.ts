@@ -4,9 +4,21 @@ export interface DateRange {
 }
 
 export interface UserFeelingDistribution {
-  feeling1: number;
-  feeling2: number;
-  feeling3: number;
+  "1": { count: number; percentage: number };
+  "2": { count: number; percentage: number };
+  "3": { count: number; percentage: number };
+}
+
+export interface ChannelDistribution {
+  [key: string]: { count: number; percentage: number };
+}
+
+export interface PeakUsageHours {
+  [hour: string]: number;
+}
+
+export interface WeekdayDistribution {
+  [day: string]: number;
 }
 
 export interface Metrics {
@@ -18,14 +30,17 @@ export interface Metrics {
   returningClients: number;
   totalUniqueClients: number;
   identificationPercentage: number;
-  averageMessagesPerConversation: number;
-  averageConversationDuration: number;
+  medianMessagesPerConversation: number;
+  medianConversationDuration: number;
   resolutionRate: number;
   adjustedResolutionRate: number;
-  averageUserFeeling: number;
+  medianUserFeeling: number;
   userFeelingDistribution: UserFeelingDistribution;
   errorRate: number;
   totalSpam: number;
+  channelDistribution: ChannelDistribution;
+  peakUsageHours: PeakUsageHours;
+  weekdayDistribution: WeekdayDistribution;
 }
 
 export interface DailyMetric {
@@ -33,27 +48,26 @@ export interface DailyMetric {
   totalConversations: number;
   conversationsWithIdentification: number;
   newClients: number;
-  averageMessagesPerConversation: number;
-  averageConversationDuration: number;
+  medianMessagesPerConversation: number;
+  medianConversationDuration: number;
   resolutionRate: number;
   adjustedResolutionRate: number;
-  averageUserFeeling: number;
+  medianUserFeeling: number;
   errorRate: number;
   spamCount: number;
+  peakUsageHours: Record<string, number>;
 }
 
-export interface PreviousPeriod {
+export interface Period {
   dateRange: DateRange;
   metrics: Metrics;
+  dailyMetrics: DailyMetric[];
 }
 
 export interface DashboardData {
   timezoneOffset: number;
-  dateRange: DateRange;
-  metrics: Metrics;
-  dailyMetrics: DailyMetric[];
-  previousPeriod: PreviousPeriod;
-  previousPeriodDailyMetrics: DailyMetric[];
+  currentPeriod: Period;
+  previousPeriod: Period;
 }
 
 export interface DashboardApiResponse {
@@ -90,4 +104,4 @@ export interface DashboardState {
   error: string | null;
   filters: DashboardFilters;
   enterprises: Enterprise[];
-} 
+}

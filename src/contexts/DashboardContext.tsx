@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
-import type { DashboardState, DashboardFilters, Enterprise, DashboardData } from '../types/dashboard';
+import type { DashboardState, DashboardFilters } from '../types/dashboard';
 import { dashboardService } from '../services/dashboardService';
 
 // URL query parameter utilities
@@ -80,9 +80,14 @@ export const useDashboardStore = create<DashboardStore>()(
 
       try {
         const response = await dashboardService.fetchDashboardData(filters);
+
+        console.log('response', response);
+
         if (response.success) {
+          console.log('response.data', response.data);
           set({ data: response.data, loading: false });
         } else {
+          console.log('response.message', response.message);
           set({ error: response.message || 'Failed to fetch data', loading: false });
         }
       } catch (error) {

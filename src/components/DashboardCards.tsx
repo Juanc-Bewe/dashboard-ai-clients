@@ -93,7 +93,7 @@ export const DashboardCards: React.FC = () => {
   const data = useDashboardStore(state => state.data);
   const loading = useDashboardStore(state => state.loading);
 
-  const metrics = data?.metrics;
+  const metrics = data?.currentPeriod?.metrics;
   const previousMetrics = data?.previousPeriod?.metrics;
 
   const mainMetrics = [
@@ -104,7 +104,7 @@ export const DashboardCards: React.FC = () => {
     },
     {
       title: "Total Accounts with Conversations",
-      value: data?.metrics?.totalAccountsWithConversations ?? 0,
+      value: metrics?.totalAccountsWithConversations ?? 0,
       previousValue: previousMetrics?.totalAccountsWithConversations,
     },
     {
@@ -133,8 +133,8 @@ export const DashboardCards: React.FC = () => {
     },
     {
       title: 'Avg. User Feeling',
-      value: metrics?.averageUserFeeling ?? 0,
-      previousValue: previousMetrics?.averageUserFeeling,
+      value: metrics?.medianUserFeeling ?? 0,
+      previousValue: previousMetrics?.medianUserFeeling,
       format: 'decimal' as const,
     },
     {

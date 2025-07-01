@@ -29,8 +29,8 @@ const DailyMetricsTab: React.FC = () => {
     { key: 'conversationsWithIdentification', label: 'With ID' },
     { key: 'newClients', label: 'New Clients' },
     { key: 'resolutionRate', label: 'Resolution Rate' },
-    { key: 'averageConversationDuration', label: 'Avg Duration' },
-    { key: 'averageUserFeeling', label: 'User Feeling' },
+    { key: 'medianConversationDuration', label: 'Median Duration' },
+    { key: 'medianUserFeeling', label: 'User Feeling' },
     { key: 'spamCount', label: 'Spam' }
   ];
 
@@ -40,12 +40,13 @@ const DailyMetricsTab: React.FC = () => {
         return formatDate(item.date);
       case 'resolutionRate':
         return formatPercentage(item.resolutionRate);
-      case 'averageConversationDuration':
-        return formatDuration(item.averageConversationDuration);
-      case 'averageUserFeeling':
-        return item.averageUserFeeling.toFixed(1);
+      case 'medianConversationDuration':
+        return formatDuration(item.medianConversationDuration);
+      case 'medianUserFeeling':
+        return item.medianUserFeeling.toFixed(1);
       default:
-        return item[columnKey as keyof DailyMetric];
+        const value = item[columnKey as keyof DailyMetric];
+        return typeof value === 'object' ? JSON.stringify(value) : value;
     }
   };
 
@@ -61,7 +62,7 @@ const DailyMetricsTab: React.FC = () => {
               <TableHeader columns={columns}>
                 {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
               </TableHeader>
-              <TableBody items={data?.dailyMetrics || []}>
+              <TableBody items={data?.currentPeriod?.dailyMetrics || []}>
                 {(item) => (
                   <TableRow key={item.date}>
                     {(columnKey) => <TableCell>{renderCell(item, columnKey as string)}</TableCell>}
@@ -73,7 +74,7 @@ const DailyMetricsTab: React.FC = () => {
         </Card>
       </div>
 
-      {data?.previousPeriodDailyMetrics && data.previousPeriodDailyMetrics.length > 0 && (
+      {data?.previousPeriod?.dailyMetrics && data.previousPeriod.dailyMetrics.length > 0 && (
         <div>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
             Previous Period Daily Metrics
@@ -84,7 +85,7 @@ const DailyMetricsTab: React.FC = () => {
                 <TableHeader columns={columns}>
                   {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
                 </TableHeader>
-                <TableBody items={data.previousPeriodDailyMetrics}>
+                <TableBody items={data.previousPeriod.dailyMetrics}>
                   {(item) => (
                     <TableRow key={item.date}>
                       {(columnKey) => <TableCell>{renderCell(item, columnKey as string)}</TableCell>}
@@ -103,7 +104,7 @@ const DailyMetricsTab: React.FC = () => {
 const UserFeelingTab: React.FC = () => {
   const data = useDashboardStore(state => state.data);
 
-  const currentFeeling = data?.metrics?.userFeelingDistribution;
+  const currentFeeling = data?.currentPeriod?.metrics?.userFeelingDistribution;
   const previousFeeling = data?.previousPeriod?.metrics?.userFeelingDistribution;
 
   const FeelingDistributionCard: React.FC<{ 
@@ -112,15 +113,15 @@ const UserFeelingTab: React.FC = () => {
     total: number;
   }> = ({ title, distribution, total }) => {
     const feelingLabels = {
-      feeling1: 'Negative',
-      feeling2: 'Neutral', 
-      feeling3: 'Positive'
+      "1": 'Negative',
+      "2": 'Neutral', 
+      "3": 'Positive'
     };
 
     const feelingColors = {
-      feeling1: 'danger',
-      feeling2: 'warning',
-      feeling3: 'success'
+      "1": 'danger',
+      "2": 'warning',
+      "3": 'success'
     } as const;
 
     return (
@@ -131,7 +132,9 @@ const UserFeelingTab: React.FC = () => {
           </h4>
           <div className="space-y-4">
             {Object.entries(distribution).map(([key, value]) => {
-              const percentage = total > 0 ? (value / total) * 100 : 0;
+              // Handle both simple number and object with count/percentage
+              const count = typeof value === 'number' ? value : value?.count || 0;
+              const percentage = total > 0 ? (count / total) * 100 : 0;
               return (
                 <div key={key} className="space-y-2">
                   <div className="flex justify-between items-center">
@@ -139,7 +142,7 @@ const UserFeelingTab: React.FC = () => {
                       {feelingLabels[key as keyof UserFeelingDistribution]}
                     </span>
                     <span className="text-sm text-gray-600 dark:text-gray-400">
-                      {value} ({percentage.toFixed(1)}%)
+                      {count} ({percentage.toFixed(1)}%)
                     </span>
                   </div>
                   <Progress
@@ -163,7 +166,7 @@ const UserFeelingTab: React.FC = () => {
         <FeelingDistributionCard
           title="Current Period"
           distribution={currentFeeling}
-          total={data?.metrics?.totalConversationsWithIdentification || 0}
+          total={data?.currentPeriod?.metrics?.totalConversationsWithIdentification || 0}
         />
       )}
       {previousFeeling && (
@@ -181,7 +184,7 @@ const UseAndAdoption: React.FC = () => {
   const data = useDashboardStore(state => state.data);
 
   // Prepare data for conversations over time chart
-  const conversationsChartData = data?.dailyMetrics?.map(metric => ({
+  const conversationsChartData = data?.currentPeriod?.dailyMetrics?.map(metric => ({
     date: new Date(metric.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
     totalConversations: metric.totalConversations,
     conversationsWithIdentification: metric.conversationsWithIdentification
@@ -189,11 +192,11 @@ const UseAndAdoption: React.FC = () => {
 
   // Prepare data for customer retention donut chart
   const customerRetentionData = React.useMemo(() => {
-    if (!data?.metrics) return [];
+    if (!data?.currentPeriod?.metrics) return [];
     
-    const newClients = data.metrics.totalNewClients || 0;
-    const returningClients = data.metrics.returningClients || 0;
-    const totalUniqueClients = data.metrics.totalUniqueClients || 0;
+    const newClients = data.currentPeriod.metrics.totalNewClients || 0;
+    const returningClients = data.currentPeriod.metrics.returningClients || 0;
+    const totalUniqueClients = data.currentPeriod.metrics.totalUniqueClients || 0;
     
     // Calculate returning monthly (total unique - new - returning weekly)
     const returningMonthly = Math.max(0, totalUniqueClients - newClients - returningClients);
@@ -203,45 +206,45 @@ const UseAndAdoption: React.FC = () => {
       { name: 'Returning Weekly', value: returningClients, color: '#3b82f6' },
       { name: 'Returning Monthly', value: returningMonthly, color: '#f59e0b' }
     ].filter(item => item.value > 0);
-  }, [data?.metrics]);
+  }, [data?.currentPeriod?.metrics]);
 
   // KPI Cards data
   const kpiCards = [
     {
       title: 'Identification Rate',
-      value: `${data?.metrics?.identificationPercentage || 0}%`,
+      value: `${data?.currentPeriod?.metrics?.identificationPercentage || 0}%`,
       color: 'bg-blue-500',
       textColor: 'text-white'
     },
     {
       title: 'New Clients This Month',
-      value: data?.metrics?.totalNewClients || 0,
+      value: data?.currentPeriod?.metrics?.totalNewClients || 0,
       color: 'bg-green-500',
       textColor: 'text-white'
     },
     {
       title: 'Total Accounts Active',
-      value: data?.metrics?.totalAccountsWithConversations || 0,
+      value: data?.currentPeriod?.metrics?.totalAccountsWithConversations || 0,
       color: 'bg-purple-500',
       textColor: 'text-white'
     },
     {
       title: 'Resolution Rate',
-      value: `${data?.metrics?.resolutionRate || 0}%`,
+      value: `${data?.currentPeriod?.metrics?.resolutionRate || 0}%`,
       color: 'bg-emerald-500',
       textColor: 'text-white'
     },
     {
-      title: 'Avg Conversation Duration',
-      value: data?.metrics?.averageConversationDuration 
-        ? `${Math.floor((data.metrics.averageConversationDuration || 0) / 60)}m ${Math.round((data.metrics.averageConversationDuration || 0) % 60)}s`
+      title: 'Median Conversation Duration',
+      value: data?.currentPeriod?.metrics?.medianConversationDuration 
+        ? `${Math.floor((data.currentPeriod.metrics.medianConversationDuration || 0) / 60)}m ${Math.round((data.currentPeriod.metrics.medianConversationDuration || 0) % 60)}s`
         : '0s',
       color: 'bg-orange-500',
       textColor: 'text-white'
     },
     {
       title: 'Total Conversations',
-      value: data?.metrics?.totalConversations || 0,
+      value: data?.currentPeriod?.metrics?.totalConversations || 0,
       color: 'bg-cyan-500',
       textColor: 'text-white'
     }
