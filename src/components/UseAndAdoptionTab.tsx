@@ -174,50 +174,72 @@ export const UseAndAdoptionTab: React.FC = () => {
           <DailyConversationAnalytics data={data} />
 
           {/* Customer Retention */}
-          <Card className="rounded-2xl lg:col-span-1">
+          <Card className="rounded-2xl lg:col-span-1 border-0">
             <CardBody className="p-6">
-              <h3 className="text-lg font-semibold mb-4">
+              <h3 className="text-lg font-semibold mb-6">
                 Customer Retention
               </h3>
-              <div className="h-80 flex items-center justify-center">
+
+              {/* Chart Container */}
+              <div className="relative h-64 flex items-center justify-center mb-6">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
                       data={customerRetentionData}
                       cx="50%"
                       cy="50%"
-                      innerRadius={60}
-                      outerRadius={120}
-                      paddingAngle={5}
+                      innerRadius={65}
+                      outerRadius={100}
+                      paddingAngle={2}
                       dataKey="value"
-                      cornerRadius={1}
+                      cornerRadius={3}
                     >
                       {customerRetentionData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
-                    <Tooltip 
-                      formatter={(value, name) => [`${value}`, name]}
-                      contentStyle={{ 
-                        backgroundColor: '#374151', 
-                        border: 'none', 
-                        borderRadius: '12px',
-                        color: 'white'
-                      }}
-                    />
                   </PieChart>
                 </ResponsiveContainer>
-              </div>
-              {/* Legend */}
-              <div className="flex flex-wrap justify-center gap-4 mt-4">
-                {customerRetentionData.map((entry, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }}></div>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
-                      {entry.name}: {entry.value}
-                    </span>
+
+                {/* Center Total */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                  <div className="text-2xl font-bold">
+                    {customerRetentionData.reduce((sum, item) => sum + item.value, 0).toLocaleString()}
                   </div>
-                ))}
+                  <div className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                    Total Clients
+                  </div>
+                </div>
+              </div>
+
+              {/* Enhanced Legend with Stats */}
+              <div className="space-y-3">
+                {customerRetentionData.map((entry, index) => {
+                  const total = customerRetentionData.reduce((sum, item) => sum + item.value, 0);
+                  const percentage = total > 0 ? Math.round((entry.value / total) * 100) : 0;
+
+                  return (
+                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div 
+                          className="w-4 h-4 rounded-full shadow-sm" 
+                          style={{ backgroundColor: entry.color }}
+                        ></div>
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                          {entry.name}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                          {entry.value.toLocaleString()}
+                        </span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                          ({percentage}%)
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </CardBody>
           </Card>

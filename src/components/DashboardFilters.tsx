@@ -114,7 +114,9 @@ export const DashboardFilters: React.FC = () => {
   };
 
   return (
-    <div className="p-3 sm:p-4 rounded-lg shadow-sm border">
+    <div className="dark:border dark:border-gray-700 rounded-xl dark:shadow-lg p-4 sm:p-6">
+      {/* Filter Header */}
+
       <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 lg:items-start">
         {/* Date Range Filter */}
         <div className="flex-1 min-w-0">
@@ -219,4 +221,4 @@ export const DashboardFilters: React.FC = () => {
       </div>
     </div>
   );
-}; 
+};

@@ -53,20 +53,39 @@ export const Dashboard: React.FC = () => {
   }, [location.pathname, location.search, navigate, getUrlParams]);
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Analytics Dashboard</h1>
-        <p className="mt-2">Monitor your AI clients performance and metrics</p>
+    <div className="space-y-8">
+      {/* Page Header */}
+      <div className="pb-4 border-b border-gray-200 dark:border-gray-700">
+        <h1 className="text-3xl font-bold text-foreground">Analytics Dashboard</h1>
+        <p className="mt-2 text-foreground-600">Monitor your AI clients performance and metrics</p>
       </div>
 
-      {/* Filters */}
-      <DashboardFilters />
+      {/* Filters Section */}
+      <section className="relative">
+        <DashboardFilters />
+        {/* Subtle separator line */}
+      </section>
 
-      {/* Main Metrics Cards */}
-      <DashboardCards />
+      {/* Main Dashboard Content */}
+      <section className="space-y-6 pt-2">
+        {/* Metrics Overview */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
+            <h2 className="text-xl font-semibold text-foreground">Key Metrics Overview</h2>
+          </div>
+          <DashboardCards />
+        </div>
 
-      {/* Detailed Tabs */}
-      <DashboardTabs />
+        {/* Detailed Analytics */}
+        <div className="space-y-4 pt-4">
+          <div className="flex items-center gap-2">
+            <div className="w-1 h-6 bg-emerald-500 rounded-full"></div>
+            <h2 className="text-xl font-semibold text-foreground">Detailed Analytics</h2>
+          </div>
+          <DashboardTabs />
+        </div>
+      </section>
     </div>
   );
 }; 
