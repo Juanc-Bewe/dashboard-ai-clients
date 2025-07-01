@@ -27,10 +27,6 @@ export const DashboardFilters: React.FC = () => {
     }
   }, [filters.startDate, filters.endDate]);
 
-  // Calculate select all state
-  const allSelected = enterprises.length > 0 && filters.enterpriseIds.length === enterprises.length;
-  const someSelected = filters.enterpriseIds.length > 0 && filters.enterpriseIds.length < enterprises.length;
-
   const handleDateRangeChange = (value: DateRangeValue | null) => {
     if (value) {
       setDateRange(value.start.toString(), value.end.toString());
