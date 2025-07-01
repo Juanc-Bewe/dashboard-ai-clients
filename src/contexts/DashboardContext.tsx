@@ -68,7 +68,7 @@ export const useDashboardStore = create<DashboardStore>()(
   subscribeWithSelector((set, get) => ({
     // Initial state
     data: null,
-    loading: false,
+    loading: true,
     error: null,
     filters: getInitialFilters(),
     enterprises: [],
