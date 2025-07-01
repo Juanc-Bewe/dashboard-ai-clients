@@ -13,6 +13,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { useDashboardStore } from "../contexts/DashboardContext";
+import { formatCurrency } from "../utils/currencyHelpers";
 
 // Professional color palette with better contrast
 const CHART_COLORS = {
@@ -154,7 +155,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
         {payload.map((entry: any, index: number) => (
           <p key={index} style={{ color: entry.color }} className="text-sm">
             {entry.dataKey === "cost"
-              ? `$${entry.value.toFixed(4)}`
+              ? formatCurrency(entry.value)
               : `${entry.value.toLocaleString()} tokens`}
             {entry.payload.percentage &&
               ` (${entry.payload.percentage.toFixed(1)}%)`}
@@ -257,7 +258,7 @@ export const BusinessAndCostTab: React.FC = () => {
                     Total Cost
                   </div>
                   <div className="text-3xl font-bold">
-                    ${totalCost.toFixed(4)}
+                    {formatCurrency(totalCost)}
                   </div>
                 </div>
               </div>
@@ -363,7 +364,7 @@ export const BusinessAndCostTab: React.FC = () => {
                       </div>
                       <div className="text-center">
                         <div className="text-lg font-bold">
-                          ${entry.cost.toFixed(4)}
+                          {formatCurrency(entry.cost)}
                         </div>
                         <div className="text-xs text-gray-500 dark:text-gray-400 font-medium">
                           ({entry.percentage.toFixed(1)}%)
@@ -395,10 +396,9 @@ export const BusinessAndCostTab: React.FC = () => {
                     Total LLM Cost
                   </div>
                   <div className="text-2xl font-bold">
-                    $
-                    {costByModelData
-                      .reduce((sum, item) => sum + item.cost, 0)
-                      .toFixed(4)}
+                    {formatCurrency(
+                      costByModelData.reduce((sum, item) => sum + item.cost, 0)
+                    )}
                   </div>
                 </div>
               </div>
@@ -531,7 +531,7 @@ export const BusinessAndCostTab: React.FC = () => {
                       </div>
                       <div className="flex items-center gap-1 ml-2">
                         <span className="text-xs font-bold text-gray-900 dark:text-gray-100">
-                          ${entry.cost.toFixed(4)}
+                          {formatCurrency(entry.cost)}
                         </span>
                         <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
                           ({percentage}%)

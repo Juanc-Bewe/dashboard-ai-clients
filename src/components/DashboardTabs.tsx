@@ -12,16 +12,16 @@ export const DashboardTabs: React.FC = () => {
         <Tab key="overview" title="Overview">
           <UseAndAdoptionTab />
         </Tab>
+        <Tab key="business" title="Business and Cost">
+          <BusinessAndCostTab />
+        </Tab>
         <Tab key="daily" title="Daily Metrics">
           <DailyMetricsTab />
         </Tab>
         <Tab key="feelings" title="User Feelings">
           <UserFeelingTab />
         </Tab>
-        <Tab key="business" title="Business and Cost">
-          <BusinessAndCostTab />
-        </Tab>
       </Tabs>
     </div>
   );
-}; 
+};
