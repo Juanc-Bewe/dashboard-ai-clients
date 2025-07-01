@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { Card, CardBody } from '@heroui/react';
 
 interface PublicLayoutProps {
   children: ReactNode;
@@ -6,9 +7,13 @@ interface PublicLayoutProps {
 
 export const PublicLayout: React.FC<PublicLayoutProps> = ({ children }) => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4 transition-colors">
+    <div className="min-h-screen bg-stone-100 dark:bg-stone-900 flex items-center justify-center p-4 transition-colors">
       <div className="w-full max-w-md">
-        {children}
+        <Card className="transition-colors">
+          <CardBody className="p-6">
+            {children}
+          </CardBody>
+        </Card>
       </div>
     </div>
   );
