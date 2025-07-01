@@ -260,6 +260,16 @@ export const mockDashboardData: DashboardApiResponse = {
   path: "/lite/v1/analytics?startDate=2025-06-10&endDate=2025-06-29&timezoneOffset=-5"
 };
 
+// Helper function to get browser timezone offset in hours
+const getBrowserTimezoneOffset = (): number => {
+  // getTimezoneOffset() returns the offset in minutes from UTC
+  // Positive values indicate timezone is behind UTC, negative values indicate ahead of UTC
+  // We need to convert to hours and invert the sign to match the API expectation
+  const offsetInMinutes = new Date().getTimezoneOffset();
+  const offsetInHours = -offsetInMinutes / 60;
+  return offsetInHours;
+};
+
 // API service functions
 export const dashboardService = {
   // Fetch dashboard data from real API
@@ -280,9 +290,12 @@ export const dashboardService = {
         params.enterpriseIds = filters.enterpriseIds.join(',');
       }
 
-      if (filters.timezoneOffset !== undefined && filters.timezoneOffset !== null) {
-        params.timezoneOffset = filters.timezoneOffset;
-      }
+      // Use provided timezone offset or get it from browser
+      const timezoneOffset = filters.timezoneOffset !== undefined && filters.timezoneOffset !== null
+        ? filters.timezoneOffset
+        : getBrowserTimezoneOffset();
+
+      params.timezoneOffset = timezoneOffset;
 
       console.log('params', params);
 
