@@ -74,14 +74,32 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const availableEnterprises = authData?.availableEnterprises || [];
   const availableChannels = authData?.availableChannelNames || [];
 
-  // Check for existing PIN on mount
+  // Check for existing PIN on mount and refetch auth data
   useEffect(() => {
-    const savedPin = getCookie(PIN_KEY);
-    if (savedPin) {
-      setPin(savedPin);
-      // Note: Auth data will need to be refetched when needed since we don't store it in cookies
-    }
-    setLoading(false);
+    const initializeAuth = async () => {
+      const savedPin = getCookie(PIN_KEY);
+      if (savedPin) {
+        try {
+          // Refetch auth data using the saved PIN
+          const response = await dashboardService.validatePin(savedPin);
+
+          if (response.success && response.data) {
+            setPin(savedPin);
+            setAuthData(response.data);
+          } else {
+            // PIN is no longer valid, remove it
+            removeCookie(PIN_KEY);
+          }
+        } catch (error) {
+          console.error('Error validating saved PIN:', error);
+          // Remove invalid PIN
+          removeCookie(PIN_KEY);
+        }
+      }
+      setLoading(false);
+    };
+
+    initializeAuth();
   }, []);
 
   const login = async (inputPin: string): Promise<boolean> => {
