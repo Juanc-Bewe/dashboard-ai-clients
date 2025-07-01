@@ -101,7 +101,9 @@ export const useDashboardStore = create<DashboardStore>()(
     // Fetch enterprises
     fetchEnterprises: async () => {
       try {
+        console.log('Fetching enterprises...');
         const enterprises = await dashboardService.fetchEnterprises();
+        console.log('Fetched enterprises:', enterprises);
         set({ enterprises });
 
         // Auto-fetch dashboard data if we have enterprises and this is the first load

@@ -1,5 +1,5 @@
 import React from 'react';
-import { DateRangePicker, Select, SelectItem, Button } from '@heroui/react';
+import { DateRangePicker, Select, SelectItem, Button, Checkbox } from '@heroui/react';
 import { parseDate } from '@internationalized/date';
 import { RefreshCw } from 'lucide-react';
 import { useDashboardStore } from '../contexts/DashboardContext';
@@ -13,6 +13,8 @@ export const DashboardFilters: React.FC = () => {
   const setEnterpriseIds = useDashboardStore(state => state.setEnterpriseIds);
   const fetchDashboardData = useDashboardStore(state => state.fetchDashboardData);
 
+  console.log('DashboardFilters - enterprises:', enterprises);
+
   // Create date range value from filters
   const dateRangeValue = React.useMemo(() => {
     try {
@@ -25,6 +27,10 @@ export const DashboardFilters: React.FC = () => {
     }
   }, [filters.startDate, filters.endDate]);
 
+  // Calculate select all state
+  const allSelected = enterprises.length > 0 && filters.enterpriseIds.length === enterprises.length;
+  const someSelected = filters.enterpriseIds.length > 0 && filters.enterpriseIds.length < enterprises.length;
+
   const handleDateRangeChange = (value: DateRangeValue | null) => {
     if (value) {
       setDateRange(value.start.toString(), value.end.toString());
@@ -36,30 +42,51 @@ export const DashboardFilters: React.FC = () => {
     setEnterpriseIds(Array.from(keys));
   };
 
+  const handleSelectAllToggle = () => {
+    // Only unselect all - remove select all functionality
+    setEnterpriseIds([]);
+  };
+
   const handleRefresh = () => {
     fetchDashboardData();
   };
 
   return (
     <div className="p-3 sm:p-4 rounded-lg shadow-sm border">
-      <div className="flex flex-col gap-4">
-        {/* Date Range and Enterprise Selector */}
-        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-          <div className="flex-1">
+      <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 lg:items-start">
+        {/* Date Range Filter */}
+        <div className="flex-1 min-w-0">
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground-600">Date Range</label>
             <DateRangePicker
-              label="Date Range"
               value={dateRangeValue}
               onChange={handleDateRangeChange}
               size="sm"
               className="w-full"
               granularity="day"
               variant="bordered"
+              aria-label="Select date range"
             />
           </div>
+        </div>
 
-          <div className="flex-1">
+        {/* Enterprise Filter Group */}
+        <div className="flex-1 min-w-0">
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium text-foreground-600">Enterprises</label>
+              {enterprises.length > 0 && filters.enterpriseIds.length > 0 && (
+                <Checkbox
+                  isSelected={false}
+                  onValueChange={handleSelectAllToggle}
+                  size="sm"
+                  className="text-xs"
+                >
+                  Clear All ({filters.enterpriseIds.length})
+                </Checkbox>
+              )}
+            </div>
             <Select
-              label="Enterprises"
               placeholder="Select enterprises"
               selectionMode="multiple"
               selectedKeys={new Set(filters.enterpriseIds)}
@@ -67,6 +94,7 @@ export const DashboardFilters: React.FC = () => {
               variant="bordered"
               size="sm"
               className="w-full"
+              aria-label="Select enterprises"
             >
               {enterprises.map((enterprise) => (
                 <SelectItem key={enterprise.id}>
@@ -77,15 +105,15 @@ export const DashboardFilters: React.FC = () => {
           </div>
         </div>
 
-        {/* Refresh Button */}
-        <div className="flex justify-center sm:justify-end">
+        {/* Actions */}
+        <div className="flex justify-center lg:justify-start lg:pt-6">
           <Button
             color="primary"
             onPress={handleRefresh}
             isLoading={loading}
             variant="flat"
             size="md"
-            className="w-12 h-12 sm:w-auto sm:h-auto sm:px-4"
+            className="w-12 h-12 lg:w-auto lg:h-auto lg:px-4"
             radius="full"
             isIconOnly
             aria-label="Refresh data"

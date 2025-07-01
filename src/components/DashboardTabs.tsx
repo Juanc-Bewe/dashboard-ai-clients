@@ -62,7 +62,7 @@ const DailyMetricsTab: React.FC = () => {
               <TableHeader columns={columns}>
                 {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
               </TableHeader>
-              <TableBody items={data?.currentPeriod?.dailyMetrics || []}>
+              <TableBody items={data?.currentPeriod?.dailyMetrics?.filter(item => item.totalConversations > 0) || []}>
                 {(item) => (
                   <TableRow key={item.date}>
                     {(columnKey) => <TableCell>{renderCell(item, columnKey as string)}</TableCell>}
@@ -85,7 +85,7 @@ const DailyMetricsTab: React.FC = () => {
                 <TableHeader columns={columns}>
                   {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
                 </TableHeader>
-                <TableBody items={data.previousPeriod.dailyMetrics}>
+                <TableBody items={data.previousPeriod.dailyMetrics.filter(item => item.totalConversations > 0)}>
                   {(item) => (
                     <TableRow key={item.date}>
                       {(columnKey) => <TableCell>{renderCell(item, columnKey as string)}</TableCell>}
@@ -259,12 +259,12 @@ const UseAndAdoption: React.FC = () => {
         </h2>
 
         {/* Charts Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           {/* Conversations Over Time */}
-          <Card className="rounded-2xl">
+          <Card className="rounded-2xl lg:col-span-2">
             <CardBody className="p-6">
               <h3 className="text-lg font-semibold mb-4">
-                Conversations Over Time
+                Conversations By Day
               </h3>
               <div className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
@@ -297,7 +297,7 @@ const UseAndAdoption: React.FC = () => {
           </Card>
 
           {/* Customer Retention */}
-          <Card className="rounded-2xl">
+          <Card className="rounded-2xl lg:col-span-1">
             <CardBody className="p-6">
               <h3 className="text-lg font-semibold mb-4">
                 Customer Retention
