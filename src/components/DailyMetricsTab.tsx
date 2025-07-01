@@ -9,7 +9,7 @@ const DailyMetricsTabSkeleton: React.FC = () => {
   const columns = [
     { key: 'date', label: 'Date' },
     { key: 'totalConversations', label: 'Conversations' },
-    { key: 'conversationsWithIdentification', label: 'With ID' },
+    { key: 'conversationsWithIdentification', label: 'With Identification' },
     { key: 'newClients', label: 'New Clients' },
     { key: 'resolutionRate', label: 'Resolution Rate' },
     { key: 'medianConversationDuration', label: 'Median Duration' },
@@ -66,7 +66,7 @@ export const DailyMetricsTab: React.FC = () => {
   const columns = [
     { key: 'date', label: 'Date' },
     { key: 'totalConversations', label: 'Conversations' },
-    { key: 'conversationsWithIdentification', label: 'With ID' },
+    { key: 'conversationsWithIdentification', label: 'With Identification' },
     { key: 'newClients', label: 'New Clients' },
     { key: 'resolutionRate', label: 'Resolution Rate' },
     { key: 'medianConversationDuration', label: 'Median Duration' },

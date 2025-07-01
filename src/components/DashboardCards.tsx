@@ -177,7 +177,7 @@ export const DashboardCards: React.FC = () => {
       format: 'decimal' as const,
     },
     {
-      title: 'ID Rate',
+      title: 'Identification Rate',
       tooltip: 'Percentage of users who were successfully identified during conversations',
       value: metrics?.identificationPercentage ?? 0,
       previousValue: previousMetrics?.identificationPercentage,
