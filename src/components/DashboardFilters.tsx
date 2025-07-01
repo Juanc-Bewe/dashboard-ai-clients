@@ -1,6 +1,7 @@
 import React from 'react';
 import { DateRangePicker, Select, SelectItem, Button, Checkbox } from '@heroui/react';
 import { parseDate } from '@internationalized/date';
+import { I18nProvider } from '@react-aria/i18n';
 import { RefreshCw } from 'lucide-react';
 import { useDashboardStore } from '../contexts/DashboardContext';
 import type { DateRangeValue } from '../types/dashboard';
@@ -54,15 +55,17 @@ export const DashboardFilters: React.FC = () => {
         <div className="flex-1 min-w-0">
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground-600">Date Range</label>
-            <DateRangePicker
-              value={dateRangeValue}
-              onChange={handleDateRangeChange}
-              size="sm"
-              className="w-full"
-              granularity="day"
-              variant="bordered"
-              aria-label="Select date range"
-            />
+            <I18nProvider locale="en-CA">
+              <DateRangePicker
+                value={dateRangeValue}
+                onChange={handleDateRangeChange}
+                size="sm"
+                className="w-full"
+                granularity="day"
+                variant="bordered"
+                aria-label="Select date range"
+              />
+            </I18nProvider>
           </div>
         </div>
 
