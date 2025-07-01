@@ -2,9 +2,31 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { dashboardService } from '../services/dashboardService';
 
+// Types for authentication response
+interface Enterprise {
+  id: string;
+  name: string;
+}
+
+interface Channel {
+  id: string;
+  name: string;
+}
+
+interface AuthData {
+  name: string;
+  permissions: string[];
+  availableEnterprises: Enterprise[];
+  availableChannelNames: Channel[];
+}
+
 interface AuthContextType {
   isAuthenticated: boolean;
   pin: string | null;
+  authData: AuthData | null;
+  permissions: string[];
+  availableEnterprises: Enterprise[];
+  availableChannels: Channel[];
   login: (pin: string) => Promise<boolean>;
   logout: () => void;
   loading: boolean;
@@ -43,16 +65,21 @@ const removeCookie = (name: string) => {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [pin, setPin] = useState<string | null>(null);
+  const [authData, setAuthData] = useState<AuthData | null>(null);
   const [loading, setLoading] = useState(true);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  const isAuthenticated = !!pin;
+  const isAuthenticated = !!pin && !!authData;
+  const permissions = authData?.permissions || [];
+  const availableEnterprises = authData?.availableEnterprises || [];
+  const availableChannels = authData?.availableChannelNames || [];
 
   // Check for existing PIN on mount
   useEffect(() => {
     const savedPin = getCookie(PIN_KEY);
     if (savedPin) {
       setPin(savedPin);
+      // Note: Auth data will need to be refetched when needed since we don't store it in cookies
     }
     setLoading(false);
   }, []);
@@ -61,14 +88,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       setLoading(true);
 
-      // Validate PIN against the API
-      const isValid = await dashboardService.validatePin(inputPin);
+      // Validate PIN against the API and get full response
+      const response = await dashboardService.validatePin(inputPin);
 
-      if (isValid) {
-        // Save PIN to cookie with 12-hour expiration
-        console.log('saving pin to cookie', inputPin);
-        setCookie(PIN_KEY, inputPin, 12);
+      if (response.success && response.data) {
+        // Save only PIN to cookie with 24-hour expiration
+        setCookie(PIN_KEY, inputPin, 24);
+
         setPin(inputPin);
+        setAuthData(response.data);
         return true;
       }
 
@@ -85,6 +113,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setIsLoggingOut(true);
     removeCookie(PIN_KEY);
     setPin(null);
+    setAuthData(null);
 
     // Navigate to login page without preserving any state or search parameters
     // This ensures a clean logout that doesn't remember previous URL parameters
@@ -94,6 +123,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const value: AuthContextType = {
     isAuthenticated,
     pin,
+    authData,
+    permissions,
+    availableEnterprises,
+    availableChannels,
     login,
     logout,
     loading,

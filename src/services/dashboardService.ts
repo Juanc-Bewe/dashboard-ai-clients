@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { DashboardApiResponse, DashboardFilters, Enterprise } from '../types/dashboard';
+import type { DashboardApiResponse, DashboardFilters } from '../types/dashboard';
 import dashboardMetrics from '../mocks/dashboardMetrics';
 
 // API configuration
@@ -42,12 +42,7 @@ apiClient.interceptors.request.use((config) => {
   return Promise.reject(error);
 });
 
-// Mock enterprises data
-export const mockEnterprises: Enterprise[] = [
-  { id: '67d1ff17d9f450bbf6684a81', name: 'Bewe' },
-  { id: '6331d0e09660361198fdd08d', name: 'Guru' },
-  { id: '68096b49af47c25355650547', name: 'Adn' },
-];
+// Remove mock enterprises - using data from auth context instead
 
 // Mock dashboard data based on the real API response
 export const mockDashboardData: DashboardApiResponse = dashboardMetrics  as unknown as DashboardApiResponse;
@@ -65,17 +60,25 @@ const getBrowserTimezoneOffset = (): number => {
 // API service functions
 export const dashboardService = {
   // Validate PIN against API
-  async validatePin(pin: string): Promise<boolean> {
+  async validatePin(pin: string): Promise<{ success: boolean; data?: any; message?: string }> {
     try {
       const response = await apiClient.post('/lite/v1/analytics/auth', {
         pin: pin
       });
 
-      // If we get a successful response, the PIN is valid
-      return response.status === 201;
+      // If we get a successful response, return the full response data
+      if (response.status === 201) {
+        return {
+          success: true,
+          data: response.data.data,
+          message: response.data.message
+        };
+      }
+
+      return { success: false };
     } catch (error) {
       console.error('Error validating PIN:', error);
-      return false;
+      return { success: false };
     }
   },
 
@@ -121,12 +124,5 @@ export const dashboardService = {
     }
   },
 
-  // Fetch enterprises (still using mock data)
-  async fetchEnterprises(): Promise<Enterprise[]> {
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    console.log('Service returning enterprises:', mockEnterprises);
-    return mockEnterprises;
-  }
+  // Enterprises are now provided by auth context - method removed
 }; 

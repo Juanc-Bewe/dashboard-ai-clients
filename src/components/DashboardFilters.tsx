@@ -4,6 +4,7 @@ import { parseDate } from '@internationalized/date';
 import { I18nProvider } from '@react-aria/i18n';
 import { RefreshCw, Calendar, CalendarDays, Clock } from 'lucide-react';
 import { useDashboardStore } from '../contexts/DashboardContext';
+import { useAuth } from '../contexts/AuthContext';
 import type { DateRangeValue } from '../types/dashboard';
 
 export const DashboardFilters: React.FC = () => {
@@ -13,13 +14,22 @@ export const DashboardFilters: React.FC = () => {
   const setDateRange = useDashboardStore(state => state.setDateRange);
   const setEnterpriseIds = useDashboardStore(state => state.setEnterpriseIds);
   const fetchDashboardData = useDashboardStore(state => state.fetchDashboardData);
+  const setEnterprises = useDashboardStore(state => state.setEnterprises);
+
+  // Get auth data
+  const { availableEnterprises, isAuthenticated } = useAuth();
 
   // State to track selected shortcut
   const [selectedShortcut, setSelectedShortcut] = React.useState<Set<string>>(new Set());
   // State to track range validation
   const [isRangeInvalid, setIsRangeInvalid] = React.useState(false);
 
-  console.log('DashboardFilters - enterprises:', enterprises);
+  // Sync enterprises from auth context
+  React.useEffect(() => {
+    if (isAuthenticated && availableEnterprises.length > 0) {
+      setEnterprises(availableEnterprises);
+    }
+  }, [availableEnterprises, isAuthenticated, setEnterprises]);
 
   // Create date range value from filters
   const dateRangeValue = React.useMemo(() => {
@@ -137,7 +147,7 @@ export const DashboardFilters: React.FC = () => {
 
       <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 lg:items-start">
         {/* Date Range Filter */}
-        <div className="flex-1 min-w-0">
+        <div className={`min-w-0 ${enterprises.length > 1 ? 'flex-1' : 'lg:max-w-2xl lg:flex-1'}`}>
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground-600">Date Range</label>
             <div className="flex gap-2">
@@ -189,50 +199,52 @@ export const DashboardFilters: React.FC = () => {
           </div>
         </div>
 
-        {/* Enterprise Filter Group */}
-        <div className="flex-1 min-w-0">
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-foreground-600">Enterprises</label>
-              {enterprises.length > 0 && filters.enterpriseIds.length > 0 && (
-                <Checkbox
-                  isSelected={false}
-                  onValueChange={handleSelectAllToggle}
-                  size="sm"
-                  className="text-xs"
-                >
-                  Clear All ({filters.enterpriseIds.length})
-                </Checkbox>
-              )}
+        {/* Enterprise Filter Group - Only show if more than one enterprise */}
+        {enterprises.length > 1 && (
+          <div className="flex-1 min-w-0">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-foreground-600">Enterprises</label>
+                {enterprises.length > 0 && filters.enterpriseIds.length > 0 && (
+                  <Checkbox
+                    isSelected={false}
+                    onValueChange={handleSelectAllToggle}
+                    size="sm"
+                    className="text-xs"
+                  >
+                    Clear All ({filters.enterpriseIds.length})
+                  </Checkbox>
+                )}
+              </div>
+              <Select
+                placeholder="Select enterprises"
+                selectionMode="multiple"
+                selectedKeys={new Set(filters.enterpriseIds)}
+                onSelectionChange={(keys) => handleEnterpriseChange(keys as Set<string>)}
+                variant="bordered"
+                size="sm"
+                className="w-full"
+                aria-label="Select enterprises"
+              >
+                {enterprises.map((enterprise) => (
+                  <SelectItem key={enterprise.id}>
+                    {enterprise.name}
+                  </SelectItem>
+                ))}
+              </Select>
             </div>
-            <Select
-              placeholder="Select enterprises"
-              selectionMode="multiple"
-              selectedKeys={new Set(filters.enterpriseIds)}
-              onSelectionChange={(keys) => handleEnterpriseChange(keys as Set<string>)}
-              variant="bordered"
-              size="sm"
-              className="w-full"
-              aria-label="Select enterprises"
-            >
-              {enterprises.map((enterprise) => (
-                <SelectItem key={enterprise.id}>
-                  {enterprise.name}
-                </SelectItem>
-              ))}
-            </Select>
           </div>
-        </div>
+        )}
 
         {/* Actions */}
-        <div className="flex justify-center lg:justify-start lg:pt-6">
+        <div className={`flex justify-center lg:justify-start lg:pt-6 ${enterprises.length <= 1 ? 'lg:flex-shrink-0' : ''}`}>
           <Button
             color="primary"
             onPress={handleRefresh}
             isLoading={loading}
             variant="flat"
-            size="md"
-            className="w-12 h-12 lg:w-auto lg:h-auto lg:px-4"
+            size="lg"
+            // className="w-12 h-12 lg:w-auto lg:h-auto lg:px-4"
             radius="full"
             isIconOnly
             aria-label="Refresh data"

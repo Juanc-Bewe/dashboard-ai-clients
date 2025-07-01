@@ -10,7 +10,6 @@ export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const { initializeFromUrl, getUrlParams } = useUrlSync();
 
-  const fetchEnterprises = useDashboardStore(state => state.fetchEnterprises);
   const isInitialized = useRef(false);
   // const skipNextUrlSync = useRef(false);
 
@@ -22,12 +21,9 @@ export const Dashboard: React.FC = () => {
 
       initializeFromUrl(searchParams);
 
-      // Load enterprises (which will also trigger initial data fetch)
-      fetchEnterprises();
-
       isInitialized.current = true;
     }
-  }, [initializeFromUrl, fetchEnterprises, location.search]);
+  }, [initializeFromUrl, location.search]);
 
   // Subscribe to filter changes and update URL
   useEffect(() => {

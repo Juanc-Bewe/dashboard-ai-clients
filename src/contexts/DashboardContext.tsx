@@ -55,7 +55,7 @@ const getInitialFilters = (): DashboardFilters => {
 interface DashboardStore extends DashboardState {
   // Actions
   fetchDashboardData: () => Promise<void>;
-  fetchEnterprises: () => Promise<void>;
+  setEnterprises: (enterprises: Array<{id: string, name: string}>) => void;
   updateFilters: (filters: Partial<DashboardFilters>) => void;
   setDateRange: (startDate: string, endDate: string) => void;
   setEnterpriseIds: (enterpriseIds: string[]) => void;
@@ -98,21 +98,24 @@ export const useDashboardStore = create<DashboardStore>()(
       }
     },
 
-    // Fetch enterprises
-    fetchEnterprises: async () => {
-      try {
-        console.log('Fetching enterprises...');
-        const enterprises = await dashboardService.fetchEnterprises();
-        console.log('Fetched enterprises:', enterprises);
-        set({ enterprises });
+    // Set enterprises from auth context
+    setEnterprises: (enterprises: Array<{id: string, name: string}>) => {
+      console.log('Setting enterprises:', enterprises);
+      set({ enterprises });
 
-        // Auto-fetch dashboard data if we have enterprises and this is the first load
-        const { data } = get();
-        if (!data && enterprises.length > 0) {
-          get().fetchDashboardData();
+      // If there's only one enterprise, auto-select it
+      if (enterprises.length === 1) {
+        const { filters } = get();
+        if (filters.enterpriseIds.length === 0) {
+          console.log('Auto-selecting single enterprise:', enterprises[0].id);
+          get().updateFilters({ enterpriseIds: [enterprises[0].id] });
         }
-      } catch (error) {
-        console.error('Failed to fetch enterprises:', error);
+      }
+
+      // Auto-fetch dashboard data if we have enterprises and this is the first load
+      const { data } = get();
+      if (!data && enterprises.length > 0) {
+        get().fetchDashboardData();
       }
     },
 
