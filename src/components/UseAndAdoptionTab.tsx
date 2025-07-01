@@ -94,11 +94,11 @@ export const UseAndAdoptionTab: React.FC = () => {
   // Prepare data for customer retention donut chart
   const customerRetentionData = React.useMemo(() => {
     if (!data?.currentPeriod?.metrics) return [];
-    
+
     const newClients = data.currentPeriod.metrics.totalNewClients || 0;
     const returningClients = data.currentPeriod.metrics.returningClients || 0;
     const totalUniqueClients = data.currentPeriod.metrics.totalUniqueClients || 0;
-    
+
     // Calculate returning monthly (total unique - new - returning weekly)
     const returningMonthly = Math.max(0, totalUniqueClients - newClients - returningClients);
 
@@ -112,10 +112,10 @@ export const UseAndAdoptionTab: React.FC = () => {
   // Prepare data for channel distribution donut chart
   const channelDistributionData = React.useMemo(() => {
     if (!data?.currentPeriod?.metrics?.channelDistribution) return [];
-    
+  
     const channels = data.currentPeriod.metrics.channelDistribution;
     const colors = ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6'];
-    
+
     return Object.entries(channels).map(([channel, data], index) => ({
       name: channel === 'web' ? 'Web' : 
             channel === 'twilio-whatsapp' ? 'WhatsApp' : 
@@ -139,7 +139,7 @@ export const UseAndAdoptionTab: React.FC = () => {
       textColor: 'text-white'
     },
     {
-      title: 'New Clients This Month',
+      title: 'New Clients',
       value: data?.currentPeriod?.metrics?.totalNewClients || 0,
       color: 'bg-gradient-to-br from-emerald-600 to-emerald-700',
       textColor: 'text-white'

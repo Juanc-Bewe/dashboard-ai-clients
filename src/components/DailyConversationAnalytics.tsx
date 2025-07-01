@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardBody } from '@heroui/react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import type { DashboardData } from '../types/dashboard';
+import { formatDateForChart, formatDateISO } from '../utils/dateHelpers';
 
 interface DailyConversationAnalyticsProps {
   data: DashboardData | null;
@@ -10,24 +11,51 @@ interface DailyConversationAnalyticsProps {
 export const DailyConversationAnalytics: React.FC<DailyConversationAnalyticsProps> = ({ data }) => {
   // Prepare data for conversations over time chart
   const conversationsChartData = React.useMemo(() => {
-    if (!data?.currentPeriod?.dailyMetrics) return [];
+    if (!data?.currentPeriod) {
+      return [];
+    }
     
-    return data.currentPeriod.dailyMetrics.map(metric => {
-      const totalConversations = metric.totalConversations || 0;
-      const conversationsWithIdentification = metric.conversationsWithIdentification || 0;
-      const conversationsWithoutIdentification = totalConversations - conversationsWithIdentification;
+    // Check if we have daily metrics in current period
+    if (data.currentPeriod.dailyMetrics && data.currentPeriod.dailyMetrics.length > 0) {
+      // Use existing daily metrics
+      return data.currentPeriod.dailyMetrics.map(metric => {
+        const totalConversations = metric.totalConversations || 0;
+        const conversationsWithIdentification = metric.conversationsWithIdentification || 0;
+        const conversationsWithoutIdentification = totalConversations - conversationsWithIdentification;
+        const identificationRate = totalConversations > 0 ? (conversationsWithIdentification / totalConversations) * 100 : 0;
+        
+        return {
+          date: formatDateForChart(metric.date),
+          fullDate: metric.date,
+          totalConversations,
+          conversationsWithIdentification,
+          conversationsWithoutIdentification,
+          identificationRate: Math.round(identificationRate * 10) / 10 // Round to 1 decimal
+        };
+      });
+    }
+    
+    // If no daily metrics, create data point for current day using current period metrics
+    if (data.currentPeriod.dateRange && data.currentPeriod.metrics) {
+      const currentDate = data.currentPeriod.dateRange.startDate;
+      const metrics = data.currentPeriod.metrics;
+      
+      const totalConversations = metrics.totalConversations || 0;
+      const conversationsWithIdentification = metrics.totalConversationsWithIdentification || 0;
       const identificationRate = totalConversations > 0 ? (conversationsWithIdentification / totalConversations) * 100 : 0;
       
-      return {
-        date: new Date(metric.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-        fullDate: metric.date,
+      return [{
+        date: formatDateForChart(currentDate),
+        fullDate: formatDateISO(currentDate),
         totalConversations,
         conversationsWithIdentification,
-        conversationsWithoutIdentification,
-        identificationRate: Math.round(identificationRate * 10) / 10 // Round to 1 decimal
-      };
-    });
-  }, [data?.currentPeriod?.dailyMetrics]);
+        conversationsWithoutIdentification: totalConversations - conversationsWithIdentification,
+        identificationRate: Math.round(identificationRate * 10) / 10
+      }];
+    }
+    
+    return [];
+  }, [data?.currentPeriod]);
 
   return (
     <Card className="rounded-2xl lg:col-span-2">

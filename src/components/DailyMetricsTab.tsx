@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardBody, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Skeleton } from '@heroui/react';
 import { useDashboardStore } from '../contexts/DashboardContext';
 import type { DailyMetric } from '../types/dashboard';
+import { formatDateForTable } from '../utils/dateHelpers';
 
 const DailyMetricsTabSkeleton: React.FC = () => {
   const skeletonRows = Array.from({ length: 5 }, (_, i) => i);
@@ -54,14 +55,6 @@ export const DailyMetricsTab: React.FC = () => {
     return <DailyMetricsTabSkeleton />;
   }
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    });
-  };
-
   const formatDuration = (seconds: number) => {
     return `${Math.round(seconds)}s`;
   };
@@ -84,7 +77,7 @@ export const DailyMetricsTab: React.FC = () => {
   const renderCell = (item: DailyMetric, columnKey: string) => {
     switch (columnKey) {
       case 'date':
-        return formatDate(item.date);
+        return formatDateForTable(item.date);
       case 'resolutionRate':
         return formatPercentage(item.resolutionRate);
       case 'medianConversationDuration':
