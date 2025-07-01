@@ -50,29 +50,28 @@ const MetricCard: React.FC<MetricCardProps> = ({
 
   const change = calculateChange();
   const isPositive = change && change.startsWith('+');
-  const isNegative = change && !change.startsWith('+') && change !== '0%';
 
   const getChangeColor = () => {
     if (!change || change === '0%') return 'text-gray-600 dark:text-gray-400';
-    
+
     if (invertColors) {
       return isPositive 
-        ? 'text-red-600 dark:text-red-400' 
+        ? 'text-red-600 dark:text-red-400'
         : 'text-green-600 dark:text-green-400';
     } else {
-      return isPositive 
-        ? 'text-green-600 dark:text-green-400' 
+      return isPositive
+        ? 'text-green-600 dark:text-green-400'
         : 'text-red-600 dark:text-red-400';
     }
   };
 
   const getTrendIcon = () => {
     if (!change || change === '0%') return null;
-    
+
     const iconClass = "h-4 w-4";
     const colorClass = getChangeColor();
-    
-    return isPositive 
+
+    return isPositive
       ? <TrendingUp className={`${iconClass} ${colorClass}`} />
       : <TrendingDown className={`${iconClass} ${colorClass}`} />;
   };
