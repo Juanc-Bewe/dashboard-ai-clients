@@ -83,6 +83,7 @@ export const UserFeelingTab: React.FC = () => {
                     color={feelingColors[key as keyof typeof feelingColors]}
                     size="sm"
                     className="w-full"
+                    aria-label={`${feelingLabels[key as keyof UserFeelingDistribution]}: ${count} conversations (${percentage.toFixed(1)}%)`}
                   />
                 </div>
               );
