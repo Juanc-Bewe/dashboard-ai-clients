@@ -3,7 +3,7 @@ import type { DashboardApiResponse, DashboardFilters, Enterprise } from '../type
 
 // API configuration
 const API_BASE_URL = 'https://lindabackendqa.bewe.co';
-const API_PIN = '1234';
+const API_PIN = 'A3B5K9';
 
 // Create axios instance with default config
 const apiClient = axios.create({
@@ -201,57 +201,94 @@ export const mockDashboardData: DashboardApiResponse = {
         endDate: "2025-06-09T23:59:59.999Z"
       },
       metrics: {
-        totalConversations: 0,
-        totalAccountsWithConversations: 0,
-        totalConversationsWithIdentification: 0,
-        totalNewClients: 0,
-        customerRetentionPercentage: 0,
-        returningClients: 0,
-        totalUniqueClients: 0,
-        identificationPercentage: 0,
-        medianMessagesPerConversation: 0,
-        medianConversationDuration: 0,
-        resolutionRate: 0,
-        adjustedResolutionRate: 0,
-        medianUserFeeling: 0,
+        totalConversations: 729,
+        totalAccountsWithConversations: 238,
+        totalConversationsWithIdentification: 235,
+        totalNewClients: 198,
+        customerRetentionPercentage: 6.2,
+        returningClients: 15,
+        totalUniqueClients: 213,
+        identificationPercentage: 32.2,
+        medianMessagesPerConversation: 2,
+        medianConversationDuration: 85,
+        resolutionRate: 15.8,
+        adjustedResolutionRate: 84.5,
+        medianUserFeeling: 2.0,
         userFeelingDistribution: {
           "1": {
-            count: 0,
-            percentage: 0
+            count: 8,
+            percentage: 1.1
           },
           "2": {
-            count: 0,
-            percentage: 0
+            count: 680,
+            percentage: 93.3
           },
           "3": {
-            count: 0,
-            percentage: 0
+            count: 41,
+            percentage: 5.6
           }
         },
-        errorRate: 0,
-        totalSpam: 0,
-        channelDistribution: {},
+        errorRate: 1.6,
+        totalSpam: 28,
+        channelDistribution: {
+          "web": {
+            count: 720,
+            percentage: 98.8
+          },
+          "twilio-whatsapp": {
+            count: 9,
+            percentage: 1.2
+          }
+        },
         peakUsageHours: {
-          "0": 0, "1": 0, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0, "8": 0, "9": 0, "10": 0, "11": 0, "12": 0, "13": 0, "14": 0, "15": 0, "16": 0, "17": 0, "18": 0, "19": 0, "20": 0, "21": 0, "22": 0, "23": 0
+          "0": 12, "1": 2, "2": 4, "3": 4, "4": 4, "5": 5, "6": 16, "7": 23, "8": 33, "9": 51, "10": 44, "11": 55, "12": 58, "13": 46, "14": 55, "15": 42, "16": 49, "17": 46, "18": 33, "19": 36, "20": 26, "21": 22, "22": 20, "23": 14
         },
         weekdayDistribution: {
-          "0": 0, "1": 0, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0
+          "0": 76, "1": 57, "2": 67, "3": 101, "4": 124, "5": 159, "6": 113
         }
       },
       dailyMetrics: [
         {
           date: "2025-05-21",
-          totalConversations: 0,
-          conversationsWithIdentification: 0,
-          newClients: 0,
-          medianMessagesPerConversation: 0,
-          medianConversationDuration: 0,
-          resolutionRate: 0,
-          adjustedResolutionRate: 0,
-          medianUserFeeling: 0,
-          errorRate: 0,
-          spamCount: 0,
-          peakUsageHours: { "0": 0, "1": 0, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0, "8": 0, "9": 0, "10": 0, "11": 0, "12": 0, "13": 0, "14": 0, "15": 0, "16": 0, "17": 0, "18": 0, "19": 0, "20": 0, "21": 0, "22": 0, "23": 0 }
+          totalConversations: 89,
+          conversationsWithIdentification: 28,
+          newClients: 24,
+          medianMessagesPerConversation: 2,
+          medianConversationDuration: 82,
+          resolutionRate: 14.6,
+          adjustedResolutionRate: 83.1,
+          medianUserFeeling: 2,
+          errorRate: 2.2,
+          spamCount: 3,
+          peakUsageHours: { "0": 1, "1": 0, "2": 0, "3": 0, "4": 0, "5": 1, "6": 1, "7": 2, "8": 6, "9": 8, "10": 9, "11": 12, "12": 8, "13": 5, "14": 7, "15": 6, "16": 8, "17": 7, "18": 3, "19": 4, "20": 2, "21": 1, "22": 2, "23": 1 }
+        },
+        {
+          date: "2025-05-22",
+          totalConversations: 95,
+          conversationsWithIdentification: 31,
+          newClients: 28,
+          medianMessagesPerConversation: 2,
+          medianConversationDuration: 88,
+          resolutionRate: 15.8,
+          adjustedResolutionRate: 84.2,
+          medianUserFeeling: 2,
+          errorRate: 1.1,
+          spamCount: 2,
+          peakUsageHours: { "0": 1, "1": 0, "2": 0, "3": 0, "4": 0, "5": 1, "6": 2, "7": 3, "8": 5, "9": 7, "10": 8, "11": 9, "12": 11, "13": 9, "14": 8, "15": 7, "16": 6, "17": 5, "18": 4, "19": 3, "20": 2, "21": 1, "22": 1, "23": 0 }
+        },
+        {
+          date: "2025-05-23",
+          totalConversations: 112,
+          conversationsWithIdentification: 36,
+          newClients: 32,
+          medianMessagesPerConversation: 2,
+          medianConversationDuration: 76,
+          resolutionRate: 16.1,
+          adjustedResolutionRate: 85.7,
+          medianUserFeeling: 2,
+          errorRate: 0.9,
+          spamCount: 4,
+          peakUsageHours: { "0": 2, "1": 0, "2": 1, "3": 0, "4": 1, "5": 2, "6": 3, "7": 4, "8": 7, "9": 9, "10": 12, "11": 14, "12": 13, "13": 11, "14": 10, "15": 8, "16": 7, "17": 6, "18": 5, "19": 4, "20": 3, "21": 2, "22": 1, "23": 1 }
         }
       ]
     }
