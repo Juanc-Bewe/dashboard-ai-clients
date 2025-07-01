@@ -1,9 +1,10 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
+import { dashboardService } from '../services/dashboardService';
 
 interface AuthContextType {
   isAuthenticated: boolean;
-  token: string | null;
+  pin: string | null;
   login: (pin: string) => Promise<boolean>;
   logout: () => void;
   loading: boolean;
@@ -16,7 +17,7 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-const TOKEN_KEY = 'dashboard_jwt_token';
+const PIN_KEY = 'dashboard_analytics_pin';
 
 // Cookie utility functions
 const setCookie = (name: string, value: string, hours: number) => {
@@ -41,63 +42,37 @@ const removeCookie = (name: string) => {
 };
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [token, setToken] = useState<string | null>(null);
+  const [pin, setPin] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  const isAuthenticated = !!token;
+  const isAuthenticated = !!pin;
 
-  // Check for existing token on mount
+  // Check for existing PIN on mount
   useEffect(() => {
-    const savedToken = getCookie(TOKEN_KEY);
-    if (savedToken) {
-      setToken(savedToken);
+    const savedPin = getCookie(PIN_KEY);
+    if (savedPin) {
+      setPin(savedPin);
     }
     setLoading(false);
   }, []);
 
-  const login = async (pin: string): Promise<boolean> => {
+  const login = async (inputPin: string): Promise<boolean> => {
     try {
       setLoading(true);
-      
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Mock authentication - replace with your actual endpoint
-      // For demo: PIN "1234" will work
-      if (pin == 'A3B5K9') {
-        const mockJwt = 'mock-jwt-token-' + Date.now();
-        
-        // Save token to cookie with 12-hour expiration
-        setCookie(TOKEN_KEY, mockJwt, 12);
-        setToken(mockJwt);
-        return true;
-      }
-      
-      return false;
-      
-      /* 
-      // Uncomment this when your API is ready:
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ pin }),
-      });
 
-      if (response.ok) {
-        const data = await response.json();
-        const jwt = data.token;
-        
-        // Save token to cookie with 12-hour expiration
-        setCookie(TOKEN_KEY, jwt, 12);
-        setToken(jwt);
+      // Validate PIN against the API
+      const isValid = await dashboardService.validatePin(inputPin);
+
+      if (isValid) {
+        // Save PIN to cookie with 12-hour expiration
+        console.log('saving pin to cookie', inputPin);
+        setCookie(PIN_KEY, inputPin, 12);
+        setPin(inputPin);
         return true;
       }
-      
+
       return false;
-      */
     } catch (error) {
       console.error('Login error:', error);
       return false;
@@ -106,11 +81,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-    const logout = () => {
+  const logout = () => {
     setIsLoggingOut(true);
-    removeCookie(TOKEN_KEY);
-    setToken(null);
-    
+    removeCookie(PIN_KEY);
+    setPin(null);
+
     // Navigate to login page without preserving any state or search parameters
     // This ensures a clean logout that doesn't remember previous URL parameters
     window.location.href = '/login';
@@ -118,7 +93,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const value: AuthContextType = {
     isAuthenticated,
-    token,
+    pin,
     login,
     logout,
     loading,

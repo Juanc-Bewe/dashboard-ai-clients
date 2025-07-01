@@ -4,15 +4,42 @@ import dashboardMetrics from '../mocks/dashboardMetrics';
 
 // API configuration
 const API_BASE_URL = 'https://lindabackendqa.bewe.co';
-const API_PIN = 'A3B5K9';
+const PIN_KEY = 'dashboard_analytics_pin';
+
+// Cookie utility function
+const getCookie = (name: string): string | null => {
+  const nameEQ = name + "=";
+  const ca = document.cookie.split(';');
+  for (let i = 0; i < ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+    if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+  }
+  return null;
+};
+
+// Function to get current PIN from cookie
+const getCurrentPin = (): string | null => {
+  return getCookie(PIN_KEY);
+};
 
 // Create axios instance with default config
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
-    'accept': 'application/json',
-    'x-analytics-pin': API_PIN
+    'accept': 'application/json'
   }
+});
+
+// Add request interceptor to dynamically add the PIN header
+apiClient.interceptors.request.use((config) => {
+  const pin = getCurrentPin();
+  if (pin) {
+    config.headers['x-analytics-pin'] = pin;
+  }
+  return config;
+}, (error) => {
+  return Promise.reject(error);
 });
 
 // Mock enterprises data
@@ -37,9 +64,30 @@ const getBrowserTimezoneOffset = (): number => {
 
 // API service functions
 export const dashboardService = {
+  // Validate PIN against API
+  async validatePin(pin: string): Promise<boolean> {
+    try {
+      const response = await apiClient.post('/lite/v1/analytics/auth', {
+        pin: pin
+      });
+
+      // If we get a successful response, the PIN is valid
+      return response.status === 201;
+    } catch (error) {
+      console.error('Error validating PIN:', error);
+      return false;
+    }
+  },
+
   // Fetch dashboard data from real API
   async fetchDashboardData(filters: DashboardFilters): Promise<DashboardApiResponse> {
     try {
+      // Check if PIN is available
+      const pin = getCurrentPin();
+      if (!pin) {
+        throw new Error('Authentication PIN not found. Please log in again.');
+      }
+
       // Build params object, only including values that have content
       const params: Record<string, string | number> = {};
 
