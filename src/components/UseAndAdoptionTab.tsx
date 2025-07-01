@@ -198,6 +198,20 @@ export const UseAndAdoptionTab: React.FC = () => {
                 <div className="relative h-64 flex items-center justify-center mb-6">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
+                      <defs>
+                        <linearGradient id="gradientNewClients" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#22c55e" stopOpacity={0.9}/>
+                          <stop offset="95%" stopColor="#22c55e" stopOpacity={0.3}/>
+                        </linearGradient>
+                        <linearGradient id="gradientReturningWeekly" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.9}/>
+                          <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.3}/>
+                        </linearGradient>
+                        <linearGradient id="gradientReturningMonthly" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.9}/>
+                          <stop offset="95%" stopColor="#f59e0b" stopOpacity={0.3}/>
+                        </linearGradient>
+                      </defs>
                       <Pie
                         data={customerRetentionData}
                         cx="50%"
@@ -208,9 +222,14 @@ export const UseAndAdoptionTab: React.FC = () => {
                         dataKey="value"
                         cornerRadius={3}
                       >
-                        {customerRetentionData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
+                        {customerRetentionData.map((entry, index) => {
+                          const gradientId = entry.name === 'New Clients' ? 'gradientNewClients' :
+                                           entry.name === 'Returning Weekly' ? 'gradientReturningWeekly' :
+                                           'gradientReturningMonthly';
+                          return (
+                            <Cell key={`cell-${index}`} fill={`url(#${gradientId})`} />
+                          );
+                        })}
                       </Pie>
                     </PieChart>
                   </ResponsiveContainer>
@@ -227,24 +246,24 @@ export const UseAndAdoptionTab: React.FC = () => {
                 </div>
 
                 {/* Enhanced Legend with Stats */}
-                <div className="space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-2">
                   {customerRetentionData.map((entry, index) => {
                     const total = customerRetentionData.reduce((sum, item) => sum + item.value, 0);
                     const percentage = total > 0 ? Math.round((entry.value / total) * 100) : 0;
 
                     return (
-                      <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-                        <div className="flex items-center gap-3">
+                      <div key={index} className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                        <div className="flex items-center gap-2">
                           <div 
-                            className="w-4 h-4 rounded-full shadow-sm" 
+                            className="w-3 h-3 rounded-full shadow-sm flex-shrink-0" 
                             style={{ backgroundColor: entry.color }}
                           ></div>
-                          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                          <span className="text-xs font-medium text-gray-700 dark:text-gray-300 truncate">
                             {entry.name}
                           </span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                        <div className="flex items-center gap-1 ml-2">
+                          <span className="text-xs font-bold text-gray-900 dark:text-gray-100">
                             {entry.value.toLocaleString()}
                           </span>
                           <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
@@ -269,6 +288,28 @@ export const UseAndAdoptionTab: React.FC = () => {
                 <div className="relative h-64 flex items-center justify-center mb-6">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
+                      <defs>
+                        <linearGradient id="gradientChannel0" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.9}/>
+                          <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.3}/>
+                        </linearGradient>
+                        <linearGradient id="gradientChannel1" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#22c55e" stopOpacity={0.9}/>
+                          <stop offset="95%" stopColor="#22c55e" stopOpacity={0.3}/>
+                        </linearGradient>
+                        <linearGradient id="gradientChannel2" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.9}/>
+                          <stop offset="95%" stopColor="#f59e0b" stopOpacity={0.3}/>
+                        </linearGradient>
+                        <linearGradient id="gradientChannel3" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#ef4444" stopOpacity={0.9}/>
+                          <stop offset="95%" stopColor="#ef4444" stopOpacity={0.3}/>
+                        </linearGradient>
+                        <linearGradient id="gradientChannel4" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.9}/>
+                          <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.3}/>
+                        </linearGradient>
+                      </defs>
                       <Pie
                         data={channelDistributionData}
                         cx="50%"
@@ -279,9 +320,12 @@ export const UseAndAdoptionTab: React.FC = () => {
                         dataKey="value"
                         cornerRadius={3}
                       >
-                        {channelDistributionData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
+                        {channelDistributionData.map((entry, index) => {
+                          const gradientIndex = index % 5; // Since we have 5 gradients
+                          return (
+                            <Cell key={`cell-${index}`} fill={`url(#gradientChannel${gradientIndex})`} />
+                          );
+                        })}
                       </Pie>
                       <Tooltip 
                         formatter={(value: number) => [value.toLocaleString(), 'Conversations']}
@@ -302,24 +346,24 @@ export const UseAndAdoptionTab: React.FC = () => {
                 </div>
 
                 {/* Enhanced Legend with Stats */}
-                <div className="space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-2">
                   {channelDistributionData.map((entry, index) => {
                     const total = channelDistributionData.reduce((sum, item) => sum + item.value, 0);
                     const percentage = total > 0 ? Math.round((entry.value / total) * 100) : 0;
 
                     return (
-                      <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-                        <div className="flex items-center gap-3">
+                      <div key={index} className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                        <div className="flex items-center gap-2">
                           <div 
-                            className="w-4 h-4 rounded-full shadow-sm" 
+                            className="w-3 h-3 rounded-full shadow-sm flex-shrink-0" 
                             style={{ backgroundColor: entry.color }}
                           ></div>
-                          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                          <span className="text-xs font-medium text-gray-700 dark:text-gray-300 truncate">
                             {entry.name}
                           </span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                        <div className="flex items-center gap-1 ml-2">
+                          <span className="text-xs font-bold text-gray-900 dark:text-gray-100">
                             {entry.value.toLocaleString()}
                           </span>
                           <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
