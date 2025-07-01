@@ -53,6 +53,7 @@ export const Login: React.FC = () => {
             description="Enter your 4-digit access code"
             allowedKeys="^[0-9]*$"
             autoFocus
+            type="password"
           />
 
           {loading && (
