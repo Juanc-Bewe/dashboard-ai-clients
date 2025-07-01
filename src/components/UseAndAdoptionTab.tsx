@@ -91,8 +91,6 @@ export const UseAndAdoptionTab: React.FC = () => {
   const data = useDashboardStore(state => state.data);
   const loading = useDashboardStore(state => state.loading);
 
-
-
   // Prepare data for customer retention donut chart
   const customerRetentionData = React.useMemo(() => {
     if (!data?.currentPeriod?.metrics) return [];
@@ -111,7 +109,21 @@ export const UseAndAdoptionTab: React.FC = () => {
     ].filter(item => item.value > 0);
   }, [data?.currentPeriod?.metrics]);
 
-
+  // Prepare data for channel distribution donut chart
+  const channelDistributionData = React.useMemo(() => {
+    if (!data?.currentPeriod?.metrics?.channelDistribution) return [];
+    
+    const channels = data.currentPeriod.metrics.channelDistribution;
+    const colors = ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6'];
+    
+    return Object.entries(channels).map(([channel, data], index) => ({
+      name: channel === 'web' ? 'Web' : 
+            channel === 'twilio-whatsapp' ? 'WhatsApp' : 
+            channel.charAt(0).toUpperCase() + channel.slice(1),
+      value: data.count,
+      color: colors[index % colors.length]
+    })).filter(item => item.value > 0);
+  }, [data?.currentPeriod?.metrics?.channelDistribution]);
 
   // Show skeleton while loading (after all hooks are called)
   if (loading) {
@@ -169,80 +181,158 @@ export const UseAndAdoptionTab: React.FC = () => {
         </h2>
 
         {/* Charts Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          {/* Daily Conversation Analytics */}
+        <div className="space-y-6 mb-8">
+          {/* Daily Conversation Analytics - Full Width */}
           <DailyConversationAnalytics data={data} />
 
-          {/* Customer Retention */}
-          <Card className="rounded-2xl lg:col-span-1 border-0">
-            <CardBody className="p-6">
-              <h3 className="text-lg font-semibold mb-6">
-                Customer Retention
-              </h3>
+          {/* Customer Retention and Channel Distribution Row */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Customer Retention */}
+            <Card className="rounded-2xl border-0">
+              <CardBody className="p-6">
+                <h3 className="text-lg font-semibold mb-6">
+                  Customer Retention
+                </h3>
 
-              {/* Chart Container */}
-              <div className="relative h-64 flex items-center justify-center mb-6">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={customerRetentionData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={65}
-                      outerRadius={100}
-                      paddingAngle={2}
-                      dataKey="value"
-                      cornerRadius={3}
-                    >
-                      {customerRetentionData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                  </PieChart>
-                </ResponsiveContainer>
+                {/* Chart Container */}
+                <div className="relative h-64 flex items-center justify-center mb-6">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={customerRetentionData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={65}
+                        outerRadius={100}
+                        paddingAngle={2}
+                        dataKey="value"
+                        cornerRadius={3}
+                      >
+                        {customerRetentionData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                    </PieChart>
+                  </ResponsiveContainer>
 
-                {/* Center Total */}
-                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <div className="text-2xl font-bold">
-                    {customerRetentionData.reduce((sum, item) => sum + item.value, 0).toLocaleString()}
-                  </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 font-medium">
-                    Total Clients
+                  {/* Center Total */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                    <div className="text-2xl font-bold">
+                      {customerRetentionData.reduce((sum, item) => sum + item.value, 0).toLocaleString()}
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                      Total Clients
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Enhanced Legend with Stats */}
-              <div className="space-y-3">
-                {customerRetentionData.map((entry, index) => {
-                  const total = customerRetentionData.reduce((sum, item) => sum + item.value, 0);
-                  const percentage = total > 0 ? Math.round((entry.value / total) * 100) : 0;
+                {/* Enhanced Legend with Stats */}
+                <div className="space-y-3">
+                  {customerRetentionData.map((entry, index) => {
+                    const total = customerRetentionData.reduce((sum, item) => sum + item.value, 0);
+                    const percentage = total > 0 ? Math.round((entry.value / total) * 100) : 0;
 
-                  return (
-                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div 
-                          className="w-4 h-4 rounded-full shadow-sm" 
-                          style={{ backgroundColor: entry.color }}
-                        ></div>
-                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                          {entry.name}
-                        </span>
+                    return (
+                      <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div 
+                            className="w-4 h-4 rounded-full shadow-sm" 
+                            style={{ backgroundColor: entry.color }}
+                          ></div>
+                          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            {entry.name}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                            {entry.value.toLocaleString()}
+                          </span>
+                          <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                            ({percentage}%)
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                          {entry.value.toLocaleString()}
-                        </span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
-                          ({percentage}%)
-                        </span>
-                      </div>
+                    );
+                  })}
+                </div>
+              </CardBody>
+            </Card>
+
+            {/* Channel Distribution */}
+            <Card className="rounded-2xl border-0">
+              <CardBody className="p-6">
+                <h3 className="text-lg font-semibold mb-6">
+                  Channel Distribution
+                </h3>
+
+                {/* Chart Container */}
+                <div className="relative h-64 flex items-center justify-center mb-6">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={channelDistributionData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={65}
+                        outerRadius={100}
+                        paddingAngle={2}
+                        dataKey="value"
+                        cornerRadius={3}
+                      >
+                        {channelDistributionData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip 
+                        formatter={(value: number) => [value.toLocaleString(), 'Conversations']}
+                        labelStyle={{ color: '#374151' }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+
+                  {/* Center Total */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                    <div className="text-2xl font-bold">
+                      {channelDistributionData.reduce((sum, item) => sum + item.value, 0).toLocaleString()}
                     </div>
-                  );
-                })}
-              </div>
-            </CardBody>
-          </Card>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                      Total Conversations
+                    </div>
+                  </div>
+                </div>
+
+                {/* Enhanced Legend with Stats */}
+                <div className="space-y-3">
+                  {channelDistributionData.map((entry, index) => {
+                    const total = channelDistributionData.reduce((sum, item) => sum + item.value, 0);
+                    const percentage = total > 0 ? Math.round((entry.value / total) * 100) : 0;
+
+                    return (
+                      <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div 
+                            className="w-4 h-4 rounded-full shadow-sm" 
+                            style={{ backgroundColor: entry.color }}
+                          ></div>
+                          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            {entry.name}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                            {entry.value.toLocaleString()}
+                          </span>
+                          <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                            ({percentage}%)
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardBody>
+            </Card>
+          </div>
         </div>
 
         {/* Peak Usage Hours Chart */}
