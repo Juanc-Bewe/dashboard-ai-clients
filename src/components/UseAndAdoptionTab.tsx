@@ -1,7 +1,9 @@
 import React from 'react';
 import { Card, CardBody, Skeleton } from '@heroui/react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts';
 import { useDashboardStore } from '../contexts/DashboardContext';
+import { DailyConversationAnalytics } from './DailyConversationAnalytics';
+import { PeakUsageHours } from './PeakUsageHours';
 
 const UseAndAdoptionSkeleton: React.FC = () => {
   return (
@@ -11,12 +13,23 @@ const UseAndAdoptionSkeleton: React.FC = () => {
 
         {/* Charts Row Skeleton */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          {/* Bar Chart Skeleton */}
+          {/* Area Chart Skeleton */}
           <Card className="rounded-2xl lg:col-span-2">
             <CardBody className="p-6">
-              <Skeleton className="h-6 w-48 mb-4 rounded-lg" />
+              <Skeleton className="h-6 w-56 mb-4 rounded-lg" />
               <div className="h-80 flex items-center justify-center">
                 <Skeleton className="h-full w-full rounded-lg" />
+              </div>
+              {/* Insights Skeleton */}
+              <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  {Array.from({ length: 4 }, (_, index) => (
+                    <div key={index} className="text-center">
+                      <Skeleton className="h-4 w-20 mb-2 mx-auto rounded-md" />
+                      <Skeleton className="h-6 w-16 mx-auto rounded-lg" />
+                    </div>
+                  ))}
+                </div>
               </div>
             </CardBody>
           </Card>
@@ -36,6 +49,18 @@ const UseAndAdoptionSkeleton: React.FC = () => {
                     <Skeleton className="h-4 w-20 rounded-md" />
                   </div>
                 ))}
+              </div>
+            </CardBody>
+          </Card>
+        </div>
+
+        {/* Peak Usage Hours Chart Skeleton */}
+        <div className="mb-8">
+          <Card className="rounded-2xl">
+            <CardBody className="p-6">
+              <Skeleton className="h-6 w-56 mb-4 rounded-lg" />
+              <div className="h-80 flex items-center justify-center">
+                <Skeleton className="h-full w-full rounded-lg" />
               </div>
             </CardBody>
           </Card>
@@ -66,12 +91,7 @@ export const UseAndAdoptionTab: React.FC = () => {
   const data = useDashboardStore(state => state.data);
   const loading = useDashboardStore(state => state.loading);
 
-  // Prepare data for conversations over time chart
-  const conversationsChartData = data?.currentPeriod?.dailyMetrics?.map(metric => ({
-    date: new Date(metric.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-    totalConversations: metric.totalConversations,
-    conversationsWithIdentification: metric.conversationsWithIdentification
-  })) || [];
+
 
   // Prepare data for customer retention donut chart
   const customerRetentionData = React.useMemo(() => {
@@ -91,6 +111,8 @@ export const UseAndAdoptionTab: React.FC = () => {
     ].filter(item => item.value > 0);
   }, [data?.currentPeriod?.metrics]);
 
+
+
   // Show skeleton while loading (after all hooks are called)
   if (loading) {
     return <UseAndAdoptionSkeleton />;
@@ -101,25 +123,25 @@ export const UseAndAdoptionTab: React.FC = () => {
     {
       title: 'Identification Rate',
       value: `${data?.currentPeriod?.metrics?.identificationPercentage || 0}%`,
-      color: 'bg-blue-500',
+      color: 'bg-gradient-to-br from-blue-600 to-blue-700',
       textColor: 'text-white'
     },
     {
       title: 'New Clients This Month',
       value: data?.currentPeriod?.metrics?.totalNewClients || 0,
-      color: 'bg-green-500',
+      color: 'bg-gradient-to-br from-emerald-600 to-emerald-700',
       textColor: 'text-white'
     },
     {
       title: 'Total Accounts Active',
       value: data?.currentPeriod?.metrics?.totalAccountsWithConversations || 0,
-      color: 'bg-purple-500',
+      color: 'bg-gradient-to-br from-violet-600 to-violet-700',
       textColor: 'text-white'
     },
     {
       title: 'Resolution Rate',
-      value: `${data?.currentPeriod?.metrics?.resolutionRate || 0}%`,
-      color: 'bg-emerald-500',
+      value: `${data?.currentPeriod?.metrics?.adjustedResolutionRate || 0}%`,
+      color: 'bg-gradient-to-br from-green-600 to-green-700',
       textColor: 'text-white'
     },
     {
@@ -127,13 +149,13 @@ export const UseAndAdoptionTab: React.FC = () => {
       value: data?.currentPeriod?.metrics?.medianConversationDuration 
         ? `${Math.floor((data.currentPeriod.metrics.medianConversationDuration || 0) / 60)}m ${Math.round((data.currentPeriod.metrics.medianConversationDuration || 0) % 60)}s`
         : '0s',
-      color: 'bg-orange-500',
+      color: 'bg-gradient-to-br from-amber-600 to-orange-600',
       textColor: 'text-white'
     },
     {
       title: 'Total Conversations',
       value: data?.currentPeriod?.metrics?.totalConversations || 0,
-      color: 'bg-cyan-500',
+      color: 'bg-gradient-to-br from-cyan-600 to-blue-600',
       textColor: 'text-white'
     }
   ];
@@ -148,41 +170,8 @@ export const UseAndAdoptionTab: React.FC = () => {
 
         {/* Charts Row */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          {/* Conversations Over Time */}
-          <Card className="rounded-2xl lg:col-span-2">
-            <CardBody className="p-6">
-              <h3 className="text-lg font-semibold mb-4">
-                Conversations By Day
-              </h3>
-              <div className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={conversationsChartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <Tooltip 
-                      contentStyle={{
-                        border: 'none',
-                        borderRadius: '12px',
-                      }}
-                    />
-                    <Bar
-                      dataKey="totalConversations"
-                      fill="#3b82f6"
-                      name="Total Conversations"
-                      radius={[4, 4, 0, 0]}
-                    />
-                    <Bar
-                      dataKey="conversationsWithIdentification"
-                      fill="#22c55e"
-                      name="With Identification"
-                      radius={[4, 4, 0, 0]}
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </CardBody>
-          </Card>
+          {/* Daily Conversation Analytics */}
+          <DailyConversationAnalytics data={data} />
 
           {/* Customer Retention */}
           <Card className="rounded-2xl lg:col-span-1">
@@ -234,6 +223,11 @@ export const UseAndAdoptionTab: React.FC = () => {
           </Card>
         </div>
 
+        {/* Peak Usage Hours Chart */}
+        <div className="mb-8">
+          <PeakUsageHours data={data} />
+        </div>
+
         {/* KPI Cards */}
         <div>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
@@ -242,12 +236,12 @@ export const UseAndAdoptionTab: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {kpiCards.map((card, index) => (
               <Card key={index} className={`${card.color} ${card.textColor} rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300`}>
-                <CardBody className="p-6">
+                <CardBody className="p-4">
                   <div className="text-center">
-                    <p className="text-sm font-medium opacity-90 mb-2">
+                    <p className="text-xs font-medium opacity-90 mb-1">
                       {card.title}
                     </p>
-                    <p className="text-3xl font-bold">
+                    <p className="text-2xl font-bold">
                       {typeof card.value === 'number' ? card.value.toLocaleString() : card.value}
                     </p>
                   </div>
