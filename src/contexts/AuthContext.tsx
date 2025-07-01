@@ -41,7 +41,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       // Mock authentication - replace with your actual endpoint
       // For demo: PIN "1234" will work
-      if (pin === '1234') {
+      if (pin == '9796') {
         const mockJwt = 'mock-jwt-token-' + Date.now();
         
         // Save token to localStorage
