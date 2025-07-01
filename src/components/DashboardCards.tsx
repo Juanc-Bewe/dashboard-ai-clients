@@ -27,11 +27,11 @@ const MetricCard: React.FC<MetricCardProps> = ({
 
     switch (type) {
       case 'percentage':
-        return `${val.toFixed(1)}%`;
+        return `${val.toFixed()}%`;
       case 'duration':
         return `${Math.round(val)}s`;
       case 'decimal':
-        return val.toFixed(1);
+        return val.toFixed(4);
       default:
         return val.toLocaleString();
     }
@@ -149,8 +149,8 @@ export const DashboardCards: React.FC = () => {
     {
       title: "Cost/Conv",
       tooltip: "Average cost per conversation based on AI usage and operational expenses",
-      value: 0.5, // TODO: Implement average cost per conversation calculation
-      previousValue: 0.47, // TODO: Implement previous period average cost per conversation
+      value: metrics?.averageTotalCostPerConversation ?? 0,
+      previousValue: previousMetrics?.averageTotalCostPerConversation,
       format: 'decimal' as const,
       invertColors: true,
     },

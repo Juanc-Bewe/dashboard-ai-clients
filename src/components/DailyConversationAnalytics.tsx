@@ -37,7 +37,7 @@ export const DailyConversationAnalytics: React.FC<DailyConversationAnalyticsProp
         </h3>
         <div className="h-80">
           <ResponsiveContainer width="100%" height="100%" className="overflow-hidden">
-            <AreaChart data={conversationsChartData} margin={{ top: 20, right: 30, left: 20, bottom: 30 }}>
+            <AreaChart data={conversationsChartData} margin={{ top: 20, right: 30, left:0, bottom: 30 }}>
               <defs>
                 <linearGradient id="totalGradient" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
@@ -59,7 +59,6 @@ export const DailyConversationAnalytics: React.FC<DailyConversationAnalyticsProp
                 fontSize={12}
                 tickLine={false}
                 axisLine={false}
-                label={{ value: 'Conversations', angle: -90, position: 'insideLeft' }}
               />
               <Tooltip 
                 contentStyle={{
@@ -104,7 +103,7 @@ export const DailyConversationAnalytics: React.FC<DailyConversationAnalyticsProp
             </AreaChart>
           </ResponsiveContainer>
         </div>
-        
+
         {/* Daily Analytics Insights */}
         <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">

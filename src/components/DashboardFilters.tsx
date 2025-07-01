@@ -16,6 +16,8 @@ export const DashboardFilters: React.FC = () => {
 
   // State to track selected shortcut
   const [selectedShortcut, setSelectedShortcut] = React.useState<Set<string>>(new Set());
+  // State to track range validation
+  const [isRangeInvalid, setIsRangeInvalid] = React.useState(false);
 
   console.log('DashboardFilters - enterprises:', enterprises);
 
@@ -33,9 +35,25 @@ export const DashboardFilters: React.FC = () => {
 
   const handleDateRangeChange = (value: DateRangeValue | null) => {
     if (value) {
-      setDateRange(value.start.toString(), value.end.toString());
+      // Calculate the difference in days
+      const startDate = new Date(value.start.toString());
+      const endDate = new Date(value.end.toString());
+      const diffInTime = endDate.getTime() - startDate.getTime();
+      const diffInDays = Math.ceil(diffInTime / (1000 * 3600 * 24));
+
+      // Check if the range exceeds 90 days
+      if (diffInDays > 90) {
+        setIsRangeInvalid(true);
+        // Still allow the selection but mark as invalid
+      } else {
+        setIsRangeInvalid(false);
+        setDateRange(value.start.toString(), value.end.toString());
+      }
+
       // Clear the shortcut selection when manually changing dates
       setSelectedShortcut(new Set());
+    } else {
+      setIsRangeInvalid(false);
     }
   };
 
@@ -60,16 +78,16 @@ export const DashboardFilters: React.FC = () => {
     const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
     const past7Days = new Date(today);
     const past15Days = new Date(today);
-    
+
     // Get Monday as start of week
     const dayOfWeek = today.getDay();
     const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
     startOfWeek.setDate(today.getDate() - daysToMonday);
-    
+
     // Calculate past days
     past7Days.setDate(today.getDate() - 7);
     past15Days.setDate(today.getDate() - 15);
-    
+
     const formatDate = (date: Date) => {
       return date.toISOString().split('T')[0];
     };
@@ -133,6 +151,10 @@ export const DashboardFilters: React.FC = () => {
                     granularity="day"
                     variant="bordered"
                     aria-label="Select date range"
+                    isInvalid={isRangeInvalid}
+                    errorMessage={isRangeInvalid ? "Date range cannot exceed 90 days" : undefined}
+                    minValue={parseDate('2025-06-15')}
+                    maxValue={parseDate(new Date().toISOString().split('T')[0])}
                   />
                 </I18nProvider>
               </div>

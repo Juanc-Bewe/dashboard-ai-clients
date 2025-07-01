@@ -21,10 +21,73 @@ export interface WeekdayDistribution {
   [day: string]: number;
 }
 
+export interface CostByCategory {
+  llm: number;
+  tools: number;
+  tracing: number;
+}
+
+export interface CostDistribution {
+  [category: string]: {
+    cost: number;
+    percentage: number;
+  };
+}
+
+export interface LLMModelDistributionByTokens {
+  [modelName: string]: {
+    totalTokens: number;
+    percentage: number;
+  };
+}
+
+export interface LLMModelDistributionByCost {
+  [modelName: string]: {
+    cost: number;
+    percentage: number;
+  };
+}
+
+export interface TopExpensiveAccount {
+  accountId: string;
+  accountName: string;
+  sessionCount: number;
+  totalCost: number;
+}
+
+export interface ToolsDistributionByAmount {
+  [toolName: string]: {
+    amount: number;
+    percentage: number;
+  };
+}
+
+export interface ToolsDistributionByCost {
+  [toolName: string]: {
+    cost: number;
+    percentage: number;
+  };
+}
+
+export interface AgentsDistributionByAmount {
+  [agentName: string]: {
+    amount: number;
+    percentage: number;
+  };
+}
+
+export interface AgentsDistributionByCost {
+  [agentName: string]: {
+    cost: number;
+    percentage: number;
+  };
+}
+
 export interface Metrics {
   totalConversations: number;
   totalAccountsWithConversations: number;
   totalConversationsWithIdentification: number;
+  totalCost: number;
   totalNewClients: number;
   customerRetentionPercentage: number;
   returningClients: number;
@@ -41,12 +104,25 @@ export interface Metrics {
   channelDistribution: ChannelDistribution;
   peakUsageHours: PeakUsageHours;
   weekdayDistribution: WeekdayDistribution;
+  medianTotalCostPerConversation: number;
+  averageTotalCostPerConversation: number;
+  medianCostByCategory: CostByCategory;
+  averageCostByCategory: CostByCategory;
+  costDistribution: CostDistribution;
+  llmModelDistributionByTokens: LLMModelDistributionByTokens;
+  llmModelDistributionByCost: LLMModelDistributionByCost;
+  topExpensiveAccounts: TopExpensiveAccount[];
+  toolsDistributionByAmount: ToolsDistributionByAmount;
+  toolsDistributionByCost: ToolsDistributionByCost;
+  agentsDistributionByAmount: AgentsDistributionByAmount;
+  agentsDistributionByCost: AgentsDistributionByCost;
 }
 
 export interface DailyMetric {
   date: string;
   totalConversations: number;
   conversationsWithIdentification: number;
+  totalCost: number;
   newClients: number;
   medianMessagesPerConversation: number;
   medianConversationDuration: number;
@@ -56,6 +132,17 @@ export interface DailyMetric {
   errorRate: number;
   spamCount: number;
   peakUsageHours: Record<string, number>;
+  medianTotalCostPerConversation: number;
+  averageTotalCostPerConversation: number;
+  medianCostByCategory: CostByCategory;
+  averageCostByCategory: CostByCategory;
+  costDistribution: CostDistribution;
+  llmModelDistributionByTokens: LLMModelDistributionByTokens;
+  llmModelDistributionByCost: LLMModelDistributionByCost;
+  toolsDistributionByAmount: ToolsDistributionByAmount;
+  toolsDistributionByCost: ToolsDistributionByCost;
+  agentsDistributionByAmount: AgentsDistributionByAmount;
+  agentsDistributionByCost: AgentsDistributionByCost;
 }
 
 export interface Period {
