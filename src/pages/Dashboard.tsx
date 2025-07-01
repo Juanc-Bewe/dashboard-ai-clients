@@ -12,12 +12,14 @@ export const Dashboard: React.FC = () => {
 
   const fetchEnterprises = useDashboardStore(state => state.fetchEnterprises);
   const isInitialized = useRef(false);
+  // const skipNextUrlSync = useRef(false);
 
   // Initialize store and URL sync on mount
   useEffect(() => {
     if (!isInitialized.current) {
       // Initialize filters from URL
       const searchParams = new URLSearchParams(location.search);
+
       initializeFromUrl(searchParams);
 
       // Load enterprises (which will also trigger initial data fetch)
@@ -34,6 +36,7 @@ export const Dashboard: React.FC = () => {
     const unsubscribe = useDashboardStore.subscribe(
       (state) => state.filters,
       () => {
+
         const params = getUrlParams();
         const queryString = params.toString();
         const currentQuery = location.search.replace('?', '');

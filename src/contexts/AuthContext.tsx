@@ -7,6 +7,7 @@ interface AuthContextType {
   login: (pin: string) => Promise<boolean>;
   logout: () => void;
   loading: boolean;
+  isLoggingOut: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -17,15 +18,38 @@ interface AuthProviderProps {
 
 const TOKEN_KEY = 'dashboard_jwt_token';
 
+// Cookie utility functions
+const setCookie = (name: string, value: string, hours: number) => {
+  const expires = new Date();
+  expires.setTime(expires.getTime() + (hours * 60 * 60 * 1000));
+  document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/;SameSite=Strict`;
+};
+
+const getCookie = (name: string): string | null => {
+  const nameEQ = name + "=";
+  const ca = document.cookie.split(';');
+  for (let i = 0; i < ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+    if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+  }
+  return null;
+};
+
+const removeCookie = (name: string) => {
+  document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;SameSite=Strict`;
+};
+
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const isAuthenticated = !!token;
 
   // Check for existing token on mount
   useEffect(() => {
-    const savedToken = localStorage.getItem(TOKEN_KEY);
+    const savedToken = getCookie(TOKEN_KEY);
     if (savedToken) {
       setToken(savedToken);
     }
@@ -44,8 +68,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (pin == '9796') {
         const mockJwt = 'mock-jwt-token-' + Date.now();
         
-        // Save token to localStorage
-        localStorage.setItem(TOKEN_KEY, mockJwt);
+        // Save token to cookie with 12-hour expiration
+        setCookie(TOKEN_KEY, mockJwt, 12);
         setToken(mockJwt);
         return true;
       }
@@ -66,8 +90,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const data = await response.json();
         const jwt = data.token;
         
-        // Save token to localStorage
-        localStorage.setItem(TOKEN_KEY, jwt);
+        // Save token to cookie with 12-hour expiration
+        setCookie(TOKEN_KEY, jwt, 12);
         setToken(jwt);
         return true;
       }
@@ -82,9 +106,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem(TOKEN_KEY);
+    const logout = () => {
+    setIsLoggingOut(true);
+    removeCookie(TOKEN_KEY);
     setToken(null);
+    
+    // Navigate to login page without preserving any state or search parameters
+    // This ensures a clean logout that doesn't remember previous URL parameters
+    window.location.href = '/login';
   };
 
   const value: AuthContextType = {
@@ -93,6 +122,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     login,
     logout,
     loading,
+    isLoggingOut,
   };
 
   return (
@@ -108,4 +138,4 @@ export const useAuth = (): AuthContextType => {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-}; 
+};

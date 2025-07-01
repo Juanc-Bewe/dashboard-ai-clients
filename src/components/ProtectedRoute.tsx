@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { Spinner } from '@heroui/react';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -9,6 +9,7 @@ interface ProtectedRouteProps {
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -21,8 +22,10 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     );
   }
 
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    if (!isAuthenticated) {
+    // Preserve the current location (pathname + search params) to redirect back after login
+    const redirectTo = location.pathname + location.search;
+    return <Navigate to="/login" state={{ from: redirectTo }} replace />;
   }
 
   return <>{children}</>;

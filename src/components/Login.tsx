@@ -2,11 +2,9 @@ import { useState } from 'react';
 import { Card, CardBody, CardHeader, Spinner } from '@heroui/react';
 import { InputOtp } from '@heroui/input-otp';
 import { useAuth } from '../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
 
 export const Login: React.FC = () => {
   const { login, loading } = useAuth();
-  const navigate = useNavigate();
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
 
@@ -17,9 +15,7 @@ export const Login: React.FC = () => {
     setError('');
 
     const success = await login(value);
-    if (success) {
-      navigate('/dashboard');
-    } else {
+    if (!success){ 
       setError('Invalid access code. Please try again.');
       setPin(''); // Clear the input
     }

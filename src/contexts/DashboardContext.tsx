@@ -140,6 +140,7 @@ export const useDashboardStore = create<DashboardStore>()(
     // URL sync methods
     initializeFromUrl: (searchParams: URLSearchParams) => {
       const urlFilters = parseQueryToFilters(searchParams);
+
       if (Object.keys(urlFilters).length > 0) {
         const { filters } = get();
         const mergedFilters = { ...filters, ...urlFilters };
