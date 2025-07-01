@@ -31,7 +31,10 @@ const MetricCard: React.FC<MetricCardProps> = ({
       case 'duration':
         return `${Math.round(val)}s`;
       case 'decimal':
-        return val.toFixed(4);
+        // Dynamic decimal places based on value size
+        if (val < 0.1) return val.toFixed(4);
+        if (val < 1) return val.toFixed(2);
+        return val.toFixed(0);
       default:
         return val.toLocaleString();
     }
