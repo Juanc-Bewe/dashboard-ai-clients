@@ -38,7 +38,7 @@ export const Login: React.FC = () => {
       <CardBody className="space-y-6">
         <div className="flex flex-col items-center space-y-4">
           <InputOtp
-            length={4}
+            length={6}
             variant="flat"
             value={pin}
             onValueChange={handleValueChange}
@@ -46,8 +46,7 @@ export const Login: React.FC = () => {
             isDisabled={loading}
             isInvalid={!!error}
             errorMessage={error}
-            description="Enter your 4-digit access code"
-            allowedKeys="^[0-9]*$"
+            allowedKeys="^[A-Z0-9]*$"
             autoFocus
             type="password"
           />
@@ -62,6 +61,33 @@ export const Login: React.FC = () => {
 
         <div className="text-center text-sm text-default-500">
           <p>Enter your PIN to access the dashboard</p>
+        </div>
+
+        <div className="text-center text-xs text-default-400 border-t pt-4">
+          <p>Don't have an access code?</p>
+          <p className="mt-1">
+            Contact:{' '}
+            <a 
+              href="mailto:juan.ibanez@bewe.io" 
+              className="text-primary hover:underline"
+            >
+              juan.ibanez@bewe.io
+            </a>
+            {', '}
+            <a 
+              href="mailto:cesar.insuasty@bewe.io" 
+              className="text-primary hover:underline"
+            >
+              cesar.insuasty@bewe.io
+            </a>
+            {' '}or{' '}
+            <a 
+              href="mailto:technology@bewe.io" 
+              className="text-primary hover:underline"
+            >
+              technology@bewe.io
+            </a>
+          </p>
         </div>
       </CardBody>
     </Card>
