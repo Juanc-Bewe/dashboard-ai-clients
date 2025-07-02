@@ -434,7 +434,7 @@ export const DashboardFilters: React.FC = () => {
         </div>
 
         {/* Refresh Button - Right side on desktop, bottom on mobile */}
-        <div className="flex justify-center lg:justify-end lg:items-end lg:pb-0">
+        <div className="flex justify-start lg:justify-end lg:items-end lg:pb-0">
           <div className="flex flex-col gap-2">
             <Button
               color="default"
