@@ -52,7 +52,7 @@ export const DashboardFilters: React.FC = () => {
 
   // Sync enterprises from auth context
   React.useEffect(() => {
-    if (isAuthenticated && availableEnterprises.length > 0) {
+    if (isAuthenticated) {
       setEnterprises(availableEnterprises);
     }
   }, [availableEnterprises, isAuthenticated, setEnterprises]);
