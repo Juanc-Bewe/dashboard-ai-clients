@@ -201,8 +201,8 @@ export const DashboardCards: React.FC = () => {
     {
       title: 'Messages/Conv',
       tooltip: 'Median number of messages exchanged per conversation',
-      value: metrics?.medianMessagesPerConversation ?? 0,
-      previousValue: previousMetrics?.medianMessagesPerConversation,
+      value: metrics?.averageMessagesPerConversation ?? 0,
+      previousValue: previousMetrics?.averageMessagesPerConversation,
       format: 'decimal' as const,
     },
   ];

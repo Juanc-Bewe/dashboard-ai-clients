@@ -3,7 +3,7 @@ import type { DashboardApiResponse, DashboardFilters } from '../types/dashboard'
 import dashboardMetrics from '../mocks/dashboardMetrics';
 
 // API configuration
-const API_BASE_URL = 'https://lindabackendqa.bewe.co';
+const API_BASE_URL = 'https://lindabackend.bewe.co';
 const PIN_KEY = 'dashboard_analytics_pin';
 
 // Cookie utility function

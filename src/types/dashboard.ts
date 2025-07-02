@@ -95,6 +95,7 @@ export interface Metrics {
   totalUniqueClients: number;
   identificationPercentage: number;
   medianMessagesPerConversation: number;
+  averageMessagesPerConversation: number;
   medianConversationDuration: number;
   resolutionRate: number;
   adjustedResolutionRate: number;
@@ -126,6 +127,7 @@ export interface DailyMetric {
   totalCost: number;
   newClients: number;
   medianMessagesPerConversation: number;
+  averageMessagesPerConversation: number;
   medianConversationDuration: number;
   resolutionRate: number;
   adjustedResolutionRate: number;
