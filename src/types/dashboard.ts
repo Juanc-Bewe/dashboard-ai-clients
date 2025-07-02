@@ -179,6 +179,7 @@ export interface DashboardFilters {
   dateRange?: DateRangeValue | null;
   enterpriseIds: string[];
   accountIds: string[];
+  channelNames: string[];
   timezoneOffset: number;
 }
 

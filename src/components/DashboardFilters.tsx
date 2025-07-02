@@ -2,7 +2,7 @@ import React from 'react';
 import { DateRangePicker, Select, SelectItem, Button, Checkbox, Input } from '@heroui/react';
 import { parseDate } from '@internationalized/date';
 import { I18nProvider } from '@react-aria/i18n';
-import { RefreshCw, Calendar, CalendarDays, Clock, Hash } from 'lucide-react';
+import { RefreshCw, Calendar, CalendarDays, Clock, Hash, MessageCircle } from 'lucide-react';
 import { useDashboardStore } from '../contexts/DashboardContext';
 import { useAuth } from '../contexts/AuthContext';
 import type { DateRangeValue } from '../types/dashboard';
@@ -14,11 +14,12 @@ export const DashboardFilters: React.FC = () => {
   const setDateRange = useDashboardStore(state => state.setDateRange);
   const setEnterpriseIds = useDashboardStore(state => state.setEnterpriseIds);
   const setAccountIds = useDashboardStore(state => state.setAccountIds);
+  const setChannelNames = useDashboardStore(state => state.setChannelNames);
   const fetchDashboardData = useDashboardStore(state => state.fetchDashboardData);
   const setEnterprises = useDashboardStore(state => state.setEnterprises);
 
   // Get auth data
-  const { availableEnterprises, isAuthenticated } = useAuth();
+  const { availableEnterprises, availableChannels, isAuthenticated } = useAuth();
 
   // State to track selected shortcut
   const [selectedShortcut, setSelectedShortcut] = React.useState<Set<string>>(new Set());
@@ -78,13 +79,23 @@ export const DashboardFilters: React.FC = () => {
   };
 
   const handleEnterpriseChange = (keys: Set<string>) => {
-    console.log('keys', keys);
+    console.log('enterprise keys', keys);
     setEnterpriseIds(Array.from(keys));
+  };
+
+  const handleChannelChange = (keys: Set<string>) => {
+    console.log('channel keys', keys);
+    setChannelNames(Array.from(keys));
   };
 
   const handleSelectAllToggle = () => {
     // Only unselect all - remove select all functionality
     setEnterpriseIds([]);
+  };
+
+  const handleChannelSelectAllToggle = () => {
+    // Only unselect all - remove select all functionality
+    setChannelNames([]);
   };
 
   const handleAccountIdsChange = (value: string) => {
@@ -177,7 +188,7 @@ export const DashboardFilters: React.FC = () => {
           {/* Top Row Filters */}
           <div className="flex flex-col gap-4 lg:flex-row lg:gap-6 lg:items-end">
             {/* Date Range Filter */}
-            <div className={`min-w-0 ${enterprises.length > 1 ? 'flex-1' : 'lg:max-w-2xl lg:flex-1'}`}>
+            <div className={`min-w-0 ${(enterprises.length > 1 || availableChannels.length > 0) ? 'flex-1' : 'lg:max-w-2xl lg:flex-1'}`}>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground-600">Date Range</label>
                 <div className="flex flex-col sm:flex-row gap-2">
@@ -259,6 +270,44 @@ export const DashboardFilters: React.FC = () => {
                     {enterprises.map((enterprise) => (
                       <SelectItem key={enterprise.id}>
                         {enterprise.name}
+                      </SelectItem>
+                    ))}
+                  </Select>
+                </div>
+              </div>
+            )}
+
+            {/* Channel Filter Group - Only show if there are available channels */}
+            {availableChannels.length > 0 && (
+              <div className="flex-1 min-w-0">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-medium text-foreground-600">Channels</label>
+                    {availableChannels.length > 0 && filters.channelNames.length > 0 && (
+                      <Checkbox
+                        isSelected={false}
+                        onValueChange={handleChannelSelectAllToggle}
+                        size="sm"
+                        className="text-xs"
+                      >
+                        Clear All ({filters.channelNames.length})
+                      </Checkbox>
+                    )}
+                  </div>
+                  <Select
+                    placeholder="Select channels"
+                    selectionMode="multiple"
+                    selectedKeys={new Set(filters.channelNames)}
+                    onSelectionChange={(keys) => handleChannelChange(keys as Set<string>)}
+                    variant="bordered"
+                    size="sm"
+                    className="w-full"
+                    aria-label="Select channels"
+                    startContent={<MessageCircle className="w-3 h-3 text-foreground-400" />}
+                  >
+                    {availableChannels.map((channel) => (
+                      <SelectItem key={channel.id}>
+                        {channel.name}
                       </SelectItem>
                     ))}
                   </Select>

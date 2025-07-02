@@ -15,6 +15,9 @@ const serializeFiltersToQuery = (filters: DashboardFilters): URLSearchParams => 
   if (filters.accountIds.length > 0) {
     params.set('accounts', filters.accountIds.join(','));
   }
+  if (filters.channelNames.length > 0) {
+    params.set('channels', filters.channelNames.join(','));
+  }
   
   return params;
 };
@@ -26,6 +29,7 @@ const parseQueryToFilters = (searchParams: URLSearchParams): Partial<DashboardFi
   const endDate = searchParams.get('endDate');
   const enterprises = searchParams.get('enterprises');
   const accounts = searchParams.get('accounts');
+  const channels = searchParams.get('channels');
 
   if (startDate && /^\d{4}-\d{2}-\d{2}$/.test(startDate)) {
     filters.startDate = startDate;
@@ -43,6 +47,10 @@ const parseQueryToFilters = (searchParams: URLSearchParams): Partial<DashboardFi
     filters.accountIds = accounts.split(',').filter(id => id.trim() !== '');
   }
 
+  if (channels) {
+    filters.channelNames = channels.split(',').filter(id => id.trim() !== '');
+  }
+
   return filters;
 };
 
@@ -56,6 +64,7 @@ const getInitialFilters = (): DashboardFilters => {
     endDate: today.toISOString().split('T')[0],
     enterpriseIds: [],
     accountIds: [],
+    channelNames: [],
     timezoneOffset: -(new Date().getTimezoneOffset() / 60)
   };
 };
@@ -69,6 +78,7 @@ interface DashboardStore extends DashboardState {
   setDateRange: (startDate: string, endDate: string) => void;
   setEnterpriseIds: (enterpriseIds: string[]) => void;
   setAccountIds: (accountIds: string[]) => void;
+  setChannelNames: (channelNames: string[]) => void;
   initializeFromUrl: (searchParams: URLSearchParams) => void;
   getUrlParams: () => URLSearchParams;
 }
@@ -143,6 +153,10 @@ export const useDashboardStore = create<DashboardStore>()(
 
     setAccountIds: (accountIds: string[]) => {
       get().updateFilters({ accountIds });
+    },
+
+    setChannelNames: (channelNames: string[]) => {
+      get().updateFilters({ channelNames });
     },
 
     // URL sync methods

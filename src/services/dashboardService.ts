@@ -114,6 +114,12 @@ export const dashboardService = {
         accountIdsArray = filters.accountIds;
       }
 
+      // Handle channelNames as separate query parameters
+      let channelNamesArray: string[] = [];
+      if (filters.channelNames && filters.channelNames.length > 0) {
+        channelNamesArray = filters.channelNames;
+      }
+
       // Use provided timezone offset or get it from browser
       const timezoneOffset = filters.timezoneOffset !== undefined && filters.timezoneOffset !== null
         ? filters.timezoneOffset
@@ -124,6 +130,7 @@ export const dashboardService = {
       console.log('params', params);
       console.log('enterpriseIdsArray', enterpriseIdsArray);
       console.log('accountIdsArray', accountIdsArray);
+      console.log('channelNamesArray', channelNamesArray);
 
       const response = await apiClient.get('/lite/v1/analytics', { 
         params,
@@ -132,7 +139,7 @@ export const dashboardService = {
           
           // Add regular params
           Object.entries(params).forEach(([key, value]) => {
-            if (key !== 'enterpriseIds' && key !== 'accountIds') {
+            if (key !== 'enterpriseIds' && key !== 'accountIds' && key !== 'channelNames') {
               searchParams.append(key, String(value));
             }
           });
@@ -145,6 +152,11 @@ export const dashboardService = {
           // Add each accountId as a separate parameter
           accountIdsArray.forEach(id => {
             searchParams.append('accountIds', id);
+          });
+          
+          // Add each channelName as a separate parameter
+          channelNamesArray.forEach(name => {
+            searchParams.append('channelNames', name);
           });
           
           return searchParams.toString();
