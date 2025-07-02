@@ -39,16 +39,15 @@ export const DashboardFilters: React.FC = () => {
   const { availableEnterprises, availableChannels, isAuthenticated } =
     useAuth();
 
-  // State to track selected shortcut
-  const [selectedShortcut, setSelectedShortcut] = React.useState<Set<string>>(
-    new Set()
-  );
+
   // State to track range validation
   const [isRangeInvalid, setIsRangeInvalid] = React.useState(false);
   // State to track account IDs input
   const [accountIdsInput, setAccountIdsInput] = React.useState<string>(() =>
     filters.accountIds.join(", ")
   );
+  // State to track selected shortcut
+  const [selectedShortcut, setSelectedShortcut] = React.useState<string>("");
 
   // Sync enterprises from auth context
   React.useEffect(() => {
@@ -92,7 +91,7 @@ export const DashboardFilters: React.FC = () => {
       }
 
       // Clear the shortcut selection when manually changing dates
-      setSelectedShortcut(new Set());
+      setSelectedShortcut("");
     } else {
       setIsRangeInvalid(false);
     }
@@ -138,18 +137,21 @@ export const DashboardFilters: React.FC = () => {
     fetchDashboardData();
   };
 
-  const handleClearAllFilters = () => {
-    // Reset all filters to defaults
-    const shortcuts = getDateShortcuts();
-    const defaultRange = shortcuts.past7Days; // Set default to past 7 days
+    const handleClearAllFilters = () => {
+    // Reset all filters to defaults - set to past 7 days
+    const today = new Date();
+    const past7Days = new Date(today);
+    past7Days.setDate(today.getDate() - 7);
+    
+    const formatDate = (date: Date) => date.toISOString().split("T")[0];
 
-    setDateRange(defaultRange.start, defaultRange.end);
+    setDateRange(formatDate(past7Days), formatDate(today));
     setEnterpriseIds([]);
     setChannelNames([]);
     setAccountIds([]);
-    setSelectedShortcut(new Set(["past7Days"])); // Update shortcut selection
     setAccountIdsInput(""); // Clear the input field
     setIsRangeInvalid(false); // Reset validation state
+    setSelectedShortcut("past7Days"); // Set default shortcut selection
   };
 
   // Date shortcut functions
@@ -165,9 +167,9 @@ export const DashboardFilters: React.FC = () => {
     const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
     startOfWeek.setDate(today.getDate() - daysToMonday);
 
-    // Calculate past days
-    past7Days.setDate(today.getDate() - 7);
-    past15Days.setDate(today.getDate() - 15);
+    // Calculate past days using setTime for more reliable date arithmetic
+    past7Days.setTime(today.getTime() - (7 * 24 * 60 * 60 * 1000));
+    past15Days.setTime(today.getTime() - (15 * 24 * 60 * 60 * 1000));
 
     const formatDate = (date: Date) => {
       return date.toISOString().split("T")[0];
@@ -203,23 +205,10 @@ export const DashboardFilters: React.FC = () => {
     const shortcuts = getDateShortcuts();
     const range = shortcuts[shortcut];
     setDateRange(range.start, range.end);
+    setSelectedShortcut(shortcut);
   };
 
-  const handleQuickDateChange = (keys: any) => {
-    const selectedKey = Array.from(keys as Set<string>)[0];
-    if (selectedKey && selectedKey !== "custom") {
-      handleDateShortcut(
-        selectedKey as
-          | "today"
-          | "thisWeek"
-          | "currentMonth"
-          | "past7Days"
-          | "past15Days"
-      );
-      // Update the selected shortcut state
-      setSelectedShortcut(keys as Set<string>);
-    }
-  };
+  
 
   return (
     <div className="dark:border dark:border-gray-700 rounded-xl dark:shadow-lg p-4 sm:p-6">
@@ -227,87 +216,85 @@ export const DashboardFilters: React.FC = () => {
       <div className="flex flex-col lg:flex-row gap-6 lg:items-center">
         {/* Filters Container */}
         <div className="flex-1 min-w-0">
-          {/* Top Row Filters */}
-          <div className="flex flex-col gap-4 lg:flex-row lg:gap-6 lg:items-end">
+          {/* Filters - Using flex wrap for better responsiveness */}
+          <div className="flex flex-wrap gap-4 lg:gap-6">
             {/* Date Range Filter */}
-            <div
-              className={`min-w-0 ${
-                enterprises.length > 1 || availableChannels.length > 0
-                  ? "flex-1"
-                  : "lg:max-w-2xl lg:flex-1"
-              }`}
-            >
-              <div className="space-y-2">
+            <div className="w-full min-w-[320px] lg:flex-[2] lg:min-w-[400px]">
+              <div className="space-y-3">
                 <label className="text-sm font-medium text-foreground-600">
                   Date Range
                 </label>
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <div className="flex-1">
-                    <I18nProvider locale="en-CA">
-                      <DateRangePicker
-                        value={dateRangeValue}
-                        onChange={handleDateRangeChange}
-                        size="sm"
-                        className="w-full"
-                        granularity="day"
-                        variant="bordered"
-                        aria-label="Select date range"
-                        isInvalid={isRangeInvalid}
-                        isDisabled={loading}
-                        errorMessage={
-                          isRangeInvalid
-                            ? "Date range cannot exceed 90 days"
-                            : undefined
-                        }
-                        minValue={parseDate("2025-06-15")}
-                        maxValue={parseDate(
-                          new Date().toISOString().split("T")[0]
-                        )}
-                      />
-                    </I18nProvider>
-                  </div>
-                  <div className="w-full sm:w-36">
-                    <Select
-                      placeholder="Quick select"
+                <div className="space-y-3">
+                  <I18nProvider locale="en-CA">
+                    <DateRangePicker
+                      value={dateRangeValue}
+                      onChange={handleDateRangeChange}
                       size="sm"
-                      variant="bordered"
-                      aria-label="Quick date shortcuts"
-                      selectedKeys={selectedShortcut}
-                      onSelectionChange={handleQuickDateChange}
                       className="w-full"
+                      granularity="day"
+                      variant="bordered"
+                      aria-label="Select date range"
+                      isInvalid={isRangeInvalid}
                       isDisabled={loading}
+                      errorMessage={
+                        isRangeInvalid
+                          ? "Date range cannot exceed 90 days"
+                          : undefined
+                      }
+                      minValue={parseDate("2025-06-15")}
+                      maxValue={parseDate(
+                        new Date().toISOString().split("T")[0]
+                      )}
+                    />
+                  </I18nProvider>
+                  
+                  {/* Quick Date Selection Buttons */}
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      size="sm"
+                      variant={selectedShortcut === "today" ? "solid" : "bordered"}
+                      color={selectedShortcut === "today" ? "primary" : "default"}
+                      onPress={() => handleDateShortcut("today")}
+                      startContent={<Clock className="w-3 h-3" />}
+                      isDisabled={loading}
+                      className="text-xs px-2 h-7"
                     >
-                      <SelectItem
-                        key="today"
-                        startContent={<Clock className="w-3 h-3" />}
-                      >
-                        Today
-                      </SelectItem>
-                      <SelectItem
-                        key="thisWeek"
-                        startContent={<CalendarDays className="w-3 h-3" />}
-                      >
-                        This Week
-                      </SelectItem>
-                      <SelectItem
-                        key="past7Days"
-                        startContent={<CalendarDays className="w-3 h-3" />}
-                      >
-                        Past 7 Days
-                      </SelectItem>
-                      <SelectItem
-                        key="past15Days"
-                        startContent={<CalendarDays className="w-3 h-3" />}
-                      >
-                        Past 15 Days
-                      </SelectItem>
-                      <SelectItem
-                        key="currentMonth"
-                        startContent={<Calendar className="w-3 h-3" />}
-                      >
-                        This Month
-                      </SelectItem>
-                    </Select>
+                      Today
+                    </Button>
+
+                    <Button
+                      size="sm"
+                      variant={selectedShortcut === "past7Days" ? "solid" : "bordered"}
+                      color={selectedShortcut === "past7Days" ? "primary" : "default"}
+                      onPress={() => handleDateShortcut("past7Days")}
+                      startContent={<CalendarDays className="w-3 h-3" />}
+                      isDisabled={loading}
+                      className="text-xs px-2 h-7"
+                    >
+                      Past 7 Days
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={selectedShortcut === "past15Days" ? "solid" : "bordered"}
+                      color={selectedShortcut === "past15Days" ? "primary" : "default"}
+                      onPress={() => handleDateShortcut("past15Days")}
+                      startContent={<CalendarDays className="w-3 h-3" />}
+                      isDisabled={loading}
+                      className="text-xs px-2 h-7"
+                    >
+                      Past 15 Days
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={selectedShortcut === "currentMonth" ? "solid" : "bordered"}
+                      color={selectedShortcut === "currentMonth" ? "primary" : "default"}
+                      onPress={() => handleDateShortcut("currentMonth")}
+                      startContent={<Calendar className="w-3 h-3" />}
+                      isDisabled={loading}
+                      className="text-xs px-2 h-7"
+                    >
+                      This Month
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -315,7 +302,7 @@ export const DashboardFilters: React.FC = () => {
 
             {/* Enterprise Filter Group - Only show if more than one enterprise */}
             {enterprises.length > 1 && (
-              <div className="flex-1 min-w-0">
+              <div className="w-full min-w-[240px] lg:flex-[1] lg:min-w-[280px]">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <label className="text-sm font-medium text-foreground-600">
@@ -359,7 +346,7 @@ export const DashboardFilters: React.FC = () => {
 
             {/* Channel Filter Group - Only show if there are available channels */}
             {availableChannels.length > 0 && (
-              <div className="flex-1 min-w-0">
+              <div className="w-full min-w-[240px] lg:flex-[1] lg:min-w-[280px]">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <label className="text-sm font-medium text-foreground-600">
@@ -401,34 +388,34 @@ export const DashboardFilters: React.FC = () => {
                 </div>
               </div>
             )}
-          </div>
-
-          {/* Account IDs Filter - Bottom Row */}
-          <div className="mt-4">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium text-foreground-600">
-                  Account IDs
-                </label>
-                {filters.accountIds.length > 0 && (
-                  <span className="text-xs text-foreground-500">
-                    ({filters.accountIds.length} selected)
-                  </span>
-                )}
+            
+            {/* Account IDs Filter */}
+            <div className="w-full min-w-[280px] lg:flex-[1] lg:min-w-[320px]">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium text-foreground-600">
+                    Account IDs
+                  </label>
+                  {filters.accountIds.length > 0 && (
+                    <span className="text-xs text-foreground-500">
+                      ({filters.accountIds.length} selected)
+                    </span>
+                  )}
+                </div>
+                <Input
+                  placeholder="Enter account IDs (comma separated)"
+                  value={accountIdsInput}
+                  onValueChange={handleAccountIdsChange}
+                  onBlur={handleAccountIdsBlur}
+                  variant="bordered"
+                  size="sm"
+                  className="w-full"
+                  startContent={<Hash className="w-3 h-3 text-foreground-400" />}
+                  aria-label="Enter account IDs"
+                  description="Enter alphanumeric account IDs separated by commas"
+                  isDisabled={loading}
+                />
               </div>
-              <Input
-                placeholder="Enter account IDs (comma separated)"
-                value={accountIdsInput}
-                onValueChange={handleAccountIdsChange}
-                onBlur={handleAccountIdsBlur}
-                variant="bordered"
-                size="sm"
-                className="w-full"
-                startContent={<Hash className="w-3 h-3 text-foreground-400" />}
-                aria-label="Enter account IDs"
-                description="Enter alphanumeric account IDs separated by commas"
-                isDisabled={loading}
-              />
             </div>
           </div>
         </div>
