@@ -102,8 +102,10 @@ export const dashboardService = {
         params.endDate = filters.endDate;
       }
 
+      // Handle enterpriseIds as separate query parameters
+      let enterpriseIdsArray: string[] = [];
       if (filters.enterpriseIds && filters.enterpriseIds.length > 0) {
-        params.enterpriseIds = filters.enterpriseIds.join(',');
+        enterpriseIdsArray = filters.enterpriseIds;
       }
 
       // Use provided timezone offset or get it from browser
@@ -114,8 +116,28 @@ export const dashboardService = {
       params.timezoneOffset = timezoneOffset;
 
       console.log('params', params);
+      console.log('enterpriseIdsArray', enterpriseIdsArray);
 
-      const response = await apiClient.get('/lite/v1/analytics', { params });
+      const response = await apiClient.get('/lite/v1/analytics', { 
+        params,
+        paramsSerializer: (params) => {
+          const searchParams = new URLSearchParams();
+          
+          // Add regular params
+          Object.entries(params).forEach(([key, value]) => {
+            if (key !== 'enterpriseIds') {
+              searchParams.append(key, String(value));
+            }
+          });
+          
+          // Add each enterpriseId as a separate parameter
+          enterpriseIdsArray.forEach(id => {
+            searchParams.append('enterpriseIds', id);
+          });
+          
+          return searchParams.toString();
+        }
+      });
 
       return response.data;
     } catch (error) {
