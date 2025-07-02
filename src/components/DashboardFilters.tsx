@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { useDashboardStore } from "../contexts/DashboardContext";
 import { useAuth } from "../contexts/AuthContext";
+import { hasPermission } from "../utils/permissionHelpers";
 import type { DateRangeValue } from "../types/dashboard";
 
 export const DashboardFilters: React.FC = () => {
@@ -36,7 +37,7 @@ export const DashboardFilters: React.FC = () => {
   const setEnterprises = useDashboardStore((state) => state.setEnterprises);
 
   // Get auth data
-  const { availableEnterprises, availableChannels, isAuthenticated } =
+  const { availableEnterprises, availableChannels, isAuthenticated, permissions } =
     useAuth();
 
 
@@ -301,7 +302,7 @@ export const DashboardFilters: React.FC = () => {
             </div>
 
             {/* Enterprise Filter Group - Only show if more than one enterprise */}
-            {enterprises.length > 1 && (
+            {enterprises.length > 1 && hasPermission("canFilterByEnterprise", permissions) && (
               <div className="w-full min-w-[240px] lg:flex-[1] lg:min-w-[280px]">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
@@ -345,7 +346,7 @@ export const DashboardFilters: React.FC = () => {
             )}
 
             {/* Channel Filter Group - Only show if there are available channels */}
-            {availableChannels.length > 0 && (
+            {availableChannels.length > 0 && hasPermission("canFilterByChannel", permissions) && (
               <div className="w-full min-w-[240px] lg:flex-[1] lg:min-w-[280px]">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
@@ -388,8 +389,9 @@ export const DashboardFilters: React.FC = () => {
                 </div>
               </div>
             )}
-            
+
             {/* Account IDs Filter */}
+            {hasPermission("canFilterByAccount", permissions) && (
             <div className="w-full min-w-[280px] lg:flex-[1] lg:min-w-[320px]">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -414,9 +416,10 @@ export const DashboardFilters: React.FC = () => {
                   aria-label="Enter account IDs"
                   description="Enter alphanumeric account IDs separated by commas"
                   isDisabled={loading}
-                />
+                  />
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
 

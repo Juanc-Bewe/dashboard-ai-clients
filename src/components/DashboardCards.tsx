@@ -2,6 +2,8 @@ import React from 'react';
 import { Card, CardBody, Skeleton, Tooltip } from '@heroui/react';
 import { Info, TrendingUp, TrendingDown } from 'lucide-react';
 import { useDashboardStore } from '../contexts/DashboardContext';
+import { useAuth } from '../contexts/AuthContext';
+import { hasPermission } from '../utils/permissionHelpers';
 
 interface MetricCardProps {
   title: string;
@@ -136,6 +138,7 @@ export const DashboardCards: React.FC = () => {
 
   const metrics = data?.currentPeriod?.metrics;
   const previousMetrics = data?.previousPeriod?.metrics;
+  const { permissions } = useAuth();
 
   const mainMetrics = [
     {
@@ -164,6 +167,7 @@ export const DashboardCards: React.FC = () => {
       previousValue: previousMetrics?.averageTotalCostPerConversation,
       format: 'decimal' as const,
       invertColors: true,
+      permissions: "canViewBusinessAndCostsMetrics",
     },
     {
       title: 'Retention',
@@ -205,7 +209,7 @@ export const DashboardCards: React.FC = () => {
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      {mainMetrics.map((metric, index) => (
+      {mainMetrics.filter((metric) => !metric.permissions || hasPermission(metric.permissions, permissions)).map((metric, index) => (
         <MetricCard
           key={`${metric.title}-${index}`}
           title={metric.title}
