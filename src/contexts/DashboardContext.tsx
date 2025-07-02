@@ -12,6 +12,9 @@ const serializeFiltersToQuery = (filters: DashboardFilters): URLSearchParams => 
   if (filters.enterpriseIds.length > 0) {
     params.set('enterprises', filters.enterpriseIds.join(','));
   }
+  if (filters.accountIds.length > 0) {
+    params.set('accounts', filters.accountIds.join(','));
+  }
   
   return params;
 };
@@ -22,6 +25,7 @@ const parseQueryToFilters = (searchParams: URLSearchParams): Partial<DashboardFi
   const startDate = searchParams.get('startDate');
   const endDate = searchParams.get('endDate');
   const enterprises = searchParams.get('enterprises');
+  const accounts = searchParams.get('accounts');
 
   if (startDate && /^\d{4}-\d{2}-\d{2}$/.test(startDate)) {
     filters.startDate = startDate;
@@ -33,6 +37,10 @@ const parseQueryToFilters = (searchParams: URLSearchParams): Partial<DashboardFi
 
   if (enterprises) {
     filters.enterpriseIds = enterprises.split(',').filter(id => id.trim() !== '');
+  }
+
+  if (accounts) {
+    filters.accountIds = accounts.split(',').filter(id => id.trim() !== '');
   }
 
   return filters;
@@ -47,6 +55,7 @@ const getInitialFilters = (): DashboardFilters => {
     startDate: sevenDaysAgo.toISOString().split('T')[0],
     endDate: today.toISOString().split('T')[0],
     enterpriseIds: [],
+    accountIds: [],
     timezoneOffset: -(new Date().getTimezoneOffset() / 60)
   };
 };
@@ -59,6 +68,7 @@ interface DashboardStore extends DashboardState {
   updateFilters: (filters: Partial<DashboardFilters>) => void;
   setDateRange: (startDate: string, endDate: string) => void;
   setEnterpriseIds: (enterpriseIds: string[]) => void;
+  setAccountIds: (accountIds: string[]) => void;
   initializeFromUrl: (searchParams: URLSearchParams) => void;
   getUrlParams: () => URLSearchParams;
 }
@@ -129,6 +139,10 @@ export const useDashboardStore = create<DashboardStore>()(
 
     setEnterpriseIds: (enterpriseIds: string[]) => {
       get().updateFilters({ enterpriseIds });
+    },
+
+    setAccountIds: (accountIds: string[]) => {
+      get().updateFilters({ accountIds });
     },
 
     // URL sync methods

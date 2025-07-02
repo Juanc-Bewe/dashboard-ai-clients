@@ -1,8 +1,8 @@
 import React from 'react';
-import { DateRangePicker, Select, SelectItem, Button, Checkbox } from '@heroui/react';
+import { DateRangePicker, Select, SelectItem, Button, Checkbox, Input } from '@heroui/react';
 import { parseDate } from '@internationalized/date';
 import { I18nProvider } from '@react-aria/i18n';
-import { RefreshCw, Calendar, CalendarDays, Clock } from 'lucide-react';
+import { RefreshCw, Calendar, CalendarDays, Clock, Hash } from 'lucide-react';
 import { useDashboardStore } from '../contexts/DashboardContext';
 import { useAuth } from '../contexts/AuthContext';
 import type { DateRangeValue } from '../types/dashboard';
@@ -13,6 +13,7 @@ export const DashboardFilters: React.FC = () => {
   const loading = useDashboardStore(state => state.loading);
   const setDateRange = useDashboardStore(state => state.setDateRange);
   const setEnterpriseIds = useDashboardStore(state => state.setEnterpriseIds);
+  const setAccountIds = useDashboardStore(state => state.setAccountIds);
   const fetchDashboardData = useDashboardStore(state => state.fetchDashboardData);
   const setEnterprises = useDashboardStore(state => state.setEnterprises);
 
@@ -23,6 +24,10 @@ export const DashboardFilters: React.FC = () => {
   const [selectedShortcut, setSelectedShortcut] = React.useState<Set<string>>(new Set());
   // State to track range validation
   const [isRangeInvalid, setIsRangeInvalid] = React.useState(false);
+  // State to track account IDs input
+  const [accountIdsInput, setAccountIdsInput] = React.useState<string>(() => 
+    filters.accountIds.join(', ')
+  );
 
   // Sync enterprises from auth context
   React.useEffect(() => {
@@ -30,6 +35,11 @@ export const DashboardFilters: React.FC = () => {
       setEnterprises(availableEnterprises);
     }
   }, [availableEnterprises, isAuthenticated, setEnterprises]);
+
+  // Sync account IDs input when filters change
+  React.useEffect(() => {
+    setAccountIdsInput(filters.accountIds.join(', '));
+  }, [filters.accountIds]);
 
   // Create date range value from filters
   const dateRangeValue = React.useMemo(() => {
@@ -75,6 +85,22 @@ export const DashboardFilters: React.FC = () => {
   const handleSelectAllToggle = () => {
     // Only unselect all - remove select all functionality
     setEnterpriseIds([]);
+  };
+
+  const handleAccountIdsChange = (value: string) => {
+    setAccountIdsInput(value);
+  };
+
+  const handleAccountIdsBlur = () => {
+    // Process the input when user leaves the field
+    const accountIds = accountIdsInput
+      .split(',')
+      .map(id => id.trim())
+      .filter(id => id !== '' && /^[a-zA-Z0-9_-]+$/.test(id)); // Only allow alphanumeric, underscore, and dash
+    
+    setAccountIds(accountIds);
+    // Update the input to show cleaned values
+    setAccountIdsInput(accountIds.join(', '));
   };
 
   const handleRefresh = () => {
@@ -143,111 +169,143 @@ export const DashboardFilters: React.FC = () => {
 
   return (
     <div className="dark:border dark:border-gray-700 rounded-xl dark:shadow-lg p-4 sm:p-6">
-      {/* Filter Header */}
+      {/* Main Layout: Filters Container + Button */}
+      <div className="flex flex-col lg:flex-row gap-6 lg:items-center">
+        
+        {/* Filters Container */}
+        <div className="flex-1 min-w-0">
+          {/* Top Row Filters */}
+          <div className="flex flex-col gap-4 lg:flex-row lg:gap-6 lg:items-end">
+            {/* Date Range Filter */}
+            <div className={`min-w-0 ${enterprises.length > 1 ? 'flex-1' : 'lg:max-w-2xl lg:flex-1'}`}>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground-600">Date Range</label>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="flex-1">
+                    <I18nProvider locale="en-CA">
+                      <DateRangePicker
+                        value={dateRangeValue}
+                        onChange={handleDateRangeChange}
+                        size="sm"
+                        className="w-full"
+                        granularity="day"
+                        variant="bordered"
+                        aria-label="Select date range"
+                        isInvalid={isRangeInvalid}
+                        errorMessage={isRangeInvalid ? "Date range cannot exceed 90 days" : undefined}
+                        minValue={parseDate('2025-06-15')}
+                        maxValue={parseDate(new Date().toISOString().split('T')[0])}
+                      />
+                    </I18nProvider>
+                  </div>
+                  <div className="w-full sm:w-36">
+                    <Select
+                      placeholder="Quick select"
+                      size="sm"
+                      variant="bordered"
+                      aria-label="Quick date shortcuts"
+                      selectedKeys={selectedShortcut}
+                      onSelectionChange={handleQuickDateChange}
+                      className="w-full"
+                    >
+                      <SelectItem key="today" startContent={<Clock className="w-3 h-3" />}>
+                        Today
+                      </SelectItem>
+                      <SelectItem key="thisWeek" startContent={<CalendarDays className="w-3 h-3" />}>
+                        This Week
+                      </SelectItem>
+                      <SelectItem key="past7Days" startContent={<CalendarDays className="w-3 h-3" />}>
+                        Past 7 Days
+                      </SelectItem>
+                      <SelectItem key="past15Days" startContent={<CalendarDays className="w-3 h-3" />}>
+                        Past 15 Days
+                      </SelectItem>
+                      <SelectItem key="currentMonth" startContent={<Calendar className="w-3 h-3" />}>
+                        This Month
+                      </SelectItem>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-      <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 lg:items-start">
-        {/* Date Range Filter */}
-        <div className={`min-w-0 ${enterprises.length > 1 ? 'flex-1' : 'lg:max-w-2xl lg:flex-1'}`}>
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground-600">Date Range</label>
-            <div className="flex gap-2">
-              <div className="flex-1">
-                <I18nProvider locale="en-CA">
-                  <DateRangePicker
-                    value={dateRangeValue}
-                    onChange={handleDateRangeChange}
+            {/* Enterprise Filter Group - Only show if more than one enterprise */}
+            {enterprises.length > 1 && (
+              <div className="flex-1 min-w-0">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-medium text-foreground-600">Enterprises</label>
+                    {enterprises.length > 0 && filters.enterpriseIds.length > 0 && (
+                      <Checkbox
+                        isSelected={false}
+                        onValueChange={handleSelectAllToggle}
+                        size="sm"
+                        className="text-xs"
+                      >
+                        Clear All ({filters.enterpriseIds.length})
+                      </Checkbox>
+                    )}
+                  </div>
+                  <Select
+                    placeholder="Select enterprises"
+                    selectionMode="multiple"
+                    selectedKeys={new Set(filters.enterpriseIds)}
+                    onSelectionChange={(keys) => handleEnterpriseChange(keys as Set<string>)}
+                    variant="bordered"
                     size="sm"
                     className="w-full"
-                    granularity="day"
-                    variant="bordered"
-                    aria-label="Select date range"
-                    isInvalid={isRangeInvalid}
-                    errorMessage={isRangeInvalid ? "Date range cannot exceed 90 days" : undefined}
-                    minValue={parseDate('2025-06-15')}
-                    maxValue={parseDate(new Date().toISOString().split('T')[0])}
-                  />
-                </I18nProvider>
+                    aria-label="Select enterprises"
+                  >
+                    {enterprises.map((enterprise) => (
+                      <SelectItem key={enterprise.id}>
+                        {enterprise.name}
+                      </SelectItem>
+                    ))}
+                  </Select>
+                </div>
               </div>
-              <div className="w-36">
-                <Select
-                  placeholder="Quick select"
-                  size="sm"
-                  variant="bordered"
-                  aria-label="Quick date shortcuts"
-                  selectedKeys={selectedShortcut}
-                  onSelectionChange={handleQuickDateChange}
-                  className="w-full"
-                >
-                  <SelectItem key="today" startContent={<Clock className="w-3 h-3" />}>
-                    Today
-                  </SelectItem>
-                  <SelectItem key="thisWeek" startContent={<CalendarDays className="w-3 h-3" />}>
-                    This Week
-                  </SelectItem>
-                  <SelectItem key="past7Days" startContent={<CalendarDays className="w-3 h-3" />}>
-                    Past 7 Days
-                  </SelectItem>
-                  <SelectItem key="past15Days" startContent={<CalendarDays className="w-3 h-3" />}>
-                    Past 15 Days
-                  </SelectItem>
-                  <SelectItem key="currentMonth" startContent={<Calendar className="w-3 h-3" />}>
-                    This Month
-                  </SelectItem>
-                </Select>
+            )}
+          </div>
+
+          {/* Account IDs Filter - Bottom Row */}
+          <div className="mt-4">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-foreground-600">Account IDs</label>
+                {filters.accountIds.length > 0 && (
+                  <span className="text-xs text-foreground-500">
+                    ({filters.accountIds.length} selected)
+                  </span>
+                )}
               </div>
+              <Input
+                placeholder="Enter account IDs (comma separated)"
+                value={accountIdsInput}
+                onValueChange={handleAccountIdsChange}
+                onBlur={handleAccountIdsBlur}
+                variant="bordered"
+                size="sm"
+                className="w-full"
+                startContent={<Hash className="w-3 h-3 text-foreground-400" />}
+                aria-label="Enter account IDs"
+                description="Enter alphanumeric account IDs separated by commas"
+              />
             </div>
           </div>
         </div>
 
-        {/* Enterprise Filter Group - Only show if more than one enterprise */}
-        {enterprises.length > 1 && (
-          <div className="flex-1 min-w-0">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium text-foreground-600">Enterprises</label>
-                {enterprises.length > 0 && filters.enterpriseIds.length > 0 && (
-                  <Checkbox
-                    isSelected={false}
-                    onValueChange={handleSelectAllToggle}
-                    size="sm"
-                    className="text-xs"
-                  >
-                    Clear All ({filters.enterpriseIds.length})
-                  </Checkbox>
-                )}
-              </div>
-              <Select
-                placeholder="Select enterprises"
-                selectionMode="multiple"
-                selectedKeys={new Set(filters.enterpriseIds)}
-                onSelectionChange={(keys) => handleEnterpriseChange(keys as Set<string>)}
-                variant="bordered"
-                size="sm"
-                className="w-full"
-                aria-label="Select enterprises"
-              >
-                {enterprises.map((enterprise) => (
-                  <SelectItem key={enterprise.id}>
-                    {enterprise.name}
-                  </SelectItem>
-                ))}
-              </Select>
-            </div>
-          </div>
-        )}
-
-        {/* Actions */}
-        <div className={`flex justify-center lg:justify-start lg:pt-6 ${enterprises.length <= 1 ? 'lg:flex-shrink-0' : ''}`}>
+        {/* Refresh Button - Right side on desktop, bottom on mobile */}
+        <div className="flex justify-center lg:justify-end lg:items-end lg:pb-0">
           <Button
             color="primary"
             onPress={handleRefresh}
             isLoading={loading}
             variant="flat"
             size="lg"
-            // className="w-12 h-12 lg:w-auto lg:h-auto lg:px-4"
             radius="full"
             isIconOnly
             aria-label="Refresh data"
+            className="w-12 h-12"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           </Button>
