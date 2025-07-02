@@ -248,7 +248,6 @@ export const DashboardFilters: React.FC = () => {
                       )}
                     />
                   </I18nProvider>
-                  
                   {/* Quick Date Selection Buttons */}
                   <div className="flex flex-wrap gap-2">
                     <Button
@@ -304,7 +303,7 @@ export const DashboardFilters: React.FC = () => {
             {/* Enterprise Filter Group - Only show if more than one enterprise */}
             {enterprises.length > 1 && hasPermission("canFilterByEnterprise", permissions) && (
               <div className="w-full min-w-[240px] lg:flex-[1] lg:min-w-[280px]">
-                <div className="space-y-2">
+                <div>
                   <div className="flex items-center justify-between">
                     <label className="text-sm font-medium text-foreground-600">
                       Enterprises
@@ -331,7 +330,7 @@ export const DashboardFilters: React.FC = () => {
                     }
                     variant="bordered"
                     size="sm"
-                    className="w-full"
+                    className="w-full mt-4"
                     aria-label="Select enterprises"
                     isDisabled={loading}
                   >
@@ -348,7 +347,7 @@ export const DashboardFilters: React.FC = () => {
             {/* Channel Filter Group - Only show if there are available channels */}
             {availableChannels.length > 0 && hasPermission("canFilterByChannel", permissions) && (
               <div className="w-full min-w-[240px] lg:flex-[1] lg:min-w-[280px]">
-                <div className="space-y-2">
+                <div className="">
                   <div className="flex items-center justify-between">
                     <label className="text-sm font-medium text-foreground-600">
                       Channels
@@ -375,7 +374,7 @@ export const DashboardFilters: React.FC = () => {
                     }
                     variant="bordered"
                     size="sm"
-                    className="w-full"
+                    className="w-full mt-4"
                     aria-label="Select channels"
                     startContent={
                       <MessageCircle className="w-3 h-3 text-foreground-400" />
