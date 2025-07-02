@@ -253,6 +253,7 @@ export const DashboardFilters: React.FC = () => {
                         variant="bordered"
                         aria-label="Select date range"
                         isInvalid={isRangeInvalid}
+                        isDisabled={loading}
                         errorMessage={
                           isRangeInvalid
                             ? "Date range cannot exceed 90 days"
@@ -274,6 +275,7 @@ export const DashboardFilters: React.FC = () => {
                       selectedKeys={selectedShortcut}
                       onSelectionChange={handleQuickDateChange}
                       className="w-full"
+                      isDisabled={loading}
                     >
                       <SelectItem
                         key="today"
@@ -326,6 +328,7 @@ export const DashboardFilters: React.FC = () => {
                           onValueChange={handleSelectAllToggle}
                           size="sm"
                           className="text-xs"
+                          isDisabled={loading}
                         >
                           Clear All ({filters.enterpriseIds.length})
                         </Checkbox>
@@ -342,6 +345,7 @@ export const DashboardFilters: React.FC = () => {
                     size="sm"
                     className="w-full"
                     aria-label="Select enterprises"
+                    isDisabled={loading}
                   >
                     {enterprises.map((enterprise) => (
                       <SelectItem key={enterprise.id}>
@@ -368,6 +372,7 @@ export const DashboardFilters: React.FC = () => {
                           onValueChange={handleChannelSelectAllToggle}
                           size="sm"
                           className="text-xs"
+                          isDisabled={loading}
                         >
                           Clear All ({filters.channelNames.length})
                         </Checkbox>
@@ -387,6 +392,7 @@ export const DashboardFilters: React.FC = () => {
                     startContent={
                       <MessageCircle className="w-3 h-3 text-foreground-400" />
                     }
+                    isDisabled={loading}
                   >
                     {availableChannels.map((channel) => (
                       <SelectItem key={channel.id}>{channel.name}</SelectItem>
@@ -421,6 +427,7 @@ export const DashboardFilters: React.FC = () => {
                 startContent={<Hash className="w-3 h-3 text-foreground-400" />}
                 aria-label="Enter account IDs"
                 description="Enter alphanumeric account IDs separated by commas"
+                isDisabled={loading}
               />
             </div>
           </div>
@@ -437,6 +444,7 @@ export const DashboardFilters: React.FC = () => {
               startContent={<Trash2 className="w-4 h-4" />}
               aria-label="Clear all filters"
               className="px-3"
+              isDisabled={loading}
             >
               Clear All
             </Button>
@@ -444,6 +452,7 @@ export const DashboardFilters: React.FC = () => {
               color="primary"
               onPress={handleRefresh}
               isLoading={loading}
+              isDisabled={loading}
               variant="flat"
               size="sm"
               startContent={
