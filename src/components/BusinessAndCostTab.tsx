@@ -14,6 +14,7 @@ import {
 } from "recharts";
 import { useDashboardStore } from "../contexts/DashboardContext";
 import { formatCurrency } from "../utils/currencyHelpers";
+import { TopExpensiveAccounts } from "./TopExpensiveAccounts";
 
 // Professional color palette with better contrast
 const CHART_COLORS = {
@@ -49,8 +50,8 @@ const BusinessAndCostSkeleton: React.FC = () => {
       <div>
         <Skeleton className="h-7 w-80 mb-6 rounded-lg" />
 
-        {/* Single Cost Card Skeleton */}
-        <div className="flex justify-center">
+        {/* Cost Cards Skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card className="rounded-2xl w-full max-w-2xl">
             <CardBody className="p-6">
               <Skeleton className="h-6 w-40 mb-4 rounded-lg" />
@@ -64,6 +65,8 @@ const BusinessAndCostSkeleton: React.FC = () => {
               </div>
             </CardBody>
           </Card>
+          
+          <TopExpensiveAccounts accounts={[]} loading={true} />
         </div>
       </div>
 
@@ -233,6 +236,12 @@ export const BusinessAndCostTab: React.FC = () => {
       percentage: costDistribution?.tracing?.percentage || 0,
       color: "#F59E0B", // Amber
     },
+    {
+      name: "Whatsapp",
+      cost: costDistribution?.whatsapp?.cost || 0,
+      percentage: costDistribution?.whatsapp?.percentage || 0,
+      color: "#8B5CF6", // Purple
+    },
   ].filter((item) => item.cost > 0); // Only show items with cost > 0
 
   return (
@@ -243,8 +252,8 @@ export const BusinessAndCostTab: React.FC = () => {
           Business & Cost Metrics Section:
         </h2>
 
-        {/* Cost Overview - Donut Chart */}
-        <div className="flex justify-center">
+        {/* Cost Overview - Side by side cards */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card className="rounded-2xl border-0 bg-gradient-to-b w-full max-w-2xl">
             <CardBody className="p-6">
               {/* <h3 className="text-lg font-semibold mb-6 text-center">
@@ -321,6 +330,24 @@ export const BusinessAndCostTab: React.FC = () => {
                           stopOpacity={0.3}
                         />
                       </linearGradient>
+                      <linearGradient
+                        id="gradientWhatsapp"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
+                        <stop
+                          offset="5%"
+                          stopColor="#8B5CF6"
+                          stopOpacity={0.9}
+                        />
+                        <stop
+                          offset="95%"
+                          stopColor="#8B5CF6"
+                          stopOpacity={0.3}
+                        />
+                      </linearGradient>
                     </defs>
                     <Pie
                       data={costBreakdownData}
@@ -376,6 +403,12 @@ export const BusinessAndCostTab: React.FC = () => {
               </div>
             </CardBody>
           </Card>
+
+          {/* Top Expensive Accounts */}
+          <TopExpensiveAccounts
+            accounts={data?.currentPeriod?.metrics?.topExpensiveAccounts || []}
+            loading={loading}
+          />
         </div>
       </div>
 

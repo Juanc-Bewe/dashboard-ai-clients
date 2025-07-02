@@ -25,6 +25,7 @@ export interface CostByCategory {
   llm: number;
   tools: number;
   tracing: number;
+  whatsapp: number;
 }
 
 export interface CostDistribution {

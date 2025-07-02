@@ -103,15 +103,6 @@ export const useDashboardStore = create<DashboardStore>()(
       console.log('Setting enterprises:', enterprises);
       set({ enterprises });
 
-      // If there's only one enterprise, auto-select it
-      if (enterprises.length === 1) {
-        const { filters } = get();
-        if (filters.enterpriseIds.length === 0) {
-          console.log('Auto-selecting single enterprise:', enterprises[0].id);
-          get().updateFilters({ enterpriseIds: [enterprises[0].id] });
-        }
-      }
-
       // Auto-fetch dashboard data if we have enterprises and this is the first load
       const { data } = get();
       if (!data && enterprises.length > 0) {
