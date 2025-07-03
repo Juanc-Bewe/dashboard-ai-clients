@@ -29,14 +29,14 @@ const MetricCard: React.FC<MetricCardProps> = ({
 
     switch (type) {
       case 'percentage':
-        return `${val.toFixed()}%`;
+        return `${val.toFixed(2)}%`;
       case 'duration':
         return `${Math.round(val)}s`;
       case 'decimal':
         // Dynamic decimal places based on value size
         if (val < 0.1) return val.toFixed(4);
         if (val < 1) return val.toFixed(2);
-        return val.toFixed(0);
+        return val.toFixed(1);
       default:
         return val.toLocaleString();
     }
