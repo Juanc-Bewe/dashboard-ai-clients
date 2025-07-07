@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
   Card,
   CardBody,
@@ -6,13 +6,13 @@ import {
   Button,
 } from "@heroui/react";
 import { RefreshCw, Mail, TrendingUp, Clock, AlertTriangle } from "lucide-react";
-import type { EmailAnalyticsData } from "../types/email-analytics";
-import { emailAnalyticsService } from "../services/emailAnalyticsService";
+import { useAddonManagement } from "../contexts/AddonManagementContext";
 
 export const EmailAnalytics: React.FC = () => {
-  const [data, setData] = useState<EmailAnalyticsData | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { state, refreshData } = useAddonManagement();
+  const { data, loading, error } = state;
+
+  const emailsAnalytics = data?.emailsAnalytics;
 
   const formatNumber = (value: number) => {
     return new Intl.NumberFormat("en-US").format(value);
@@ -25,25 +25,11 @@ export const EmailAnalytics: React.FC = () => {
     return `${hours.toFixed(1)}h`;
   };
 
-  const handleRefresh = async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const emailData = await emailAnalyticsService.getEmailAnalytics();
-      setData(emailData);
-    } catch (err) {
-      setError("Failed to load email analytics data");
-    } finally {
-      setLoading(false);
-    }
+  const handleRefresh = () => {
+    refreshData();
   };
 
-  useEffect(() => {
-    handleRefresh();
-  }, []);
-
-  if (loading && !data) {
+  if (loading && !emailsAnalytics) {
     return (
       <div className="flex justify-center items-center min-h-[400px]">
         <Spinner size="lg" />
@@ -59,7 +45,7 @@ export const EmailAnalytics: React.FC = () => {
     );
   }
 
-  if (!data) {
+  if (!emailsAnalytics) {
     return (
       <div className="text-center text-gray-500 dark:text-gray-400">
         No email analytics data available
@@ -94,7 +80,7 @@ export const EmailAnalytics: React.FC = () => {
               </h3>
             </div>
             <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-              {formatNumber(data.totalEmails)}
+              {formatNumber(emailsAnalytics.totalEmails)}
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
               Sent this period
@@ -111,7 +97,7 @@ export const EmailAnalytics: React.FC = () => {
               </h3>
             </div>
             <div className="text-3xl font-bold text-green-600 dark:text-green-400">
-              {data.rates.deliveryRate.toFixed(1)}%
+              {emailsAnalytics.deliveryRate.toFixed(1)}%
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
               Successfully delivered
@@ -128,7 +114,7 @@ export const EmailAnalytics: React.FC = () => {
               </h3>
             </div>
             <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">
-              {data.rates.openRate.toFixed(1)}%
+              {emailsAnalytics.openRate.toFixed(1)}%
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
               Emails opened
@@ -145,7 +131,7 @@ export const EmailAnalytics: React.FC = () => {
               </h3>
             </div>
             <div className="text-3xl font-bold text-orange-600 dark:text-orange-400">
-              {data.rates.clickRate.toFixed(1)}%
+              {emailsAnalytics.clickRate.toFixed(1)}%
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
               Links clicked
@@ -164,54 +150,72 @@ export const EmailAnalytics: React.FC = () => {
             <Card className="hover:shadow-sm transition-shadow">
               <CardBody className="text-center p-4">
                 <div className="text-xl font-bold text-green-600 dark:text-green-400">
-                  {formatNumber(data.emailsByStatus.delivered)}
+                  {formatNumber(emailsAnalytics.stateDistribution.delivered.count)}
                 </div>
                 <p className="text-sm text-green-600 dark:text-green-400">Delivered</p>
+                <p className="text-xs text-green-500 dark:text-green-400 mt-1">
+                  {emailsAnalytics.stateDistribution.delivered.percentage.toFixed(1)}%
+                </p>
               </CardBody>
             </Card>
             
             <Card className="hover:shadow-sm transition-shadow">
               <CardBody className="text-center p-4">
                 <div className="text-xl font-bold text-purple-600 dark:text-purple-400">
-                  {formatNumber(data.emailsByStatus.opened)}
+                  {formatNumber(emailsAnalytics.stateDistribution.open.count)}
                 </div>
                 <p className="text-sm text-purple-600 dark:text-purple-400">Opened</p>
+                <p className="text-xs text-purple-500 dark:text-purple-400 mt-1">
+                  {emailsAnalytics.stateDistribution.open.percentage.toFixed(1)}%
+                </p>
               </CardBody>
             </Card>
             
             <Card className="hover:shadow-sm transition-shadow">
               <CardBody className="text-center p-4">
                 <div className="text-xl font-bold text-orange-600 dark:text-orange-400">
-                  {formatNumber(data.emailsByStatus.clicked)}
+                  {formatNumber(emailsAnalytics.stateDistribution.click.count)}
                 </div>
                 <p className="text-sm text-orange-600 dark:text-orange-400">Clicked</p>
+                <p className="text-xs text-orange-500 dark:text-orange-400 mt-1">
+                  {emailsAnalytics.stateDistribution.click.percentage.toFixed(1)}%
+                </p>
               </CardBody>
             </Card>
             
             <Card className="hover:shadow-sm transition-shadow">
               <CardBody className="text-center p-4">
                 <div className="text-xl font-bold text-red-600 dark:text-red-400">
-                  {formatNumber(data.emailsByStatus.bounced)}
+                  {formatNumber(emailsAnalytics.stateDistribution.bounced.count)}
                 </div>
                 <p className="text-sm text-red-600 dark:text-red-400">Bounced</p>
+                <p className="text-xs text-red-500 dark:text-red-400 mt-1">
+                  {emailsAnalytics.stateDistribution.bounced.percentage.toFixed(1)}%
+                </p>
               </CardBody>
             </Card>
             
             <Card className="hover:shadow-sm transition-shadow">
               <CardBody className="text-center p-4">
                 <div className="text-xl font-bold text-red-700 dark:text-red-500">
-                  {formatNumber(data.emailsByStatus.spam)}
+                  {formatNumber(emailsAnalytics.stateDistribution.dropped.count)}
                 </div>
-                <p className="text-sm text-red-700 dark:text-red-500">Spam</p>
+                <p className="text-sm text-red-700 dark:text-red-500">Dropped</p>
+                <p className="text-xs text-red-600 dark:text-red-500 mt-1">
+                  {emailsAnalytics.stateDistribution.dropped.percentage.toFixed(1)}%
+                </p>
               </CardBody>
             </Card>
             
             <Card className="hover:shadow-sm transition-shadow">
               <CardBody className="text-center p-4">
                 <div className="text-xl font-bold text-gray-600 dark:text-gray-400">
-                  {formatNumber(data.emailsByStatus.pending)}
+                  {formatNumber(emailsAnalytics.stateDistribution.pending.count)}
                 </div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Pending</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  {emailsAnalytics.stateDistribution.pending.percentage.toFixed(1)}%
+                </p>
               </CardBody>
             </Card>
           </div>
@@ -231,13 +235,13 @@ export const EmailAnalytics: React.FC = () => {
             <div className="grid grid-cols-2 gap-4">
               <div className="text-center">
                 <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                  {formatTime(data.timing.averageTimeToOpen)}
+                  {formatTime(emailsAnalytics.averageTimeToOpen)}
                 </div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Average Time</p>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                  {formatTime(data.timing.medianTimeToOpen)}
+                  {formatTime(emailsAnalytics.medianTimeToOpen)}
                 </div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Median Time</p>
               </div>
@@ -245,43 +249,45 @@ export const EmailAnalytics: React.FC = () => {
           </CardBody>
         </Card>
 
-        {/* Issues Section */}
+        {/* Performance & Issues Section */}
         <Card className="hover:shadow-md transition-shadow">
           <CardBody className="p-6">
             <div className="flex items-center mb-4">
               <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 mr-2" />
               <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">
-                Delivery Issues
+                Performance Metrics
               </h3>
             </div>
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600 dark:text-gray-400">Spam/Dropped</span>
+                <span className="text-sm text-gray-600 dark:text-gray-400">Processed Rate</span>
                 <div className="text-right">
-                  <span className="text-lg font-bold text-red-700 dark:text-red-500">
-                    {formatNumber(data.emailsByStatus.spam)}
-                  </span>
-                  <span className="text-sm text-red-600 dark:text-red-400 ml-2">
-                    ({data.rates.spamRate.toFixed(1)}%)
+                  <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                    {emailsAnalytics.processedRate.toFixed(1)}%
                   </span>
                 </div>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600 dark:text-gray-400">Bounced</span>
+                <span className="text-sm text-gray-600 dark:text-gray-400">Bounced Rate</span>
                 <div className="text-right">
                   <span className="text-lg font-bold text-red-600 dark:text-red-400">
-                    {formatNumber(data.emailsByStatus.bounced)}
-                  </span>
-                  <span className="text-sm text-red-600 dark:text-red-400 ml-2">
-                    ({data.rates.bounceRate.toFixed(1)}%)
+                    {emailsAnalytics.bouncedRate.toFixed(1)}%
                   </span>
                 </div>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600 dark:text-gray-400">Failed</span>
+                <span className="text-sm text-gray-600 dark:text-gray-400">Processed Count</span>
                 <div className="text-right">
-                  <span className="text-lg font-bold text-red-600 dark:text-red-400">
-                    {formatNumber(data.emailsByStatus.failed)}
+                  <span className="text-lg font-bold text-green-600 dark:text-green-400">
+                    {formatNumber(emailsAnalytics.stateDistribution.processed.count)}
+                  </span>
+                </div>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600 dark:text-gray-400">Sent Count</span>
+                <div className="text-right">
+                  <span className="text-lg font-bold text-gray-600 dark:text-gray-400">
+                    {formatNumber(emailsAnalytics.stateDistribution.sended.count)}
                   </span>
                 </div>
               </div>
@@ -289,6 +295,30 @@ export const EmailAnalytics: React.FC = () => {
           </CardBody>
         </Card>
       </div>
+
+      {/* Time to Open Distribution */}
+      <Card className="hover:shadow-md transition-shadow">
+        <CardBody className="p-6">
+          <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">
+            Time to Open Distribution
+          </h3>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            {Object.entries(emailsAnalytics.timeToOpenDistribution).map(([timeRange, data]) => (
+              <Card key={timeRange} className="hover:shadow-sm transition-shadow">
+                <CardBody className="text-center p-4">
+                  <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                    {formatNumber(data.count)}
+                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{timeRange}</p>
+                  <p className="text-xs text-blue-500 dark:text-blue-400 mt-1">
+                    {data.percentage.toFixed(1)}%
+                  </p>
+                </CardBody>
+              </Card>
+            ))}
+          </div>
+        </CardBody>
+      </Card>
     </div>
   );
 }; 

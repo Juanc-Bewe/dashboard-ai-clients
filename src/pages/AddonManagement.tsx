@@ -52,7 +52,7 @@ export const AddonManagement: React.FC = () => {
   const { state, setCurrentPage, refreshData } = useAddonManagement();
   const [selectedTab, setSelectedTab] = useState("account-management");
   const [filterValue, setFilterValue] = useState("");
-  
+
   const [sortState, setSortState] = useState<{
     column: SortableColumn | null;
     direction: SortDirection;
