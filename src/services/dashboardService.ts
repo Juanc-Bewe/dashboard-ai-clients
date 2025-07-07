@@ -1,9 +1,8 @@
 import axios from 'axios';
 import type { DashboardApiResponse, DashboardFilters } from '../types/dashboard';
 import dashboardMetrics from '../mocks/dashboardMetrics';
+import config from '../config';
 
-// API configuration
-const API_BASE_URL = 'https://lindabackend.bewe.co';
 const PIN_KEY = 'dashboard_analytics_pin';
 
 // Cookie utility function
@@ -25,7 +24,7 @@ const getCurrentPin = (): string | null => {
 
 // Create axios instance with default config
 const apiClient = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: config.apiBaseUrl,
   headers: {
     'accept': 'application/json'
   }
