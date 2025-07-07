@@ -15,6 +15,7 @@ import {
   Spinner,
   Tabs,
   Tab,
+  Skeleton,
 } from "@heroui/react";
 import { Search, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { useAddonManagement } from "../contexts/AddonManagementContext";
@@ -48,11 +49,65 @@ const columns: Column[] = [
   { key: 'baseUsed', label: 'BASE USED', width: 110, align: 'center', sortable: true },
 ];
 
+// Skeleton components
+const OverviewCardSkeleton = () => (
+  <Card className="hover:shadow-md transition-shadow">
+    <CardBody className="text-center py-8">
+      <Skeleton className="h-6 w-3/4 mx-auto mb-4" />
+      <Skeleton className="h-10 w-1/2 mx-auto mb-2" />
+      <Skeleton className="h-4 w-1/3 mx-auto" />
+    </CardBody>
+  </Card>
+);
+
+const StatsCardSkeleton = () => (
+  <Card className="hover:shadow-md transition-shadow">
+    <CardBody className="p-6">
+      <Skeleton className="h-5 w-3/4 mb-4" />
+      <div className="grid grid-cols-2 gap-4">
+        <Card className="hover:shadow-sm transition-shadow">
+          <CardBody className="text-center p-4">
+            <Skeleton className="h-6 w-full mb-2" />
+            <Skeleton className="h-4 w-1/2 mx-auto" />
+          </CardBody>
+        </Card>
+        <Card className="hover:shadow-sm transition-shadow">
+          <CardBody className="text-center p-4">
+            <Skeleton className="h-6 w-full mb-2" />
+            <Skeleton className="h-4 w-1/2 mx-auto" />
+          </CardBody>
+        </Card>
+      </div>
+    </CardBody>
+  </Card>
+);
+
+const OnboardingCardSkeleton = () => (
+  <Card className="hover:shadow-md transition-shadow">
+    <CardBody className="p-6">
+      <Skeleton className="h-5 w-3/4 mb-4" />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {[1, 2, 3].map((i) => (
+          <Card key={i} className="hover:shadow-sm transition-shadow">
+            <CardBody className="text-center p-4">
+              <Skeleton className="h-6 w-full mb-2" />
+              <Skeleton className="h-4 w-1/2 mx-auto mb-1" />
+              <Skeleton className="h-3 w-1/3 mx-auto" />
+            </CardBody>
+          </Card>
+        ))}
+      </div>
+    </CardBody>
+  </Card>
+);
+
+
+
 export const AddonManagement: React.FC = () => {
   const { state, setCurrentPage, refreshData } = useAddonManagement();
   const [selectedTab, setSelectedTab] = useState("account-management");
   const [filterValue, setFilterValue] = useState("");
-
+  
   const [sortState, setSortState] = useState<{
     column: SortableColumn | null;
     direction: SortDirection;
@@ -266,14 +321,6 @@ export const AddonManagement: React.FC = () => {
     setCurrentPage(1);
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-[400px]">
-        <Spinner size="lg" />
-      </div>
-    );
-  }
-
   if (error) {
     return (
       <div className="text-center text-red-500 dark:text-red-400">
@@ -283,252 +330,294 @@ export const AddonManagement: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-          Data Management
-        </h1>
+    <div className="space-y-8">
+      {/* Page Header */}
+      <div className="pb-4 border-b border-gray-200 dark:border-gray-700">
+        <h1 className="text-3xl font-bold text-foreground">Data Management</h1>
+        <p className="mt-2 text-foreground-600">Monitor accounts, email analytics, and system performance</p>
       </div>
 
-      {/* Top Filters */}
-      <div className="flex justify-between items-center gap-4">
-        <div className="flex items-center gap-4">
-          <Input
-            isClearable
-            placeholder="Search by account name or ID..."
-            startContent={<Search className="w-4 h-4" />}
-            value={filterValue}
-            onClear={() => setFilterValue("")}
-            onValueChange={handleFilterChange}
-            className="max-w-sm"
-          />
-        </div>
-        <Button
-          color="primary"
-          onPress={handleRefresh}
-          isLoading={loading}
-          startContent={!loading ? <RefreshCw className="w-4 h-4" /> : undefined}
-        >
-          Refresh
-        </Button>
-      </div>
-
-      {/* Dashboard Overview - Show only for account management */}
-      {selectedTab === "account-management" && dashboardStats && (
-        <div className="space-y-6">
-          {/* Account Overview */}
-          <Card className="hover:shadow-md transition-shadow">
-            <CardBody className="text-center py-8">
-              <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                Account Overview
-              </h2>
-              <div className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-1">
-                {formatNumber(dashboardStats.total)}
-              </div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Total Accounts</p>
-            </CardBody>
-          </Card>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* AI Clients Status */}
-            <Card className="hover:shadow-md transition-shadow">
-              <CardBody className="p-6">
-                <h3 className="text-md font-semibold text-gray-700 dark:text-gray-300 mb-4">
-                  AI Clients Status
-                </h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <Card className="hover:shadow-sm transition-shadow">
-                    <CardBody className="text-center p-4">
-                      <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                        {formatNumber(dashboardStats.active)}
-                      </div>
-                      <p className="text-sm text-green-600 dark:text-green-400">Active</p>
-                    </CardBody>
-                  </Card>
-                  <Card className="hover:shadow-sm transition-shadow">
-                    <CardBody className="text-center p-4">
-                      <div className="text-2xl font-bold text-red-600 dark:text-red-400">
-                        {formatNumber(dashboardStats.inactive)}
-                      </div>
-                      <p className="text-sm text-red-600 dark:text-red-400">Inactive</p>
-                    </CardBody>
-                  </Card>
-                </div>
-              </CardBody>
-            </Card>
-
-            {/* Automode Configuration */}
-            <Card className="hover:shadow-md transition-shadow">
-              <CardBody className="p-6">
-                <h3 className="text-md font-semibold text-gray-700 dark:text-gray-300 mb-4">
-                  Automode Configuration
-                </h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <Card className="hover:shadow-sm transition-shadow">
-                    <CardBody className="text-center p-4">
-                      <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                        {formatNumber(dashboardStats.automodeYes)}
-                      </div>
-                      <p className="text-sm text-blue-600 dark:text-blue-400">Yes</p>
-                    </CardBody>
-                  </Card>
-                  <Card className="hover:shadow-sm transition-shadow">
-                    <CardBody className="text-center p-4">
-                      <div className="text-2xl font-bold text-gray-600 dark:text-gray-400">
-                        {formatNumber(dashboardStats.automodeNo)}
-                      </div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">No</p>
-                    </CardBody>
-                  </Card>
-                </div>
-              </CardBody>
-            </Card>
+      {/* Filters Section */}
+      <section className="relative">
+        <div className="flex justify-between items-center gap-4">
+          <div className="flex items-center gap-4">
+            <Input
+              isClearable
+              placeholder="Search by account name or ID..."
+              startContent={<Search className="w-4 h-4" />}
+              value={filterValue}
+              onClear={() => setFilterValue("")}
+              onValueChange={handleFilterChange}
+              className="max-w-sm"
+            />
           </div>
-
-          {/* Onboarding/Configuration */}
-          <Card className="hover:shadow-md transition-shadow">
-            <CardBody className="p-6">
-              <h3 className="text-md font-semibold text-gray-700 dark:text-gray-300 mb-4">
-                Onboarding / Configuration
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Card className="hover:shadow-sm transition-shadow">
-                  <CardBody className="text-center p-4">
-                    <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                      {formatNumber(dashboardStats.completed)}
-                    </div>
-                    <p className="text-sm text-green-600 dark:text-green-400">Completed</p>
-                    <p className="text-xs text-green-500 dark:text-green-400 mt-1">
-                      {dashboardStats.completedPercentage}%
-                    </p>
-                  </CardBody>
-                </Card>
-                <Card className="hover:shadow-sm transition-shadow">
-                  <CardBody className="text-center p-4">
-                    <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
-                      {formatNumber(dashboardStats.pending)}
-                    </div>
-                    <p className="text-sm text-orange-600 dark:text-orange-400">Pending</p>
-                    <p className="text-xs text-orange-500 dark:text-orange-400 mt-1">
-                      {dashboardStats.pendingPercentage}%
-                    </p>
-                  </CardBody>
-                </Card>
-                <Card className="hover:shadow-sm transition-shadow">
-                  <CardBody className="text-center p-4">
-                    <div className="text-2xl font-bold text-red-600 dark:text-red-400">
-                      {formatNumber(dashboardStats.failed)}
-                    </div>
-                    <p className="text-sm text-red-600 dark:text-red-400">Failed</p>
-                    <p className="text-xs text-red-500 dark:text-red-400 mt-1">
-                      {dashboardStats.failedPercentage}%
-                    </p>
-                  </CardBody>
-                </Card>
-              </div>
-            </CardBody>
-          </Card>
-        </div>
-      )}
-
-      {/* Email Analytics Dashboard - Show only for email analytics */}
-      {selectedTab === "email-analytics" && (
-        <EmailAnalytics />
-      )}
-
-      {/* Tabs as Filters */}
-      <Card>
-        <CardBody className="p-0">
-          <Tabs
-            selectedKey={selectedTab}
-            onSelectionChange={handleTabChange}
-            aria-label="Data Management tabs" 
-            className="w-full"
-            classNames={{
-              base: "w-full",
-              tabList: "w-full",
-              panel: "p-0",
-            }}
+          <Button
+            color="primary"
+            variant="flat"
+            onPress={handleRefresh}
+            isLoading={loading}
+            startContent={!loading ? <RefreshCw className="w-4 h-4" /> : undefined}
+            className="font-medium"
           >
-            <Tab key="account-management" title="Account Management" />
-            <Tab key="email-analytics" title="Email Analytics" />
-          </Tabs>
-        </CardBody>
-      </Card>
+            Refresh Data
+          </Button>
+        </div>
+      </section>
 
-      {/* Static Table - Always Visible */}
-      <Card>
-        <CardBody className="p-0">
-          <div className="overflow-x-auto">
-            <Table 
-              aria-label="Data table"
-              isCompact
-              removeWrapper
+      {/* Tabs Navigation */}
+      <section>
+        <Card>
+          <CardBody className="p-0">
+            <Tabs
+              selectedKey={selectedTab}
+              onSelectionChange={handleTabChange}
+              aria-label="Data Management tabs" 
+              className="w-full"
               classNames={{
-                wrapper: "min-h-[400px]",
-                table: "min-w-[1060px]",
-                th: "bg-gray-50 dark:bg-gray-800/50 text-tiny font-semibold border-b border-gray-200 dark:border-gray-700",
-                td: "text-small whitespace-nowrap border-b border-gray-100 dark:border-gray-800",
-                tr: "hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors",
+                base: "w-full",
+                tabList: "w-full",
+                panel: "p-0",
               }}
             >
-              <TableHeader columns={columns}>
-                {(column) => (
-                  <TableColumn 
-                    key={column.key}
-                    width={column.width}
-                    minWidth={column.width}
-                    align={column.align}
-                  >
-                    {column.sortable ? (
-                      <button
-                        className="flex items-center justify-center w-full hover:text-primary transition-colors cursor-pointer"
-                        onClick={() => handleSort(column.key as SortableColumn)}
-                      >
-                        {column.label}
-                        {getSortIcon(column.key)}
-                      </button>
-                    ) : (
-                      column.label
-                    )}
-                  </TableColumn>
-                )}
-              </TableHeader>
-              <TableBody 
-                items={paginatedAccounts}
-                emptyContent={
-                  <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                    {filteredAccounts.length === 0 ? "No data found" : "No data matches your search"}
-                  </div>
-                }
-              >
-                {(account) => (
-                  <TableRow key={account.accountId}>
-                    {(columnKey) => (
-                      <TableCell>
-                        {renderCell(account, columnKey as string)}
-                      </TableCell>
-                    )}
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
+              <Tab key="account-management" title="Account Management" />
+              <Tab key="email-analytics" title="Email Analytics" />
+            </Tabs>
+          </CardBody>
+        </Card>
+      </section>
 
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex justify-center p-4 border-t border-gray-200 dark:border-gray-700">
-              <Pagination
-                showControls
-                color="primary"
-                page={currentPage}
-                total={totalPages}
-                onChange={setCurrentPage}
-              />
+      {/* Main Content */}
+      <section className="space-y-6">
+        {/* Dashboard Overview - Show only for account management */}
+        {selectedTab === "account-management" && (
+          <div className="space-y-6">
+            <div className="flex items-center gap-2">
+              <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
+              <h2 className="text-xl font-semibold text-foreground">Account Overview</h2>
             </div>
-          )}
-        </CardBody>
-      </Card>
+            
+            {loading ? (
+              <div className="space-y-6">
+                <OverviewCardSkeleton />
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <StatsCardSkeleton />
+                  <StatsCardSkeleton />
+                </div>
+                <OnboardingCardSkeleton />
+              </div>
+            ) : dashboardStats ? (
+              <div className="space-y-6">
+                {/* Account Overview */}
+                <Card className="hover:shadow-md transition-shadow">
+                  <CardBody className="text-center py-8">
+                    <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                      Account Overview
+                    </h3>
+                    <div className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+                      {formatNumber(dashboardStats.total)}
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Total Accounts</p>
+                  </CardBody>
+                </Card>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* AI Clients Status */}
+                  <Card className="hover:shadow-md transition-shadow">
+                    <CardBody className="p-6">
+                      <h3 className="text-md font-semibold text-gray-700 dark:text-gray-300 mb-4">
+                        AI Clients Status
+                      </h3>
+                      <div className="grid grid-cols-2 gap-4">
+                        <Card className="hover:shadow-sm transition-shadow">
+                          <CardBody className="text-center p-4">
+                            <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                              {formatNumber(dashboardStats.active)}
+                            </div>
+                            <p className="text-sm text-green-600 dark:text-green-400">Active</p>
+                          </CardBody>
+                        </Card>
+                        <Card className="hover:shadow-sm transition-shadow">
+                          <CardBody className="text-center p-4">
+                            <div className="text-2xl font-bold text-red-600 dark:text-red-400">
+                              {formatNumber(dashboardStats.inactive)}
+                            </div>
+                            <p className="text-sm text-red-600 dark:text-red-400">Inactive</p>
+                          </CardBody>
+                        </Card>
+                      </div>
+                    </CardBody>
+                  </Card>
+
+                  {/* Automode Configuration */}
+                  <Card className="hover:shadow-md transition-shadow">
+                    <CardBody className="p-6">
+                      <h3 className="text-md font-semibold text-gray-700 dark:text-gray-300 mb-4">
+                        Automode Configuration
+                      </h3>
+                      <div className="grid grid-cols-2 gap-4">
+                        <Card className="hover:shadow-sm transition-shadow">
+                          <CardBody className="text-center p-4">
+                            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                              {formatNumber(dashboardStats.automodeYes)}
+                            </div>
+                            <p className="text-sm text-blue-600 dark:text-blue-400">Yes</p>
+                          </CardBody>
+                        </Card>
+                        <Card className="hover:shadow-sm transition-shadow">
+                          <CardBody className="text-center p-4">
+                            <div className="text-2xl font-bold text-gray-600 dark:text-gray-400">
+                              {formatNumber(dashboardStats.automodeNo)}
+                            </div>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">No</p>
+                          </CardBody>
+                        </Card>
+                      </div>
+                    </CardBody>
+                  </Card>
+                </div>
+
+                {/* Onboarding/Configuration */}
+                <Card className="hover:shadow-md transition-shadow">
+                  <CardBody className="p-6">
+                    <h3 className="text-md font-semibold text-gray-700 dark:text-gray-300 mb-4">
+                      Onboarding / Configuration
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <Card className="hover:shadow-sm transition-shadow">
+                        <CardBody className="text-center p-4">
+                          <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                            {formatNumber(dashboardStats.completed)}
+                          </div>
+                          <p className="text-sm text-green-600 dark:text-green-400">Completed</p>
+                          <p className="text-xs text-green-500 dark:text-green-400 mt-1">
+                            {dashboardStats.completedPercentage}%
+                          </p>
+                        </CardBody>
+                      </Card>
+                      <Card className="hover:shadow-sm transition-shadow">
+                        <CardBody className="text-center p-4">
+                          <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+                            {formatNumber(dashboardStats.pending)}
+                          </div>
+                          <p className="text-sm text-orange-600 dark:text-orange-400">Pending</p>
+                          <p className="text-xs text-orange-500 dark:text-orange-400 mt-1">
+                            {dashboardStats.pendingPercentage}%
+                          </p>
+                        </CardBody>
+                      </Card>
+                      <Card className="hover:shadow-sm transition-shadow">
+                        <CardBody className="text-center p-4">
+                          <div className="text-2xl font-bold text-red-600 dark:text-red-400">
+                            {formatNumber(dashboardStats.failed)}
+                          </div>
+                          <p className="text-sm text-red-600 dark:text-red-400">Failed</p>
+                          <p className="text-xs text-red-500 dark:text-red-400 mt-1">
+                            {dashboardStats.failedPercentage}%
+                          </p>
+                        </CardBody>
+                      </Card>
+                    </div>
+                  </CardBody>
+                </Card>
+              </div>
+            ) : null}
+          </div>
+        )}
+
+        {/* Email Analytics Dashboard - Show only for email analytics */}
+        {selectedTab === "email-analytics" && (
+          <div className="space-y-6">
+            <div className="flex items-center gap-2">
+              <div className="w-1 h-6 bg-emerald-500 rounded-full"></div>
+              <h2 className="text-xl font-semibold text-foreground">Email Analytics</h2>
+            </div>
+            <EmailAnalytics />
+          </div>
+        )}
+
+        {/* Account Data Table */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <div className="w-1 h-6 bg-purple-500 rounded-full"></div>
+            <h2 className="text-xl font-semibold text-foreground">Account Data</h2>
+          </div>
+          
+          <Card>
+            <CardBody className="p-0">
+              <div className="overflow-x-auto">
+                <Table 
+                  aria-label="Data table"
+                  isCompact
+                  removeWrapper
+                  classNames={{
+                    wrapper: "min-h-[400px]",
+                    table: "min-w-[1060px]",
+                    th: "bg-gray-50 dark:bg-gray-800/50 text-tiny font-semibold border-b border-gray-200 dark:border-gray-700",
+                    td: "text-small whitespace-nowrap border-b border-gray-100 dark:border-gray-800",
+                    tr: "hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors",
+                  }}
+                >
+                  <TableHeader columns={columns}>
+                    {(column) => (
+                      <TableColumn 
+                        key={column.key}
+                        width={column.width}
+                        minWidth={column.width}
+                        align={column.align}
+                      >
+                        {column.sortable ? (
+                          <button
+                            className="flex items-center justify-center w-full hover:text-primary transition-colors cursor-pointer"
+                            onClick={() => handleSort(column.key as SortableColumn)}
+                          >
+                            {column.label}
+                            {getSortIcon(column.key)}
+                          </button>
+                        ) : (
+                          column.label
+                        )}
+                      </TableColumn>
+                    )}
+                  </TableHeader>
+                  <TableBody 
+                    items={paginatedAccounts}
+                    isLoading={loading}
+                    loadingContent={<Spinner label="Loading..." />}
+                    emptyContent={
+                      <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                        {filteredAccounts.length === 0 ? "No data found" : "No data matches your search"}
+                      </div>
+                    }
+                  >
+                    {(account) => (
+                      <TableRow key={account.accountId}>
+                        {(columnKey) => (
+                          <TableCell>
+                            {renderCell(account, columnKey as string)}
+                          </TableCell>
+                        )}
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Pagination */}
+              {!loading && totalPages > 1 && (
+                <div className="flex justify-center p-4 border-t border-gray-200 dark:border-gray-700">
+                  <Pagination
+                    showControls
+                    color="primary"
+                    page={currentPage}
+                    total={totalPages}
+                    onChange={setCurrentPage}
+                  />
+                </div>
+              )}
+            </CardBody>
+          </Card>
+        </div>
+      </section>
     </div>
   );
 };

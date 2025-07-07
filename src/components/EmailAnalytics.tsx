@@ -3,15 +3,61 @@ import {
   Card,
   CardBody,
   Spinner,
-  Button,
+  Skeleton,
 } from "@heroui/react";
-import { RefreshCw, Mail, TrendingUp, Clock, AlertTriangle } from "lucide-react";
+import { Mail, TrendingUp, Clock } from "lucide-react";
 import { useAddonManagement } from "../contexts/AddonManagementContext";
 
-export const EmailAnalytics: React.FC = () => {
-  const { state, refreshData } = useAddonManagement();
-  const { data, loading, error } = state;
+// Skeleton components for email analytics
+const EmailOverviewCardSkeleton = () => (
+  <Card className="hover:shadow-md transition-shadow">
+    <CardBody className="text-center p-6">
+      <Skeleton className="h-6 w-3/4 mx-auto mb-4" />
+      <Skeleton className="h-8 w-1/2 mx-auto mb-2" />
+      <Skeleton className="h-4 w-1/3 mx-auto" />
+    </CardBody>
+  </Card>
+);
 
+const EmailStatsCardSkeleton = () => (
+  <Card className="hover:shadow-md transition-shadow">
+    <CardBody className="p-6">
+      <Skeleton className="h-5 w-3/4 mb-4" />
+      <div className="space-y-3">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="flex justify-between items-center">
+            <Skeleton className="h-4 w-1/3" />
+            <Skeleton className="h-5 w-1/4" />
+          </div>
+        ))}
+      </div>
+    </CardBody>
+  </Card>
+);
+
+const TimeDistributionSkeleton = () => (
+  <Card className="hover:shadow-md transition-shadow">
+    <CardBody className="p-6">
+      <Skeleton className="h-5 w-3/4 mb-4" />
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        {[1, 2, 3, 4, 5].map((i) => (
+          <Card key={i} className="hover:shadow-sm transition-shadow">
+            <CardBody className="text-center p-4">
+              <Skeleton className="h-5 w-full mb-2" />
+              <Skeleton className="h-4 w-1/2 mx-auto mb-1" />
+              <Skeleton className="h-3 w-1/3 mx-auto" />
+            </CardBody>
+          </Card>
+        ))}
+      </div>
+    </CardBody>
+  </Card>
+);
+
+export const EmailAnalytics: React.FC = () => {
+  const { state } = useAddonManagement();
+  const { data, loading, error } = state;
+  
   const emailsAnalytics = data?.emailsAnalytics;
 
   const formatNumber = (value: number) => {
@@ -25,14 +71,23 @@ export const EmailAnalytics: React.FC = () => {
     return `${hours.toFixed(1)}h`;
   };
 
-  const handleRefresh = () => {
-    refreshData();
-  };
-
   if (loading && !emailsAnalytics) {
     return (
-      <div className="flex justify-center items-center min-h-[400px]">
-        <Spinner size="lg" />
+      <div className="space-y-6">
+        {/* Overview Section Skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <EmailOverviewCardSkeleton />
+          <EmailOverviewCardSkeleton />
+          <EmailOverviewCardSkeleton />
+          <EmailOverviewCardSkeleton />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <EmailStatsCardSkeleton />
+          <EmailStatsCardSkeleton />
+        </div>
+
+        <TimeDistributionSkeleton />
       </div>
     );
   }
@@ -55,20 +110,6 @@ export const EmailAnalytics: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-          Email Analytics
-        </h1>
-        <Button
-          color="primary"
-          onPress={handleRefresh}
-          isLoading={loading}
-          startContent={!loading ? <RefreshCw className="w-4 h-4" /> : undefined}
-        >
-          Refresh
-        </Button>
-      </div>
-
       {/* Overview Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card className="hover:shadow-md transition-shadow">
@@ -140,88 +181,6 @@ export const EmailAnalytics: React.FC = () => {
         </Card>
       </div>
 
-      {/* Email Status Distribution */}
-      <Card className="hover:shadow-md transition-shadow">
-        <CardBody className="p-6">
-          <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">
-            Email Status Distribution
-          </h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            <Card className="hover:shadow-sm transition-shadow">
-              <CardBody className="text-center p-4">
-                <div className="text-xl font-bold text-green-600 dark:text-green-400">
-                  {formatNumber(emailsAnalytics.stateDistribution.delivered.count)}
-                </div>
-                <p className="text-sm text-green-600 dark:text-green-400">Delivered</p>
-                <p className="text-xs text-green-500 dark:text-green-400 mt-1">
-                  {emailsAnalytics.stateDistribution.delivered.percentage.toFixed(1)}%
-                </p>
-              </CardBody>
-            </Card>
-            
-            <Card className="hover:shadow-sm transition-shadow">
-              <CardBody className="text-center p-4">
-                <div className="text-xl font-bold text-purple-600 dark:text-purple-400">
-                  {formatNumber(emailsAnalytics.stateDistribution.open.count)}
-                </div>
-                <p className="text-sm text-purple-600 dark:text-purple-400">Opened</p>
-                <p className="text-xs text-purple-500 dark:text-purple-400 mt-1">
-                  {emailsAnalytics.stateDistribution.open.percentage.toFixed(1)}%
-                </p>
-              </CardBody>
-            </Card>
-            
-            <Card className="hover:shadow-sm transition-shadow">
-              <CardBody className="text-center p-4">
-                <div className="text-xl font-bold text-orange-600 dark:text-orange-400">
-                  {formatNumber(emailsAnalytics.stateDistribution.click.count)}
-                </div>
-                <p className="text-sm text-orange-600 dark:text-orange-400">Clicked</p>
-                <p className="text-xs text-orange-500 dark:text-orange-400 mt-1">
-                  {emailsAnalytics.stateDistribution.click.percentage.toFixed(1)}%
-                </p>
-              </CardBody>
-            </Card>
-            
-            <Card className="hover:shadow-sm transition-shadow">
-              <CardBody className="text-center p-4">
-                <div className="text-xl font-bold text-red-600 dark:text-red-400">
-                  {formatNumber(emailsAnalytics.stateDistribution.bounced.count)}
-                </div>
-                <p className="text-sm text-red-600 dark:text-red-400">Bounced</p>
-                <p className="text-xs text-red-500 dark:text-red-400 mt-1">
-                  {emailsAnalytics.stateDistribution.bounced.percentage.toFixed(1)}%
-                </p>
-              </CardBody>
-            </Card>
-            
-            <Card className="hover:shadow-sm transition-shadow">
-              <CardBody className="text-center p-4">
-                <div className="text-xl font-bold text-red-700 dark:text-red-500">
-                  {formatNumber(emailsAnalytics.stateDistribution.dropped.count)}
-                </div>
-                <p className="text-sm text-red-700 dark:text-red-500">Dropped</p>
-                <p className="text-xs text-red-600 dark:text-red-500 mt-1">
-                  {emailsAnalytics.stateDistribution.dropped.percentage.toFixed(1)}%
-                </p>
-              </CardBody>
-            </Card>
-            
-            <Card className="hover:shadow-sm transition-shadow">
-              <CardBody className="text-center p-4">
-                <div className="text-xl font-bold text-gray-600 dark:text-gray-400">
-                  {formatNumber(emailsAnalytics.stateDistribution.pending.count)}
-                </div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Pending</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  {emailsAnalytics.stateDistribution.pending.percentage.toFixed(1)}%
-                </p>
-              </CardBody>
-            </Card>
-          </div>
-        </CardBody>
-      </Card>
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Timing Analytics */}
         <Card className="hover:shadow-md transition-shadow">
@@ -249,47 +208,36 @@ export const EmailAnalytics: React.FC = () => {
           </CardBody>
         </Card>
 
-        {/* Performance & Issues Section */}
+        {/* Email Status Summary */}
         <Card className="hover:shadow-md transition-shadow">
           <CardBody className="p-6">
-            <div className="flex items-center mb-4">
-              <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 mr-2" />
-              <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">
-                Performance Metrics
-              </h3>
-            </div>
-            <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">
+              Email Status Summary
+            </h3>
+            <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600 dark:text-gray-400">Processed Rate</span>
-                <div className="text-right">
-                  <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                    {emailsAnalytics.processedRate.toFixed(1)}%
-                  </span>
-                </div>
+                <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                  {emailsAnalytics.processedRate.toFixed(1)}%
+                </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600 dark:text-gray-400">Bounced Rate</span>
-                <div className="text-right">
-                  <span className="text-lg font-bold text-red-600 dark:text-red-400">
-                    {emailsAnalytics.bouncedRate.toFixed(1)}%
-                  </span>
-                </div>
+                <span className="text-lg font-bold text-red-600 dark:text-red-400">
+                  {emailsAnalytics.bouncedRate.toFixed(1)}%
+                </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600 dark:text-gray-400">Processed Count</span>
-                <div className="text-right">
-                  <span className="text-lg font-bold text-green-600 dark:text-green-400">
-                    {formatNumber(emailsAnalytics.stateDistribution.processed.count)}
-                  </span>
-                </div>
+                <span className="text-sm text-gray-600 dark:text-gray-400">Delivered</span>
+                <span className="text-lg font-bold text-green-600 dark:text-green-400">
+                  {formatNumber(emailsAnalytics.stateDistribution.delivered.count)}
+                </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600 dark:text-gray-400">Sent Count</span>
-                <div className="text-right">
-                  <span className="text-lg font-bold text-gray-600 dark:text-gray-400">
-                    {formatNumber(emailsAnalytics.stateDistribution.sended.count)}
-                  </span>
-                </div>
+                <span className="text-sm text-gray-600 dark:text-gray-400">Opened</span>
+                <span className="text-lg font-bold text-purple-600 dark:text-purple-400">
+                  {formatNumber(emailsAnalytics.stateDistribution.open.count)}
+                </span>
               </div>
             </div>
           </CardBody>
