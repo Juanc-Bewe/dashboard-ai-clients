@@ -10,7 +10,7 @@ import { useAddonManagement } from "../contexts/AddonManagementContext";
 
 // Skeleton components for email analytics
 const EmailOverviewCardSkeleton = () => (
-  <Card className="hover:shadow-md transition-shadow">
+  <Card className="">
     <CardBody className="text-center p-6">
       <Skeleton className="h-6 w-3/4 mx-auto mb-4" />
       <Skeleton className="h-8 w-1/2 mx-auto mb-2" />
@@ -20,7 +20,7 @@ const EmailOverviewCardSkeleton = () => (
 );
 
 const EmailStatsCardSkeleton = () => (
-  <Card className="hover:shadow-md transition-shadow">
+  <Card className="">
     <CardBody className="p-6">
       <Skeleton className="h-5 w-3/4 mb-4" />
       <div className="space-y-3">
@@ -36,12 +36,12 @@ const EmailStatsCardSkeleton = () => (
 );
 
 const TimeDistributionSkeleton = () => (
-  <Card className="hover:shadow-md transition-shadow">
+  <Card className="">
     <CardBody className="p-6">
       <Skeleton className="h-5 w-3/4 mb-4" />
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         {[1, 2, 3, 4, 5].map((i) => (
-          <Card key={i} className="hover:shadow-sm transition-shadow">
+          <Card key={i} className="">
             <CardBody className="text-center p-4">
               <Skeleton className="h-5 w-full mb-2" />
               <Skeleton className="h-4 w-1/2 mx-auto mb-1" />
@@ -57,7 +57,7 @@ const TimeDistributionSkeleton = () => (
 export const EmailAnalytics: React.FC = () => {
   const { state } = useAddonManagement();
   const { data, loading, error } = state;
-  
+
   const emailsAnalytics = data?.emailsAnalytics;
 
   const formatNumber = (value: number) => {
@@ -112,7 +112,7 @@ export const EmailAnalytics: React.FC = () => {
     <div className="space-y-6">
       {/* Overview Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="hover:shadow-md transition-shadow">
+        <Card className="">
           <CardBody className="text-center p-6">
             <div className="flex items-center justify-center mb-2">
               <Mail className="w-6 h-6 text-blue-600 dark:text-blue-400 mr-2" />
@@ -129,7 +129,7 @@ export const EmailAnalytics: React.FC = () => {
           </CardBody>
         </Card>
 
-        <Card className="hover:shadow-md transition-shadow">
+        <Card className="">
           <CardBody className="text-center p-6">
             <div className="flex items-center justify-center mb-2">
               <TrendingUp className="w-6 h-6 text-green-600 dark:text-green-400 mr-2" />
@@ -146,7 +146,7 @@ export const EmailAnalytics: React.FC = () => {
           </CardBody>
         </Card>
 
-        <Card className="hover:shadow-md transition-shadow">
+        <Card className="">
           <CardBody className="text-center p-6">
             <div className="flex items-center justify-center mb-2">
               <TrendingUp className="w-6 h-6 text-purple-600 dark:text-purple-400 mr-2" />
@@ -163,7 +163,7 @@ export const EmailAnalytics: React.FC = () => {
           </CardBody>
         </Card>
 
-        <Card className="hover:shadow-md transition-shadow">
+        <Card className="">
           <CardBody className="text-center p-6">
             <div className="flex items-center justify-center mb-2">
               <TrendingUp className="w-6 h-6 text-orange-600 dark:text-orange-400 mr-2" />
@@ -181,9 +181,11 @@ export const EmailAnalytics: React.FC = () => {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+
+      <div className="space-y-6">
         {/* Timing Analytics */}
-        <Card className="hover:shadow-md transition-shadow">
+        <Card className="">
           <CardBody className="p-6">
             <div className="flex items-center mb-4">
               <Clock className="w-5 h-5 text-blue-600 dark:text-blue-400 mr-2" />
@@ -208,51 +210,17 @@ export const EmailAnalytics: React.FC = () => {
           </CardBody>
         </Card>
 
-        {/* Email Status Summary */}
-        <Card className="hover:shadow-md transition-shadow">
-          <CardBody className="p-6">
-            <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">
-              Email Status Summary
-            </h3>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600 dark:text-gray-400">Processed Rate</span>
-                <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                  {emailsAnalytics.processedRate.toFixed(1)}%
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600 dark:text-gray-400">Bounced Rate</span>
-                <span className="text-lg font-bold text-red-600 dark:text-red-400">
-                  {emailsAnalytics.bouncedRate.toFixed(1)}%
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600 dark:text-gray-400">Delivered</span>
-                <span className="text-lg font-bold text-green-600 dark:text-green-400">
-                  {formatNumber(emailsAnalytics.stateDistribution.delivered.count)}
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600 dark:text-gray-400">Opened</span>
-                <span className="text-lg font-bold text-purple-600 dark:text-purple-400">
-                  {formatNumber(emailsAnalytics.stateDistribution.open.count)}
-                </span>
-              </div>
-            </div>
-          </CardBody>
-        </Card>
       </div>
 
       {/* Time to Open Distribution */}
-      <Card className="hover:shadow-md transition-shadow">
+      <Card className="">
         <CardBody className="p-6">
           <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">
             Time to Open Distribution
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {Object.entries(emailsAnalytics.timeToOpenDistribution).map(([timeRange, data]) => (
-              <Card key={timeRange} className="hover:shadow-sm transition-shadow">
+              <Card key={timeRange} className="">
                 <CardBody className="text-center p-4">
                   <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
                     {formatNumber(data.count)}
@@ -269,4 +237,4 @@ export const EmailAnalytics: React.FC = () => {
       </Card>
     </div>
   );
-}; 
+};
