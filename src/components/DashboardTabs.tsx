@@ -4,6 +4,7 @@ import { DailyMetricsTab } from "./DailyMetricsTab";
 // import { UserFeelingTab } from './UserFeelingTab';
 import { UseAndAdoptionTab } from "./UseAndAdoptionTab";
 import { BusinessAndCostTab } from "./BusinessAndCostTab";
+import { EmailAnalytics } from "./EmailAnalytics";
 import { useAuth } from "../contexts/AuthContext";
 import { hasPermission } from "../utils/permissionHelpers";
 
@@ -23,6 +24,9 @@ export const DashboardTabs: React.FC = () => {
         )}
         <Tab key="daily" title="Daily Metrics">
           <DailyMetricsTab />
+        </Tab>
+        <Tab key="email" title="Email Analytics">
+          <EmailAnalytics />
         </Tab>
         {/* <Tab key="feelings" title="User Feelings">
           <UserFeelingTab />
