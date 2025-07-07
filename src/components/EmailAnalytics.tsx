@@ -28,7 +28,7 @@ export const EmailAnalytics: React.FC = () => {
   const handleRefresh = async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const emailData = await emailAnalyticsService.getEmailAnalytics();
       setData(emailData);
