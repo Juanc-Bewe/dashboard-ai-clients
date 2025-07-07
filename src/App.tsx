@@ -1,13 +1,14 @@
+import './App.css';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation} from 'react-router-dom';
 import { HeroUIProvider } from '@heroui/react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
-import { PublicLayout } from './layouts/PublicLayout';
-import { PrivateLayout } from './layouts/PrivateLayout';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { Login } from './components/Login';
+import { PublicLayout } from './layouts/PublicLayout';
+import { PrivateLayout } from './layouts/PrivateLayout';
 import { Dashboard } from './pages/Dashboard';
-import './App.css';
+import { DataManagement } from './pages/DataManagement';
 
 // Component to handle authenticated users trying to access login
 const LoginGuard: React.FC = () => {
@@ -59,6 +60,16 @@ const AppContent = () => {
                 <ProtectedRoute>
                   <PrivateLayout>
                     <Dashboard />
+                  </PrivateLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/data-management"
+              element={
+                <ProtectedRoute>
+                  <PrivateLayout>
+                    <DataManagement />
                   </PrivateLayout>
                 </ProtectedRoute>
               }
