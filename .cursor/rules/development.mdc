@@ -1,0 +1,6 @@
+---
+alwaysApply: true
+---
+
+Dont execute a commands to run the project example run dev or run start
+If the user is asking dont apply code as reference directly only if is implicit

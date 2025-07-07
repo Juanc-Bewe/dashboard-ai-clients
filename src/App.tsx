@@ -3,12 +3,13 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation} from 're
 import { HeroUIProvider } from '@heroui/react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
+import { AddonManagementProvider } from './contexts/AddonManagementContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { Login } from './components/Login';
 import { PublicLayout } from './layouts/PublicLayout';
 import { PrivateLayout } from './layouts/PrivateLayout';
 import { Dashboard } from './pages/Dashboard';
-import { DataManagement } from './pages/DataManagement';
+import { AddonManagement } from './pages/AddonManagement';
 
 // Component to handle authenticated users trying to access login
 const LoginGuard: React.FC = () => {
@@ -69,7 +70,9 @@ const AppContent = () => {
               element={
                 <ProtectedRoute>
                   <PrivateLayout>
-                    <DataManagement />
+                    <AddonManagementProvider>
+                      <AddonManagement />
+                    </AddonManagementProvider>
                   </PrivateLayout>
                 </ProtectedRoute>
               }
