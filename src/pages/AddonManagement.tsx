@@ -14,7 +14,7 @@ import {
   Pagination,
   Spinner,
 } from "@heroui/react";
-import { Search, RefreshCw } from "lucide-react";
+import { Search, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { useAddonManagement } from "../contexts/AddonManagementContext";
 import type { Account } from "../types/addon-managment";
 
@@ -24,19 +24,34 @@ const statusColorMap = {
   FAILED: "danger",
 } as const;
 
-const columns = [
-  { key: 'accountName', label: 'NAME', width: 200, align: 'start' as const },
-  { key: 'accountId', label: 'ID', width: 250, align: 'start' as const },
-  { key: 'hasAutomode', label: 'HAS AUTOMODE', width: 140, align: 'center' as const },
-  { key: 'onboardingCurrentState', label: 'ONBOARDING STATE', width: 160, align: 'center' as const },
-  { key: 'active', label: 'ACTIVE', width: 100, align: 'center' as const },
-  { key: 'base', label: 'BASE', width: 100, align: 'center' as const },
-  { key: 'baseUsed', label: 'BASE USED', width: 110, align: 'center' as const },
+type SortDirection = 'asc' | 'desc';
+type SortableColumn = 'base' | 'baseUsed';
+
+interface Column {
+  key: string;
+  label: string;
+  width: number;
+  align: 'start' | 'center' | 'end';
+  sortable?: boolean;
+}
+
+const columns: Column[] = [
+  { key: 'accountName', label: 'NAME', width: 200, align: 'start' },
+  { key: 'accountId', label: 'ID', width: 250, align: 'start' },
+  { key: 'hasAutomode', label: 'HAS AUTOMODE', width: 140, align: 'center' },
+  { key: 'onboardingCurrentState', label: 'ONBOARDING STATE', width: 160, align: 'center' },
+  { key: 'active', label: 'ACTIVE', width: 100, align: 'center' },
+  { key: 'base', label: 'BASE', width: 100, align: 'center', sortable: true },
+  { key: 'baseUsed', label: 'BASE USED', width: 110, align: 'center', sortable: true },
 ];
 
 export const AddonManagement: React.FC = () => {
   const { state, setCurrentPage, refreshData } = useAddonManagement();
   const [filterValue, setFilterValue] = useState("");
+  const [sortState, setSortState] = useState<{
+    column: SortableColumn | null;
+    direction: SortDirection;
+  }>({ column: null, direction: 'asc' });
 
   const { data, loading, error, currentPage, itemsPerPage } = state;
 
@@ -46,16 +61,32 @@ export const AddonManagement: React.FC = () => {
     }
   }, [data, refreshData]);
 
-  // Filter accounts based on search
+  // Filter and sort accounts
   const filteredAccounts = useMemo(() => {
     if (!data?.accounts) return [];
 
-    return data.accounts.filter(
+    let filtered = data.accounts.filter(
       (account: Account) =>
         account.accountName.toLowerCase().includes(filterValue.toLowerCase()) ||
         account.accountId.toLowerCase().includes(filterValue.toLowerCase())
     );
-  }, [data?.accounts, filterValue]);
+
+    // Apply sorting if a sort column is selected
+    if (sortState.column) {
+      filtered = filtered.sort((a, b) => {
+        const aValue = a[sortState.column!];
+        const bValue = b[sortState.column!];
+        
+        if (sortState.direction === 'asc') {
+          return aValue - bValue;
+        } else {
+          return bValue - aValue;
+        }
+      });
+    }
+
+    return filtered;
+  }, [data?.accounts, filterValue, sortState]);
 
   // Pagination
   const totalPages = Math.ceil(filteredAccounts.length / itemsPerPage);
@@ -65,6 +96,35 @@ export const AddonManagement: React.FC = () => {
 
   const handleRefresh = () => {
     refreshData();
+  };
+
+  const handleSort = (column: SortableColumn) => {
+    // Reset to first page when sorting changes
+    setCurrentPage(1);
+    
+    setSortState(prevState => {
+      if (prevState.column === column) {
+        // Same column - cycle through directions
+        if (prevState.direction === 'asc') {
+          return { column, direction: 'desc' };
+        } else {
+          // Clear sorting (return to original order)
+          return { column: null, direction: 'asc' };
+        }
+      } else {
+        // Different column - set new column with ascending direction
+        return { column, direction: 'asc' };
+      }
+    });
+  };
+
+  const getSortIcon = (column: string) => {
+    if (sortState.column !== column) {
+      return <ArrowUpDown className="w-3 h-3 ml-1 text-gray-400" />;
+    }
+    return sortState.direction === 'asc' 
+      ? <ArrowUp className="w-3 h-3 ml-1 text-primary" />
+      : <ArrowDown className="w-3 h-3 ml-1 text-primary" />;
   };
 
   const formatNumber = (value: number) => {
@@ -210,7 +270,17 @@ export const AddonManagement: React.FC = () => {
                     minWidth={column.width}
                     align={column.align}
                   >
-                    {column.label}
+                    {column.sortable ? (
+                      <button
+                        className="flex items-center justify-center w-full hover:text-primary transition-colors cursor-pointer"
+                        onClick={() => handleSort(column.key as SortableColumn)}
+                      >
+                        {column.label}
+                        {getSortIcon(column.key)}
+                      </button>
+                    ) : (
+                      column.label
+                    )}
                   </TableColumn>
                 )}
               </TableHeader>
