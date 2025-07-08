@@ -162,6 +162,7 @@ export const DashboardFilters: React.FC = () => {
     const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
     const past7Days = new Date(today);
     const past15Days = new Date(today);
+    const past30Days = new Date(today);
 
     // Get Monday as start of week
     const dayOfWeek = today.getDay();
@@ -171,6 +172,7 @@ export const DashboardFilters: React.FC = () => {
     // Calculate past days using setTime for more reliable date arithmetic
     past7Days.setTime(today.getTime() - (7 * 24 * 60 * 60 * 1000));
     past15Days.setTime(today.getTime() - (15 * 24 * 60 * 60 * 1000));
+    past30Days.setTime(today.getTime() - (30 * 24 * 60 * 60 * 1000));
 
     const formatDate = (date: Date) => {
       return date.toISOString().split("T")[0];
@@ -197,11 +199,15 @@ export const DashboardFilters: React.FC = () => {
         start: formatDate(past15Days),
         end: formatDate(today),
       },
+      past30Days: {
+        start: formatDate(past30Days),
+        end: formatDate(today),
+      },
     };
   };
 
   const handleDateShortcut = (
-    shortcut: "today" | "thisWeek" | "currentMonth" | "past7Days" | "past15Days"
+    shortcut: "today" | "thisWeek" | "currentMonth" | "past7Days" | "past15Days" | "past30Days"
   ) => {
     const shortcuts = getDateShortcuts();
     const range = shortcuts[shortcut];
@@ -283,6 +289,17 @@ export const DashboardFilters: React.FC = () => {
                       className="text-xs px-2 h-7"
                     >
                       Past 15 Days
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={selectedShortcut === "past30Days" ? "solid" : "bordered"}
+                      color={selectedShortcut === "past30Days" ? "primary" : "default"}
+                      onPress={() => handleDateShortcut("past30Days")}
+                      startContent={<CalendarDays className="w-3 h-3" />}
+                      isDisabled={loading}
+                      className="text-xs px-2 h-7"
+                    >
+                      Past 30 Days
                     </Button>
                     <Button
                       size="sm"

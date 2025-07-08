@@ -14,8 +14,9 @@ import {
   Tabs,
   Tab,
   Skeleton,
+  Tooltip,
 } from "@heroui/react";
-import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { ArrowUpDown, ArrowUp, ArrowDown, Info } from "lucide-react";
 import { useAddonManagement } from "../contexts/AddonManagementContext";
 import { EmailAnalytics } from "../components/EmailAnalytics";
 import { AddonFilters } from "../components/AddonFilters";
@@ -28,7 +29,7 @@ const statusColorMap = {
 } as const;
 
 type SortDirection = 'asc' | 'desc';
-type SortableColumn = 'base' | 'baseUsed';
+type SortableColumn = 'base' | 'baseUsed' | 'sessionCount';
 
 interface Column {
   key: string;
@@ -46,11 +47,12 @@ const columns: Column[] = [
   { key: 'active', label: 'ACTIVE', width: 100, align: 'center' },
   { key: 'base', label: 'BASE', width: 100, align: 'center', sortable: true },
   { key: 'baseUsed', label: 'BASE USED', width: 110, align: 'center', sortable: true },
+  { key: 'sessionCount', label: 'SESSIONS', width: 110, align: 'center', sortable: true },
 ];
 
 // Skeleton components
 const OverviewCardSkeleton = () => (
-  <Card className="hover:shadow-md transition-shadow">
+  <Card>
     <CardBody className="text-center py-8">
       <Skeleton className="h-6 w-3/4 mx-auto mb-4" />
       <Skeleton className="h-10 w-1/2 mx-auto mb-2" />
@@ -246,8 +248,12 @@ export const AddonManagement: React.FC = () => {
     const pendingCount = accounts.filter(acc => acc.onboardingCurrentState === 'PENDING').length;
     const failedCount = accounts.filter(acc => acc.onboardingCurrentState === 'FAILED').length;
 
+    // Sessions calculation
+    const totalSessions = accounts.reduce((sum, acc) => sum + acc.sessionCount, 0);
+
     return {
       total,
+      totalSessions,
       active: activeCount,
       inactive: inactiveCount,
       automodeYes,
@@ -322,6 +328,12 @@ export const AddonManagement: React.FC = () => {
         return (
           <div className="text-center font-mono">
             {formatNumber(account.baseUsed)}
+          </div>
+        );
+      case 'sessionCount':
+        return (
+          <div className="text-center font-mono">
+            {formatNumber(account.sessionCount)}
           </div>
         );
       default:
@@ -399,7 +411,10 @@ export const AddonManagement: React.FC = () => {
             
             {loading ? (
               <div className="space-y-6">
-                <OverviewCardSkeleton />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <OverviewCardSkeleton />
+                  <OverviewCardSkeleton />
+                </div>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <StatsCardSkeleton />
                   <StatsCardSkeleton />
@@ -408,28 +423,51 @@ export const AddonManagement: React.FC = () => {
               </div>
             ) : dashboardStats ? (
               <div className="space-y-6">
-                {/* Account Overview */}
-                <Card className="hover:shadow-md transition-shadow">
-                  <CardBody className="text-center py-8">
-                    <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                      Account Overview
-                    </h3>
-                    <div className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-1">
-                      {formatNumber(dashboardStats.total)}
-                    </div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Total Accounts</p>
-                  </CardBody>
-                </Card>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Account Overview */}
+                  <Card>
+                    <CardBody className="text-center py-6">
+                      <div className="flex items-center justify-center gap-2 mb-2">
+                        <h3 className="text-md font-semibold">
+                          Total Accounts
+                        </h3>
+                        <Tooltip content="This metric is not affected by date range filters - it shows all accounts regardless of time period">
+                          <Info className="w-4 h-4 text-gray-400 hover:text-gray-600 cursor-help" />
+                        </Tooltip>
+                      </div>
+                      <div className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+                        {formatNumber(dashboardStats.total)}
+                      </div>
+                    </CardBody>
+                  </Card>
+
+                  {/* Sessions Overview */}
+                  <Card>
+                    <CardBody className="text-center py-6">
+                      <h3 className="text-md font-semibold mb-2">
+                        Total Sessions
+                      </h3>
+                      <div className="text-3xl font-bold mb-1">
+                        {formatNumber(dashboardStats.totalSessions)}
+                      </div>
+                    </CardBody>
+                  </Card>
+                </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* AI Clients Status */}
-                  <Card className="hover:shadow-md transition-shadow">
+                  <Card>
                     <CardBody className="p-6">
-                      <h3 className="text-md font-semibold text-gray-700 dark:text-gray-300 mb-4">
-                        AI Clients Status
-                      </h3>
+                      <div className="flex items-center gap-2 mb-4">
+                        <h3 className="text-md font-semibold">
+                          AI Clients Status
+                        </h3>
+                        <Tooltip content="This metric is not affected by date range filters - it shows the current status of all accounts">
+                          <Info className="w-4 h-4 text-gray-400 hover:text-gray-600 cursor-help" />
+                        </Tooltip>
+                      </div>
                       <div className="grid grid-cols-2 gap-4">
-                        <Card className="hover:shadow-sm transition-shadow">
+                        <Card>
                           <CardBody className="text-center p-4">
                             <div className="text-2xl font-bold text-green-600 dark:text-green-400">
                               {formatNumber(dashboardStats.active)}
@@ -437,7 +475,7 @@ export const AddonManagement: React.FC = () => {
                             <p className="text-sm text-green-600 dark:text-green-400">Active</p>
                           </CardBody>
                         </Card>
-                        <Card className="hover:shadow-sm transition-shadow">
+                        <Card>
                           <CardBody className="text-center p-4">
                             <div className="text-2xl font-bold text-red-600 dark:text-red-400">
                               {formatNumber(dashboardStats.inactive)}
@@ -450,13 +488,18 @@ export const AddonManagement: React.FC = () => {
                   </Card>
 
                   {/* Automode Configuration */}
-                  <Card className="hover:shadow-md transition-shadow">
+                  <Card>
                     <CardBody className="p-6">
-                      <h3 className="text-md font-semibold text-gray-700 dark:text-gray-300 mb-4">
-                        Automode Configuration
-                      </h3>
+                      <div className="flex items-center gap-2 mb-4">
+                        <h3 className="text-md font-semibold">
+                          Automode Configuration
+                        </h3>
+                        <Tooltip content="This metric is not affected by date range filters - it shows the current configuration of all accounts">
+                          <Info className="w-4 h-4 text-gray-400 hover:text-gray-600 cursor-help" />
+                        </Tooltip>
+                      </div>
                       <div className="grid grid-cols-2 gap-4">
-                        <Card className="hover:shadow-sm transition-shadow">
+                        <Card>
                           <CardBody className="text-center p-4">
                             <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                               {formatNumber(dashboardStats.automodeYes)}
@@ -464,7 +507,7 @@ export const AddonManagement: React.FC = () => {
                             <p className="text-sm text-blue-600 dark:text-blue-400">Yes</p>
                           </CardBody>
                         </Card>
-                        <Card className="hover:shadow-sm transition-shadow">
+                        <Card>
                           <CardBody className="text-center p-4">
                             <div className="text-2xl font-bold text-gray-600 dark:text-gray-400">
                               {formatNumber(dashboardStats.automodeNo)}
@@ -478,13 +521,18 @@ export const AddonManagement: React.FC = () => {
                 </div>
 
                 {/* Onboarding/Configuration */}
-                <Card className="hover:shadow-md transition-shadow">
+                <Card>
                   <CardBody className="p-6">
-                    <h3 className="text-md font-semibold text-gray-700 dark:text-gray-300 mb-4">
-                      Onboarding / Configuration
-                    </h3>
+                    <div className="flex items-center gap-2 mb-4">
+                      <h3 className="text-md font-semibold">
+                        Onboarding / Configuration
+                      </h3>
+                      <Tooltip content="This metric is not affected by date range filters - it shows the current onboarding status of all accounts">
+                        <Info className="w-4 h-4 text-gray-400 hover:text-gray-600 cursor-help" />
+                      </Tooltip>
+                    </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <Card className="hover:shadow-sm transition-shadow">
+                      <Card>
                         <CardBody className="text-center p-4">
                           <div className="text-2xl font-bold text-green-600 dark:text-green-400">
                             {formatNumber(dashboardStats.completed)}
@@ -495,7 +543,7 @@ export const AddonManagement: React.FC = () => {
                           </p>
                         </CardBody>
                       </Card>
-                      <Card className="hover:shadow-sm transition-shadow">
+                      <Card>
                         <CardBody className="text-center p-4">
                           <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
                             {formatNumber(dashboardStats.pending)}
@@ -506,7 +554,7 @@ export const AddonManagement: React.FC = () => {
                           </p>
                         </CardBody>
                       </Card>
-                      <Card className="hover:shadow-sm transition-shadow">
+                      <Card>
                         <CardBody className="text-center p-4">
                           <div className="text-2xl font-bold text-red-600 dark:text-red-400">
                             {formatNumber(dashboardStats.failed)}
@@ -541,6 +589,9 @@ export const AddonManagement: React.FC = () => {
           <div className="flex items-center gap-2">
             <div className="w-1 h-6 bg-purple-500 rounded-full"></div>
             <h2 className="text-xl font-semibold text-foreground">Account Data</h2>
+            <Tooltip content="Sessions column is filtered by the selected date range - sessions are counted only within the specified time period">
+              <Info className="w-4 h-4 text-gray-400 hover:text-gray-600 cursor-help" />
+            </Tooltip>
           </div>
           
           <Card>
@@ -552,7 +603,7 @@ export const AddonManagement: React.FC = () => {
                   removeWrapper
                   classNames={{
                     wrapper: "min-h-[400px]",
-                    table: "min-w-[1060px]",
+                    table: "min-w-[1170px]",
                     th: "bg-gray-50 dark:bg-gray-800/50 text-tiny font-semibold border-b border-gray-200 dark:border-gray-700",
                     td: "text-small whitespace-nowrap border-b border-gray-100 dark:border-gray-800",
                     tr: "hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors",
