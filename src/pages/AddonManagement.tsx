@@ -6,8 +6,6 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  Input,
-  Button,
   Chip,
   Card,
   CardBody,
@@ -17,9 +15,10 @@ import {
   Tab,
   Skeleton,
 } from "@heroui/react";
-import { Search, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { useAddonManagement } from "../contexts/AddonManagementContext";
 import { EmailAnalytics } from "../components/EmailAnalytics";
+import { AddonFilters } from "../components/AddonFilters";
 import type { Account } from "../types/addon-managment";
 
 const statusColorMap = {
@@ -104,9 +103,8 @@ const OnboardingCardSkeleton = () => (
 
 
 export const AddonManagement: React.FC = () => {
-  const { state, setCurrentPage, refreshData } = useAddonManagement();
+  const { state, setCurrentPage, setFilters, refreshData } = useAddonManagement();
   const [selectedTab, setSelectedTab] = useState("account-management");
-  const [filterValue, setFilterValue] = useState("");
   
   const [sortState, setSortState] = useState<{
     column: SortableColumn | null;
@@ -125,11 +123,17 @@ export const AddonManagement: React.FC = () => {
   const filteredAccounts = useMemo(() => {
     if (!data?.accounts) return [];
 
-    let filtered = data.accounts.filter(
-      (account: Account) =>
-        account.accountName.toLowerCase().includes(filterValue.toLowerCase()) ||
-        account.accountId.toLowerCase().includes(filterValue.toLowerCase())
-    );
+    let filtered = data.accounts.filter((account: Account) => {
+      // Account IDs filter
+      const matchesAccountIds = state.filters.accountIds.length === 0 || 
+        state.filters.accountIds.includes(account.accountId);
+      
+      // Note: Date range filtering would need to be implemented based on available date fields in the Account type
+      // For now, we'll assume all accounts match the date range
+      const matchesDateRange = true; // This would need to be implemented based on your data structure
+      
+      return matchesAccountIds && matchesDateRange;
+    });
 
     // Apply tab-specific filtering
     if (selectedTab === "account-management") {
@@ -156,7 +160,7 @@ export const AddonManagement: React.FC = () => {
     }
 
     return filtered;
-  }, [data?.accounts, filterValue, selectedTab, sortState]);
+  }, [data?.accounts, state.filters.accountIds, selectedTab, sortState]);
 
   // Pagination
   const totalPages = Math.ceil(filteredAccounts.length / itemsPerPage);
@@ -167,6 +171,22 @@ export const AddonManagement: React.FC = () => {
   const handleRefresh = () => {
     refreshData();
   };
+
+  const handleDateRangeChange = async (startDate: string, endDate: string) => {
+    await setFilters({ 
+      startDate, 
+      endDate, 
+      timezoneOffset: -(new Date().getTimezoneOffset() / 60) // Include timezone offset
+    });
+    setCurrentPage(1); // Reset to first page when filter changes
+  };
+
+  const handleAccountIdsChange = async (accountIds: string[]) => {
+    await setFilters({ accountIds });
+    setCurrentPage(1); // Reset to first page when filter changes
+  };
+
+
 
   const handleSort = (column: SortableColumn) => {
     // Reset to first page when sorting changes
@@ -315,11 +335,7 @@ export const AddonManagement: React.FC = () => {
     setCurrentPage(1);
   };
 
-  const handleFilterChange = (value: string) => {
-    setFilterValue(value);
-    // Reset to first page when filter changes
-    setCurrentPage(1);
-  };
+
 
   if (error) {
     return (
@@ -339,29 +355,14 @@ export const AddonManagement: React.FC = () => {
 
       {/* Filters Section */}
       <section className="relative">
-        <div className="flex justify-between items-center gap-4">
-          <div className="flex items-center gap-4">
-            <Input
-              isClearable
-              placeholder="Search by account name or ID..."
-              startContent={<Search className="w-4 h-4" />}
-              value={filterValue}
-              onClear={() => setFilterValue("")}
-              onValueChange={handleFilterChange}
-              className="max-w-sm"
-            />
-          </div>
-          <Button
-            color="primary"
-            variant="flat"
-            onPress={handleRefresh}
-            isLoading={loading}
-            startContent={!loading ? <RefreshCw className="w-4 h-4" /> : undefined}
-            className="font-medium"
-          >
-            Refresh Data
-          </Button>
-        </div>
+        <AddonFilters
+          dateRange={{ startDate: state.filters.startDate, endDate: state.filters.endDate }}
+          accountIds={state.filters.accountIds}
+          loading={loading}
+          onDateRangeChange={handleDateRangeChange}
+          onAccountIdsChange={handleAccountIdsChange}
+          onRefresh={handleRefresh}
+        />
       </section>
 
       {/* Tabs Navigation */}

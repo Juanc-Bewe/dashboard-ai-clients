@@ -67,7 +67,7 @@ interface AddonManagementContextType {
   setLoading: (loading: boolean) => void;
   setData: (data: AddonManagementData) => void;
   setError: (error: string | null) => void;
-  setFilters: (filters: Partial<AddonManagementFilters>) => void;
+  setFilters: (filters: Partial<AddonManagementFilters>) => Promise<void>;
   setCurrentPage: (page: number) => void;
   setItemsPerPage: (itemsPerPage: number) => void;
   refreshData: () => Promise<void>;
@@ -92,9 +92,18 @@ export const AddonManagementProvider: React.FC<{ children: React.ReactNode }> = 
     dispatch({ type: 'SET_ERROR', payload: error });
   }, []);
 
-  const setFilters = useCallback((filters: Partial<AddonManagementFilters>) => {
+  const setFilters = useCallback(async (filters: Partial<AddonManagementFilters>) => {
     dispatch({ type: 'SET_FILTERS', payload: filters });
-  }, []);
+    // Automatically refresh data when filters change
+    try {
+      setLoading(true);
+      const updatedFilters = { ...state.filters, ...filters };
+      const response = await addonManagementService.fetchAddonManagementData(updatedFilters);
+      setData(response.data);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'An error occurred');
+    }
+  }, [state.filters, setLoading, setData, setError]);
 
   const setCurrentPage = useCallback((page: number) => {
     dispatch({ type: 'SET_CURRENT_PAGE', payload: page });
