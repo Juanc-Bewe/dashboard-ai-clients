@@ -6,6 +6,7 @@ import {
   Button,
   Checkbox,
   Input,
+  Tooltip,
 } from "@heroui/react";
 import { parseDate } from "@internationalized/date";
 import { I18nProvider } from "@react-aria/i18n";
@@ -21,6 +22,7 @@ import {
 import { useDashboardStore } from "../contexts/DashboardContext";
 import { useAuth } from "../contexts/AuthContext";
 import { hasPermission } from "../utils/permissionHelpers";
+import { serviceWorkerManager } from "../utils/serviceWorkerUtils";
 import type { DateRangeValue } from "../types/dashboard";
 
 export const DashboardFilters: React.FC = () => {
@@ -40,7 +42,6 @@ export const DashboardFilters: React.FC = () => {
   const { availableEnterprises, availableChannels, isAuthenticated, permissions } =
     useAuth();
 
-
   // State to track range validation
   const [isRangeInvalid, setIsRangeInvalid] = React.useState(false);
   // State to track account IDs input
@@ -49,6 +50,8 @@ export const DashboardFilters: React.FC = () => {
   );
   // State to track selected shortcut
   const [selectedShortcut, setSelectedShortcut] = React.useState<string>("");
+  // State to track force refresh
+  const [isForceRefreshing, setIsForceRefreshing] = React.useState(false);
 
   // Sync enterprises from auth context
   React.useEffect(() => {
@@ -134,11 +137,23 @@ export const DashboardFilters: React.FC = () => {
     setAccountIdsInput(accountIds.join(", "));
   };
 
-  const handleRefresh = () => {
-    fetchDashboardData();
+  const handleRefresh = async () => {
+    try {
+      setIsForceRefreshing(true);
+
+      // Clear dashboard cache first to ensure fresh data
+      await serviceWorkerManager.clearDashboardCache();
+
+      // Then fetch fresh data
+      await fetchDashboardData();
+    } catch (error) {
+      console.error('Error during force refresh:', error);
+    } finally {
+      setIsForceRefreshing(false);
+    }
   };
 
-    const handleClearAllFilters = () => {
+  const handleClearAllFilters = () => {
     // Reset all filters to defaults - set to past 7 days
     const today = new Date();
     const past7Days = new Date(today);
@@ -214,8 +229,6 @@ export const DashboardFilters: React.FC = () => {
     setDateRange(range.start, range.end);
     setSelectedShortcut(shortcut);
   };
-
-  
 
   return (
     <div className="dark:border dark:border-gray-700 rounded-xl dark:shadow-lg p-4 sm:p-6">
@@ -454,21 +467,27 @@ export const DashboardFilters: React.FC = () => {
             >
               Clear All
             </Button>
-            <Button
-              color="primary"
-              onPress={handleRefresh}
-              isLoading={loading}
-              isDisabled={loading}
-              variant="flat"
-              size="sm"
-              startContent={
-                !loading ? <RefreshCw className="w-4 h-4" /> : undefined
-              }
-              aria-label="Refresh data"
-              className="px-3"
+            <Tooltip 
+              content="Forces a fresh data fetch by clearing cache first"
+              placement="top"
+              delay={500}
             >
-              Refresh
-            </Button>
+              <Button
+                color="primary"
+                onPress={handleRefresh}
+                isLoading={isForceRefreshing}
+                isDisabled={loading || isForceRefreshing}
+                variant="flat"
+                size="sm"
+                startContent={
+                  !isForceRefreshing ? <RefreshCw className="w-4 h-4" /> : undefined
+                }
+                aria-label="Refresh data"
+                className="px-3"
+              >
+                {isForceRefreshing ? 'Force Refreshing...' : 'Refresh'}
+              </Button>
+            </Tooltip>
           </div>
         </div>
       </div>

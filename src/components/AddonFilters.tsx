@@ -6,6 +6,7 @@ import {
   Select,
   SelectItem,
   Checkbox,
+  Tooltip,
 } from "@heroui/react";
 import { parseDate } from "@internationalized/date";
 import { I18nProvider } from "@react-aria/i18n";
@@ -19,6 +20,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { hasPermission } from "../utils/permissionHelpers";
+import { serviceWorkerManager } from "../utils/serviceWorkerUtils";
 import type { DateRangeValue } from "../types/dashboard";
 
 interface AddonFiltersProps {
@@ -56,6 +58,8 @@ export const AddonFilters: React.FC<AddonFiltersProps> = ({
   );
   // State to track selected shortcut
   const [selectedShortcut, setSelectedShortcut] = React.useState<string>("");
+  // State to track force refresh
+  const [isForceRefreshing, setIsForceRefreshing] = React.useState(false);
 
   // Sync account IDs input when accountIds prop changes
   React.useEffect(() => {
@@ -121,6 +125,22 @@ export const AddonFilters: React.FC<AddonFiltersProps> = ({
   const handleEnterpriseSelectAllToggle = () => {
     // Only unselect all - remove select all functionality
     onEnterpriseIdsChange([]);
+  };
+
+  const handleRefresh = async () => {
+    try {
+      setIsForceRefreshing(true);
+      
+      // Clear dashboard cache first to ensure fresh data
+      await serviceWorkerManager.clearDashboardCache();
+      
+      // Then call the original refresh handler
+      await onRefresh();
+    } catch (error) {
+      console.error('Error during force refresh:', error);
+    } finally {
+      setIsForceRefreshing(false);
+    }
   };
 
   const handleClearAllFilters = () => {
@@ -389,21 +409,27 @@ export const AddonFilters: React.FC<AddonFiltersProps> = ({
             >
               Clear All
             </Button>
-            <Button
-              color="primary"
-              onPress={onRefresh}
-              isLoading={loading}
-              isDisabled={loading}
-              variant="flat"
-              size="sm"
-              startContent={
-                !loading ? <RefreshCw className="w-4 h-4" /> : undefined
-              }
-              aria-label="Refresh data"
-              className="px-3"
+            <Tooltip 
+              content="Forces a fresh data fetch by clearing cache first"
+              placement="top"
+              delay={500}
             >
-              Refresh
-            </Button>
+              <Button
+                color="primary"
+                onPress={handleRefresh}
+                isLoading={isForceRefreshing}
+                isDisabled={loading || isForceRefreshing}
+                variant="flat"
+                size="sm"
+                startContent={
+                  !isForceRefreshing ? <RefreshCw className="w-4 h-4" /> : undefined
+                }
+                aria-label="Refresh data"
+                className="px-3"
+              >
+                {isForceRefreshing ? 'Force Refreshing...' : 'Refresh'}
+              </Button>
+            </Tooltip>
           </div>
         </div>
       </div>
