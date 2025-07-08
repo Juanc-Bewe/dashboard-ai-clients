@@ -7,8 +7,8 @@ const CACHE_CONFIG = {
   DEFAULT_TTL: 5 * 60 * 1000, // 5 minutes
   ENDPOINT_SPECIFIC_TTL: {
     '/lite/v1/analytics/auth': 24 * 60 * 60 * 1000, // 24 hours for auth
-    '/lite/v1/analytics': 2 * 60 * 1000, // 2 minutes for dashboard data
-    '/lite/v1/analytics/business': 2 * 60 * 1000, // 5 minutes for business data
+    '/lite/v1/analytics': 60 * 60 * 1000, // 6 hours for dashboard data
+    '/lite/v1/analytics/business': 60 * 60 * 1000, // 6 hours for business data
   },
   // URLs that should never be cached
   BYPASS_CACHE: [
@@ -162,17 +162,17 @@ self.addEventListener('message', async (event) => {
       await clearCache();
       event.ports[0].postMessage({ success: true });
       break;
-      
+
     case 'CLEAR_ENDPOINT_CACHE':
       await clearEndpointCache(data.endpoint);
       event.ports[0].postMessage({ success: true });
       break;
-      
+
     case 'GET_CACHE_STATUS':
       const status = await getCacheStatus();
       event.ports[0].postMessage({ status });
       break;
-      
+
     default:
       event.ports[0].postMessage({ error: 'Unknown action' });
   }
