@@ -112,6 +112,7 @@ export interface AddonManagementFilters {
   endDate: string;
   timezoneOffset: number;
   accountIds: string[];
+  enterpriseIds: string[];
 }
 
 // State interface for addon management context

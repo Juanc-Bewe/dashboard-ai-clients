@@ -38,6 +38,12 @@ export const addonManagementService = {
         accountIdsArray = filters.accountIds;
       }
 
+      // Handle enterpriseIds as separate query parameters
+      let enterpriseIdsArray: string[] = [];
+      if (filters.enterpriseIds && filters.enterpriseIds.length > 0) {
+        enterpriseIdsArray = filters.enterpriseIds;
+      }
+
       // Use provided timezone offset or get it from browser
       const timezoneOffset = filters.timezoneOffset !== undefined && filters.timezoneOffset !== null
         ? filters.timezoneOffset
@@ -47,6 +53,7 @@ export const addonManagementService = {
 
       console.log('Addon Management API params:', params);
       console.log('accountIdsArray:', accountIdsArray);
+      console.log('enterpriseIdsArray:', enterpriseIdsArray);
 
       const response = await apiClient.get('/lite/v1/analytics/business', { 
         params,
@@ -55,7 +62,7 @@ export const addonManagementService = {
           
           // Add regular params
           Object.entries(params).forEach(([key, value]) => {
-            if (key !== 'accountIds') {
+            if (key !== 'accountIds' && key !== 'enterpriseIds') {
               searchParams.append(key, String(value));
             }
           });
@@ -63,6 +70,11 @@ export const addonManagementService = {
           // Add each accountId as a separate parameter
           accountIdsArray.forEach(id => {
             searchParams.append('accountIds', id);
+          });
+          
+          // Add each enterpriseId as a separate parameter
+          enterpriseIdsArray.forEach(id => {
+            searchParams.append('enterpriseIds', id);
           });
           
           return searchParams.toString();

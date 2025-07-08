@@ -29,6 +29,7 @@ const initialState: AddonManagementState = {
     endDate: defaultDateRange.endDate,
     timezoneOffset: 0,
     accountIds: [],
+    enterpriseIds: [],
   },
   currentPage: 1,
   itemsPerPage: 10,

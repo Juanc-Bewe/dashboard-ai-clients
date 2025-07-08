@@ -188,6 +188,11 @@ export const AddonManagement: React.FC = () => {
     setCurrentPage(1); // Reset to first page when filter changes
   };
 
+  const handleEnterpriseIdsChange = async (enterpriseIds: string[]) => {
+    await setFilters({ enterpriseIds });
+    setCurrentPage(1); // Reset to first page when filter changes
+  };
+
 
 
   const handleSort = (column: SortableColumn) => {
@@ -370,9 +375,11 @@ export const AddonManagement: React.FC = () => {
         <AddonFilters
           dateRange={{ startDate: state.filters.startDate, endDate: state.filters.endDate }}
           accountIds={state.filters.accountIds}
+          enterpriseIds={state.filters.enterpriseIds}
           loading={loading}
           onDateRangeChange={handleDateRangeChange}
           onAccountIdsChange={handleAccountIdsChange}
+          onEnterpriseIdsChange={handleEnterpriseIdsChange}
           onRefresh={handleRefresh}
         />
       </section>

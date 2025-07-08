@@ -3,6 +3,9 @@ import {
   DateRangePicker,
   Button,
   Input,
+  Select,
+  SelectItem,
+  Checkbox,
 } from "@heroui/react";
 import { parseDate } from "@internationalized/date";
 import { I18nProvider } from "@react-aria/i18n";
@@ -14,6 +17,8 @@ import {
   Hash,
   Trash2,
 } from "lucide-react";
+import { useAuth } from "../contexts/AuthContext";
+import { hasPermission } from "../utils/permissionHelpers";
 import type { DateRangeValue } from "../types/dashboard";
 
 interface AddonFiltersProps {
@@ -22,20 +27,27 @@ interface AddonFiltersProps {
     endDate: string;
   };
   accountIds: string[];
+  enterpriseIds: string[];
   loading: boolean;
   onDateRangeChange: (startDate: string, endDate: string) => void;
   onAccountIdsChange: (accountIds: string[]) => void;
+  onEnterpriseIdsChange: (enterpriseIds: string[]) => void;
   onRefresh: () => void;
 }
 
 export const AddonFilters: React.FC<AddonFiltersProps> = ({
   dateRange,
   accountIds,
+  enterpriseIds,
   loading,
   onDateRangeChange,
   onAccountIdsChange,
+  onEnterpriseIdsChange,
   onRefresh,
 }) => {
+  // Get auth data
+  const { availableEnterprises, permissions } = useAuth();
+
   // State to track range validation
   const [isRangeInvalid, setIsRangeInvalid] = React.useState(false);
   // State to track account IDs input
@@ -102,6 +114,15 @@ export const AddonFilters: React.FC<AddonFiltersProps> = ({
     setAccountIdsInput(processedAccountIds.join(", "));
   };
 
+  const handleEnterpriseChange = (keys: Set<string>) => {
+    onEnterpriseIdsChange(Array.from(keys));
+  };
+
+  const handleEnterpriseSelectAllToggle = () => {
+    // Only unselect all - remove select all functionality
+    onEnterpriseIdsChange([]);
+  };
+
   const handleClearAllFilters = () => {
     // Reset all filters to defaults - set to past 7 days
     const today = new Date();
@@ -112,6 +133,7 @@ export const AddonFilters: React.FC<AddonFiltersProps> = ({
 
     onDateRangeChange(formatDate(past7Days), formatDate(today));
     onAccountIdsChange([]);
+    onEnterpriseIdsChange([]);
     setAccountIdsInput(""); // Clear the input field
     setIsRangeInvalid(false); // Reset validation state
     setSelectedShortcut("past7Days"); // Set default shortcut selection
@@ -277,7 +299,49 @@ export const AddonFilters: React.FC<AddonFiltersProps> = ({
               </div>
             </div>
 
-
+            {/* Enterprise Filter Group - Only show if more than one enterprise */}
+            {availableEnterprises.length > 1 && hasPermission("canFilterByEnterprise", permissions) && (
+              <div className="w-full min-w-[240px] lg:flex-[1] lg:min-w-[280px]">
+                <div>
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-medium text-foreground-600">
+                      Enterprises
+                    </label>
+                    {availableEnterprises.length > 0 &&
+                      enterpriseIds.length > 0 && (
+                        <Checkbox
+                          isSelected={false}
+                          onValueChange={handleEnterpriseSelectAllToggle}
+                          size="sm"
+                          className="text-xs"
+                          isDisabled={loading}
+                        >
+                          Clear All ({enterpriseIds.length})
+                        </Checkbox>
+                      )}
+                  </div>
+                  <Select
+                    placeholder="Select enterprises"
+                    selectionMode="multiple"
+                    selectedKeys={new Set(enterpriseIds)}
+                    onSelectionChange={(keys) =>
+                      handleEnterpriseChange(keys as Set<string>)
+                    }
+                    variant="bordered"
+                    size="sm"
+                    className="w-full mt-4"
+                    aria-label="Select enterprises"
+                    isDisabled={loading}
+                  >
+                    {availableEnterprises.map((enterprise) => (
+                      <SelectItem key={enterprise.id}>
+                        {enterprise.name}
+                      </SelectItem>
+                    ))}
+                  </Select>
+                </div>
+              </div>
+            )}
 
             {/* Account IDs Filter */}
             <div className="w-full min-w-[280px] lg:flex-[1] lg:min-w-[320px]">
