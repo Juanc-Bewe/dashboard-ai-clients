@@ -219,7 +219,7 @@ export const AddonManagement: React.FC = () => {
     if (sortState.column !== column) {
       return <ArrowUpDown className="w-3 h-3 ml-1 text-gray-400" />;
     }
-    return sortState.direction === 'asc' 
+    return sortState.direction === 'asc'
       ? <ArrowUp className="w-3 h-3 ml-1 text-primary" />
       : <ArrowDown className="w-3 h-3 ml-1 text-primary" />;
   };

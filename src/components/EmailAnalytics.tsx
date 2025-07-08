@@ -2,11 +2,36 @@ import React from "react";
 import {
   Card,
   CardBody,
-  Spinner,
   Skeleton,
 } from "@heroui/react";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 import { Mail, TrendingUp, Clock } from "lucide-react";
 import { useAddonManagement } from "../contexts/AddonManagementContext";
+
+// Custom tooltip for area chart
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
+        <p className="font-semibold text-gray-900 dark:text-white">{label}</p>
+        <p style={{ color: payload[0].color }} className="text-sm">
+          {`${payload[0].value.toLocaleString()} emails`}
+          {payload[0].payload.percentage &&
+            ` (${payload[0].payload.percentage.toFixed(1)}%)`}
+        </p>
+      </div>
+    );
+  }
+  return null;
+};
 
 // Skeleton components for email analytics
 const EmailOverviewCardSkeleton = () => (
@@ -218,19 +243,91 @@ export const EmailAnalytics: React.FC = () => {
           <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">
             Time to Open Distribution
           </h3>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          
+          {/* Summary Stats */}
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                {Object.values(emailsAnalytics.timeToOpenDistribution).reduce((sum, item) => sum + item.count, 0).toLocaleString()}
+              </div>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Total Opens</p>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                {emailsAnalytics.openRate.toFixed(1)}%
+              </div>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Overall Open Rate</p>
+            </div>
+          </div>
+
+          {/* Area Chart */}
+          <div className="h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart
+                data={Object.entries(emailsAnalytics.timeToOpenDistribution).map(([timeRange, data]) => ({
+                  timeRange,
+                  count: data.count,
+                  percentage: data.percentage,
+                }))}
+                margin={{ top: 20, right: 30, left: 0, bottom: 30 }}
+              >
+                <defs>
+                  <linearGradient id="timeDistributionGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" opacity={0.7} />
+                <XAxis
+                  dataKey="timeRange"
+                  fontSize={12}
+                  axisLine={false}
+                  tickLine={false}
+                  angle={-45}
+                  textAnchor="end"
+                  height={60}
+                />
+                <YAxis
+                  fontSize={12}
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(value) => value.toLocaleString()}
+                />
+                <Tooltip content={<CustomTooltip />} />
+                <Area
+                  type="monotone"
+                  dataKey="count"
+                  stroke="#3b82f6"
+                  strokeWidth={2}
+                  fillOpacity={1}
+                  fill="url(#timeDistributionGradient)"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Enhanced Legend with Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 mt-4">
             {Object.entries(emailsAnalytics.timeToOpenDistribution).map(([timeRange, data]) => (
-              <Card key={timeRange} className="">
-                <CardBody className="text-center p-4">
-                  <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
+              <div
+                key={timeRange}
+                className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800/50 rounded-lg"
+              >
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full shadow-sm flex-shrink-0 bg-blue-500"></div>
+                  <span className="text-xs font-medium text-gray-700 dark:text-gray-300 truncate">
+                    {timeRange}
+                  </span>
+                </div>
+                <div className="flex flex-col items-end ml-2">
+                  <span className="text-xs font-bold text-gray-900 dark:text-gray-100">
                     {formatNumber(data.count)}
-                  </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{timeRange}</p>
-                  <p className="text-xs text-blue-500 dark:text-blue-400 mt-1">
+                  </span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
                     {data.percentage.toFixed(1)}%
-                  </p>
-                </CardBody>
-              </Card>
+                  </span>
+                </div>
+              </div>
             ))}
           </div>
         </CardBody>
