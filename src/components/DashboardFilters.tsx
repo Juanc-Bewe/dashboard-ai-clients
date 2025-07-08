@@ -141,8 +141,8 @@ export const DashboardFilters: React.FC = () => {
     try {
       setIsForceRefreshing(true);
 
-      // Clear dashboard cache first to ensure fresh data
-      await serviceWorkerManager.clearDashboardCache();
+      // Clear only the analytics cache to ensure fresh data
+      await serviceWorkerManager.clearEndpointCache('/lite/v1/analytics');
 
       // Then fetch fresh data
       await fetchDashboardData();

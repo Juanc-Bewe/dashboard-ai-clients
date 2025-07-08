@@ -131,8 +131,8 @@ export const AddonFilters: React.FC<AddonFiltersProps> = ({
     try {
       setIsForceRefreshing(true);
       
-      // Clear dashboard cache first to ensure fresh data
-      await serviceWorkerManager.clearDashboardCache();
+      // Clear only the business analytics cache to ensure fresh data
+      await serviceWorkerManager.clearEndpointCache('/lite/v1/analytics/business');
       
       // Then call the original refresh handler
       await onRefresh();
