@@ -1,0 +1,176 @@
+📊 Documento Maestro de KPIs para Linda Clientes
+Objetivo: Medir y optimizar el motor de crecimiento y el NSM de Linda Clientes.
+ Destinatario: Equipo de IT / Datos
+
+
+
+🔹 1. North Star Metric (NSM)
+Definición:
+Cuentas activas con Web o WhatsApp integrados + al menos 3 conversaciones útiles por semana.
+KPI principal:
+NSM Semanal = Nº de cuentas con ≥3 conversaciones útiles durante la semana
+
+
+Inputs necesarios:
+Cuentas con Web activo
+
+
+Cuentas con WhatsApp activo
+
+
+Número de conversaciones útiles por cuenta (semanal)
+
+
+
+🔹 2. KPIs por Fase del Growth Loop
+📍 FASE 1: Activación multicanal sin fricción
+Objetivo: Que el cliente conecte su canal Web y/o WhatsApp, y Linda quede activa.
+Tipos de activación:
+Automode: Se carga automáticamente la información desde el sitio web del cliente.
+
+
+Onboarding guiado: El cliente sube manualmente información clave (servicios, horarios, precios, etc.).
+
+
+Condiciones necesarias:
+El cliente debe publicar el widget en su Web.
+
+
+Puede integrar WhatsApp Business (opcional).
+
+
+Métricas clave:
+Nº de cuentas activadas (con Linda disponible)
+
+
+% de cuentas con Web activo
+
+
+% de cuentas con WhatsApp activo
+
+
+Tiempo medio desde activación hasta conexión de canal
+
+
+Nº de cuentas activadas por Automode vs Onboarding guiado
+
+
+Indicadores secundarios:
+Nº de cuentas con errores en la conexión
+
+
+% de cuentas que abren pero no configuran canal
+
+
+
+📍 FASE 2: Conversaciones útiles con IA
+Objetivo: Que Linda entregue valor real respondiendo a clientes finales.
+Métricas clave:
+Nº total de conversaciones generadas
+
+
+Nº de conversaciones útiles
+
+
+% de conversaciones útiles sobre total
+
+
+Media de conversaciones útiles por cuenta / semana
+
+
+Nº de cuentas con ≥1 conversación útil / semana
+
+
+Conversación útil (flag binario por conversación):
+Agenda una cita ✔️
+
+
+Captura lead completo (nombre + contacto) ✔️
+
+
+Responde bien sobre horarios/precios/servicios ✔️
+
+
+Deriva con contexto a botón de pago o humano ✔️
+
+
+Extras:
+Nº de intenciones fallidas
+
+
+Nº de mejoras activadas por nutrición del negocio
+
+
+
+📍 FASE 3: Valor percibido (notificaciones + informe)
+Objetivo: Mostrar de forma tangible el valor de Linda.
+Métricas clave:
+% de cuentas que reciben notificaciones push (por tipo)
+
+
+% de cuentas con informe semanal generado
+
+
+Tasa de apertura del informe semanal
+
+
+Tiempo medio de respuesta IA
+
+
+% de leads atendidos en <5 minutos
+
+
+
+📍 FASE 4: Mayor uso y dependencia
+Objetivo: Que el cliente confíe, use más y dependa de Linda.
+Métricas clave:
+Nº de cuentas que alcanzan el umbral de 10 conversaciones/semana
+
+
+% de cuentas que repiten uso semana a semana
+
+
+% de cuentas que superan el límite gratuito (50 conversaciones)
+
+
+% de cuentas que usan funcionalidades avanzadas
+
+
+
+📍 FASE 5: Upgrade / Add-ons
+Objetivo: Que el negocio compre más conversaciones o suba de plan.
+Métricas clave:
+Nº de cuentas que compran bolsas de conversaciones
+
+
+Ratio de upgrade tras 50 conversaciones gratuitas
+
+
+Ingreso mensual generado por add-ons
+
+
+% de cuentas que suben de plan
+
+
+Tiempo medio desde activación hasta conversión
+
+
+
+📍 FASE 6: Adquisición viral por hipervínculo
+Objetivo: Que otros negocios descubran Bewe y Linda al interactuar con ella.
+Nota: Esta funcionalidad aún no está disponible. El hipervínculo dentro de la conversación de Linda es un desarrollo futuro y actualmente no puede medirse.
+
+🔹 3. Métricas de Sistema y Salud del Loop
+Indicadores clave:
+Tiempo promedio de respuesta IA
+
+
+Nº de errores IA por intención
+
+
+% de cuentas inactivas por >7 días
+
+
+Tasa de éxito del onboarding sin intervención humana
+
+

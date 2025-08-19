@@ -31,3 +31,4 @@ export const DashboardTabs: React.FC = () => {
     </div>
   );
 };
+

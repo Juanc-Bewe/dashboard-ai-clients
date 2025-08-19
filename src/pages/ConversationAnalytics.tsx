@@ -1,6 +1,9 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { Button } from '@heroui/react';
+import { ChevronDown, ChevronUp, Filter } from 'lucide-react';
 import { ConversationAnalyticsFilters } from '../components/ConversationAnalyticsFilters';
+import { ConversationAnalyticsTabs } from '../components/ConversationAnalyticsTabs';
 import { useConversationAnalyticsStore, useUrlSync } from '../contexts/ConversationAnalyticsContext';
 
 export const ConversationAnalytics: React.FC = () => {
@@ -8,12 +11,12 @@ export const ConversationAnalytics: React.FC = () => {
   const navigate = useNavigate();
   const { initializeFromUrl, getUrlParams } = useUrlSync();
 
-  const data = useConversationAnalyticsStore((state) => state.data);
   const loading = useConversationAnalyticsStore((state) => state.loading);
   const error = useConversationAnalyticsStore((state) => state.error);
   const fetchData = useConversationAnalyticsStore((state) => state.fetchData);
 
   const isInitialized = useRef(false);
+  const [isFiltersCollapsed, setIsFiltersCollapsed] = useState(false);
 
   // Initialize store and URL sync on mount
   useEffect(() => {
@@ -62,21 +65,61 @@ export const ConversationAnalytics: React.FC = () => {
     <div className="space-y-8">
       {/* Page Header */}
       <div className="pb-4 border-b border-gray-200 dark:border-gray-700">
-        <h1 className="text-3xl font-bold text-foreground">Conversation Analytics</h1>
-        <p className="mt-2 text-foreground-600">Monitor conversation metrics and account performance</p>
+        <h1 className="text-3xl font-bold text-foreground">Análisis de Conversaciones</h1>
+        <p className="mt-2 text-foreground-600">Monitorea las métricas de conversaciones y el rendimiento de cuentas</p>
       </div>
 
       {/* Filters Section */}
       <section className="relative">
-        <ConversationAnalyticsFilters />
+        <div className={`transition-all duration-300 ease-in-out ${
+          isFiltersCollapsed ? 'space-y-0' : 'space-y-4'
+        }`}>
+          {/* Filter Header with Toggle Button */}
+          <div className="flex items-center justify-between rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+            <div className="flex items-center gap-2">
+              <Filter className="w-5 h-5 text-foreground-600" />
+              <h2 className="text-lg font-semibold text-foreground">Filtros</h2>
+            </div>
+            <div className="flex justify-end">
+              <Button
+                variant="light"
+                size="sm"
+                onPress={() => setIsFiltersCollapsed(!isFiltersCollapsed)}
+                startContent={
+                  isFiltersCollapsed ? (
+                    <ChevronDown className="w-4 h-4" />
+                  ) : (
+                    <ChevronUp className="w-4 h-4" />
+                  )
+                }
+                className="text-foreground-600 hover:text-foreground text-sm"
+              >
+                {isFiltersCollapsed ? 'Mostrar Filtros' : 'Ocultar Filtros'}
+              </Button>
+            </div>
+          </div>
+
+          {/* Collapsible Filter Container */}
+          <div
+            className={`transition-all duration-300 ease-in-out overflow-hidden ${
+              isFiltersCollapsed
+                ? 'max-h-0 opacity-0 pointer-events-none mt-0'
+                : 'max-h-[800px] opacity-100 mt-4'
+            }`}
+          >
+            <div className={isFiltersCollapsed ? 'invisible' : 'visible'}>
+              <ConversationAnalyticsFilters />
+            </div>
+          </div>
+        </div>
       </section>
 
-      {/* Main Content */}
+            {/* Main Content */}
       <section className="space-y-6 pt-2">
         {loading && (
           <div className="flex items-center justify-center py-12">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <span className="ml-3 text-foreground-600">Loading conversation analytics...</span>
+            <span className="ml-3 text-foreground-600">Cargando análisis de conversaciones...</span>
           </div>
         )}
 
@@ -98,102 +141,9 @@ export const ConversationAnalytics: React.FC = () => {
           </div>
         )}
 
-        {data && !loading && (
-          <div className="space-y-6">
-            {/* Overview Cards */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
-                <h2 className="text-xl font-semibold text-foreground">Overview</h2>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {/* Current Period Stats */}
-                <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Conversations</p>
-                      <p className="text-2xl font-bold text-foreground">{data.current.totalConversations.toLocaleString()}</p>
-                    </div>
-                    <div className="h-8 w-8 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center">
-                      <svg className="h-4 w-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Accounts</p>
-                      <p className="text-2xl font-bold text-foreground">{data.current.totalAccounts.toLocaleString()}</p>
-                    </div>
-                    <div className="h-8 w-8 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center">
-                      <svg className="h-4 w-4 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Useful Conversations</p>
-                      <p className="text-2xl font-bold text-foreground">{data.current.totalUsefulConversations.toLocaleString()}</p>
-                    </div>
-                    <div className="h-8 w-8 bg-purple-100 dark:bg-purple-900/20 rounded-full flex items-center justify-center">
-                      <svg className="h-4 w-4 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Useful %</p>
-                      <p className="text-2xl font-bold text-foreground">{data.current.percentageOfUsefulConversations.toFixed(1)}%</p>
-                    </div>
-                    <div className="h-8 w-8 bg-orange-100 dark:bg-orange-900/20 rounded-full flex items-center justify-center">
-                      <svg className="h-4 w-4 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Comparison Section */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <div className="w-1 h-6 bg-emerald-500 rounded-full"></div>
-                <h2 className="text-xl font-semibold text-foreground">Period Comparison</h2>
-              </div>
-
-              <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="text-center">
-                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Accounts with Equal/More</p>
-                    <p className="text-3xl font-bold text-green-600 dark:text-green-400">{data.comparison.totalAccountsWithEqualOrMore}</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Accounts Lost</p>
-                    <p className="text-3xl font-bold text-red-600 dark:text-red-400">{data.comparison.totalAccountsLost}</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Net Change</p>
-                    <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-                      {data.comparison.totalCurrentAccounts - data.comparison.totalPreviousAccounts > 0 ? '+' : ''}
-                      {data.comparison.totalCurrentAccounts - data.comparison.totalPreviousAccounts}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
+        {!loading && !error && (
+          <div className="space-y-4">
+            <ConversationAnalyticsTabs />
           </div>
         )}
       </section>
