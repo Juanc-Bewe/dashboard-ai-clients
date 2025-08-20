@@ -153,16 +153,16 @@ export const UsabilityAndIndependenceTab: React.FC = () => {
   // Calculate metrics for "Cuentas con Igual o Más Conversaciones"
   const totalAccountsWithEqualOrMore = comparisonData?.totalAccountsWithEqualOrMore ?? 0;
   const totalCurrentAccounts = comparisonData?.totalCurrentAccounts ?? 1;
-  const percentageEqualOrMore = totalCurrentAccounts > 0 
-    ? (totalAccountsWithEqualOrMore / totalCurrentAccounts) * 100 
+  const percentageEqualOrMore = totalCurrentAccounts > 0
+    ? (totalAccountsWithEqualOrMore / totalCurrentAccounts) * 100
     : 0;
 
   // Calculate metrics for "Cuentas con Más de 50 Conversaciones"
   const accountsWithMoreFiftyConversations = currentMetrics?.accountAnalytics?.accountsWithMoreFiftyConversations ?? [];
   const totalAccountsWithMoreFifty = accountsWithMoreFiftyConversations.length;
   const totalAccountsWithConversations = currentMetrics?.volumeMetrics?.totalAccounts ?? 1;
-  const percentageMoreFifty = totalAccountsWithConversations > 0 
-    ? (totalAccountsWithMoreFifty / totalAccountsWithConversations) * 100 
+  const percentageMoreFifty = totalAccountsWithConversations > 0
+    ? (totalAccountsWithMoreFifty / totalAccountsWithConversations) * 100
     : 0;
 
   return (
@@ -187,10 +187,10 @@ export const UsabilityAndIndependenceTab: React.FC = () => {
           loading={loading}
           color="#10b981"
         />
-        
+
         <AdoptionMetricCard
           title="Cuentas con Más de 50 Conversaciones"
-          tooltip="Cantidad y porcentaje de cuentas que tuvieron más de 50 conversaciones en el período, indicando alta adopción y dependencia del sistema"
+          tooltip="Cantidad y porcentaje de cuentas que tuvieron más de 50 conversaciones en el período, sin importar si fueron útiles o no."
           count={totalAccountsWithMoreFifty}
           percentage={percentageMoreFifty}
           totalAccounts={totalAccountsWithConversations}

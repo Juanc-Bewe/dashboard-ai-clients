@@ -332,7 +332,7 @@ export const QualityMetricsCard: React.FC = () => {
             <Info className="h-4 w-4 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 cursor-help" />
           </Tooltip>
         </div>
-        
+
         <Card className="w-full">
           <CardBody className="p-6">
             {loading ? (
@@ -366,7 +366,7 @@ export const QualityMetricsCard: React.FC = () => {
             <Info className="h-4 w-4 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 cursor-help" />
           </Tooltip>
         </div>
-        
+
         <Card className="w-full">
           <CardBody className="p-6">
             {loading ? (
