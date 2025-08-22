@@ -10,7 +10,9 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { emailAnalyticsService } from "../services/emailAnalyticsService";
+import { useConversationAnalyticsStore } from "../contexts/ConversationAnalyticsContext";
 import type { EmailsAnalytics } from "../types/email-analytics-v2";
+import type { EmailAnalyticsFilters } from "../types/email-analytics-v2";
 
 // Professional color palette
 const CHART_COLORS = {
@@ -24,6 +26,18 @@ const CHART_COLORS = {
 const NotificationsSkeleton: React.FC = () => {
   return (
     <div className="space-y-6">
+      {/* Summary Stats Skeleton */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <Card key={index} className="h-20">
+            <CardBody>
+              <Skeleton className="h-full w-full" />
+            </CardBody>
+          </Card>
+        ))}
+      </div>
+      
+      {/* Performance Cards Skeleton */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="h-48">
           <CardBody>
@@ -36,6 +50,8 @@ const NotificationsSkeleton: React.FC = () => {
           </CardBody>
         </Card>
       </div>
+      
+      {/* Chart Skeleton */}
       <Card className="h-96">
         <CardBody>
           <Skeleton className="h-full w-full" />
@@ -50,13 +66,27 @@ export const NotificationsTab: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Get filters from ConversationAnalytics context
+  const filters = useConversationAnalyticsStore((state) => state.filters);
+
+  // Convert ConversationAnalytics filters to EmailAnalytics filters
+  const convertToEmailFilters = (conversationFilters: typeof filters): EmailAnalyticsFilters => {
+    return {
+      startDate: conversationFilters.startDate,
+      endDate: conversationFilters.endDate,
+      timezoneOffset: conversationFilters.timezoneOffset,
+      enterpriseIds: conversationFilters.enterpriseIds.length > 0 ? conversationFilters.enterpriseIds : undefined,
+      accountIds: conversationFilters.accountIds.length > 0 ? conversationFilters.accountIds : undefined,
+    };
+  };
+
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
         setLoading(true);
         setError(null);
-        const defaultFilters = emailAnalyticsService.getDefaultFilters();
-        const data = await emailAnalyticsService.getEmailAnalyticsData(defaultFilters);
+        const emailFilters = convertToEmailFilters(filters);
+        const data = await emailAnalyticsService.getEmailAnalyticsData(emailFilters);
         setAnalytics(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Error loading email analytics');
@@ -66,7 +96,7 @@ export const NotificationsTab: React.FC = () => {
     };
 
     fetchAnalytics();
-  }, []);
+  }, [filters]); // React to filter changes
 
   if (loading) {
     return <NotificationsSkeleton />;
@@ -140,6 +170,61 @@ export const NotificationsTab: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Email Summary Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card>
+          <CardBody className="p-4 text-center">
+            <HeroTooltip content="Número total de emails procesados en el período seleccionado" placement="top">
+              <div className="cursor-help">
+                <div className="text-2xl font-bold text-primary">
+                  {analytics.totalEmails.toLocaleString()}
+                </div>
+                <p className="text-sm text-default-500">Total de Emails</p>
+              </div>
+            </HeroTooltip>
+          </CardBody>
+        </Card>
+        
+        <Card>
+          <CardBody className="p-4 text-center">
+            <HeroTooltip content="Número de emails que fueron entregados exitosamente" placement="top">
+              <div className="cursor-help">
+                <div className="text-2xl font-bold text-success">
+                  {analytics.stateDistribution.delivered.count.toLocaleString()}
+                </div>
+                <p className="text-sm text-default-500">Entregados</p>
+              </div>
+            </HeroTooltip>
+          </CardBody>
+        </Card>
+        
+        <Card>
+          <CardBody className="p-4 text-center">
+            <HeroTooltip content="Número de emails que fueron abiertos por los destinatarios" placement="top">
+              <div className="cursor-help">
+                <div className="text-2xl font-bold text-info">
+                  {analytics.stateDistribution.open.count.toLocaleString()}
+                </div>
+                <p className="text-sm text-default-500">Abiertos</p>
+              </div>
+            </HeroTooltip>
+          </CardBody>
+        </Card>
+        
+        <Card>
+          <CardBody className="p-4 text-center">
+            <HeroTooltip content="Número de emails en los que se hizo clic en algún enlace" placement="top">
+              <div className="cursor-help">
+                <div className="text-2xl font-bold text-warning">
+                  {analytics.stateDistribution.click.count.toLocaleString()}
+                </div>
+                <p className="text-sm text-default-500">Clics</p>
+              </div>
+            </HeroTooltip>
+          </CardBody>
+        </Card>
+      </div>
+
       {/* Performance Rates & Time to Open Analytics */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
