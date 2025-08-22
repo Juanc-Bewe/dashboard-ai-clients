@@ -132,14 +132,14 @@ const MetricCard: React.FC<MetricCardProps> = ({
             </div>
             <div className="flex items-center gap-2">
               {change && (
-                <div className="hidden md:flex items-center text-sm gap-1">
+                <div className="hidden md:flex items-center text-xs gap-1">
                   {getTrendIcon()}
                   <span className={`font-medium ${getChangeColor()}`}>
                     {change}
                   </span>
                 </div>
               )}
-              <Tooltip
+              {/* <Tooltip
                 content={
                   copied
                     ? "¡Copiado!"
@@ -149,7 +149,7 @@ const MetricCard: React.FC<MetricCardProps> = ({
                 }
                 placement="top"
               >
-                {/* <button
+                <button
                   onClick={handleCopy}
                   className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800"
                 >
@@ -158,8 +158,8 @@ const MetricCard: React.FC<MetricCardProps> = ({
                   ) : (
                     <Copy className="h-3 w-3 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" />
                   )}
-                </button> */}
-              </Tooltip>
+                </button>
+              </Tooltip> */}
             </div>
           </div>
           <div className="mb-2 md:mb-0">
