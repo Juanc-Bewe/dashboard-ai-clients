@@ -25,7 +25,7 @@ import type { DateRangeValue } from "../types/dashboard";
 export const ConversationAnalyticsFilters: React.FC = () => {
   const filters = useConversationAnalyticsStore((state) => state.filters);
   const loading = useConversationAnalyticsStore((state) => state.loading);
-  const setFilters = useConversationAnalyticsStore((state) => state.setFilters);
+  const updateFilters = useConversationAnalyticsStore((state) => state.updateFilters);
   const fetchData = useConversationAnalyticsStore((state) => state.fetchData);
 
   // Get auth data
@@ -74,7 +74,7 @@ export const ConversationAnalyticsFilters: React.FC = () => {
       }
       
       setIsRangeInvalid(false);
-      setFilters({ startDate, endDate });
+      updateFilters({ startDate, endDate });
       
       // Clear the shortcut selection when manually changing dates
       setSelectedShortcut("");
@@ -84,7 +84,7 @@ export const ConversationAnalyticsFilters: React.FC = () => {
   };
 
   const handleEnterpriseChange = (keys: Set<string>) => {
-    setFilters({ enterpriseIds: Array.from(keys) });
+    updateFilters({ enterpriseIds: Array.from(keys) });
   };
 
   const handleAccountIdsChange = (value: string) => {
@@ -98,7 +98,7 @@ export const ConversationAnalyticsFilters: React.FC = () => {
       .map((id) => id.trim())
       .filter((id) => id !== "" && /^[a-zA-Z0-9_-]+$/.test(id)); // Only allow alphanumeric, underscore, and dash
 
-    setFilters({ accountIds });
+    updateFilters({ accountIds });
     // Update the input to show cleaned values
     setAccountIdsInput(accountIds.join(", "));
   };
@@ -163,7 +163,7 @@ export const ConversationAnalyticsFilters: React.FC = () => {
   ) => {
     const shortcuts = getDateShortcuts();
     const range = shortcuts[shortcut];
-    setFilters({ startDate: range.start, endDate: range.end });
+    updateFilters({ startDate: range.start, endDate: range.end });
     setSelectedShortcut(shortcut);
   };
 
@@ -175,7 +175,7 @@ export const ConversationAnalyticsFilters: React.FC = () => {
     
     const formatDate = (date: Date) => date.toISOString().split("T")[0];
 
-    setFilters({
+    updateFilters({
       startDate: formatDate(past7Days),
       endDate: formatDate(today),
       enterpriseIds: [],

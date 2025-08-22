@@ -4,15 +4,18 @@ import { Button } from '@heroui/react';
 import { ChevronDown, ChevronUp, Filter } from 'lucide-react';
 import { ConversationAnalyticsFilters } from '../components/ConversationAnalyticsFilters';
 import { ConversationAnalyticsTabs } from '../components/ConversationAnalyticsTabs';
-import { useConversationAnalyticsStore, useUrlSync } from '../contexts/ConversationAnalyticsContext';
+import { useConversationAnalyticsStore } from '../contexts/ConversationAnalyticsContext';
 
 export const ConversationAnalytics: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { initializeFromUrl, getUrlParams } = useUrlSync();
-
+  
   const loading = useConversationAnalyticsStore((state) => state.loading);
   const error = useConversationAnalyticsStore((state) => state.error);
+  
+  // Get store methods with stable references
+  const initializeFromUrl = useConversationAnalyticsStore((state) => state.initializeFromUrl);
+  const getUrlParams = useConversationAnalyticsStore((state) => state.getUrlParams);
   const fetchData = useConversationAnalyticsStore((state) => state.fetchData);
 
   const isInitialized = useRef(false);
@@ -23,14 +26,15 @@ export const ConversationAnalytics: React.FC = () => {
     if (!isInitialized.current) {
       // Initialize filters from URL
       const searchParams = new URLSearchParams(location.search);
+
       initializeFromUrl(searchParams);
 
-      // Fetch initial data
+      // Fetch initial data after URL initialization
       fetchData();
 
       isInitialized.current = true;
     }
-  }, [initializeFromUrl, location.search, fetchData]);
+  }, [initializeFromUrl, fetchData, location.search]);
 
   // Subscribe to filter changes and update URL
   useEffect(() => {
@@ -39,6 +43,7 @@ export const ConversationAnalytics: React.FC = () => {
     const unsubscribe = useConversationAnalyticsStore.subscribe(
       (state) => state.filters,
       () => {
+
         const params = getUrlParams();
         const queryString = params.toString();
         const currentQuery = location.search.replace('?', '');
@@ -53,13 +58,6 @@ export const ConversationAnalytics: React.FC = () => {
 
     return unsubscribe;
   }, [location.pathname, location.search, navigate, getUrlParams]);
-
-  // Auto-fetch data when filters change
-  useEffect(() => {
-    if (isInitialized.current) {
-      fetchData();
-    }
-  }, [useConversationAnalyticsStore((state) => state.filters), fetchData]);
 
   return (
     <div className="space-y-8">

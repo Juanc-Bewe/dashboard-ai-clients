@@ -64,26 +64,29 @@ const parseQueryToFilters = (searchParams: URLSearchParams): Partial<Conversatio
   return filters;
 };
 
-// Zustand store
-export const useConversationAnalyticsStore = create<ConversationAnalyticsState & {
-  setFilters: (filters: Partial<ConversationAnalyticsFilters>) => void;
+// Zustand store interface
+interface ConversationAnalyticsStore extends ConversationAnalyticsState {
+  // Actions
   fetchData: () => Promise<void>;
+  updateFilters: (filters: Partial<ConversationAnalyticsFilters>) => void;
+  setFilters: (filters: Partial<ConversationAnalyticsFilters>) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   setData: (data: ConversationAnalyticsData | null) => void;
-}>()(
+  initializeFromUrl: (searchParams: URLSearchParams) => void;
+  getUrlParams: () => URLSearchParams;
+}
+
+// Create Zustand store with automatic data fetching
+export const useConversationAnalyticsStore = create<ConversationAnalyticsStore>()(
   subscribeWithSelector((set, get) => ({
+    // Initial state
     data: null,
     loading: false,
     error: null,
     filters: conversationAnalyticsService.getDefaultFilters(),
 
-    setFilters: (newFilters) => {
-      set((state) => ({
-        filters: { ...state.filters, ...newFilters }
-      }));
-    },
-
+    // Fetch conversation analytics data
     fetchData: async () => {
       const { filters } = get();
       set({ loading: true, error: null });
@@ -97,33 +100,56 @@ export const useConversationAnalyticsStore = create<ConversationAnalyticsState &
       }
     },
 
+    // Update filters and automatically fetch data
+    updateFilters: (newFilters: Partial<ConversationAnalyticsFilters>) => {
+      const { filters } = get();
+      const updatedFilters = { ...filters, ...newFilters };
+      set({ filters: updatedFilters });
+
+      // Auto-fetch data when filters change
+      get().fetchData();
+    },
+
+    // Set filters without auto-fetching (for URL initialization)
+    setFilters: (newFilters) => {
+      set((state) => ({
+        filters: { ...state.filters, ...newFilters }
+      }));
+    },
+
     setLoading: (loading) => set({ loading }),
     setError: (error) => set({ error }),
-    setData: (data) => set({ data })
+    setData: (data) => set({ data }),
+
+    // URL sync methods
+    initializeFromUrl: (searchParams: URLSearchParams) => {
+      const urlFilters = parseQueryToFilters(searchParams);
+
+      if (Object.keys(urlFilters).length > 0) {
+        const { filters } = get();
+        const mergedFilters = { ...filters, ...urlFilters };
+        set({ filters: mergedFilters });
+      }
+    },
+
+    getUrlParams: () => {
+      const { filters } = get();
+      return serializeFiltersToQuery(filters);
+    },
   }))
 );
 
-// URL sync utilities
+// Hook for URL synchronization
 export const useUrlSync = () => {
-  const getUrlParams = (): URLSearchParams => {
-    const { filters } = useConversationAnalyticsStore.getState();
-    return serializeFiltersToQuery(filters);
-  };
-
-  const initializeFromUrl = (searchParams: URLSearchParams) => {
-    const defaultFilters = conversationAnalyticsService.getDefaultFilters();
-    const urlFilters = parseQueryToFilters(searchParams);
-    
-    const mergedFilters = {
-      ...defaultFilters,
-      ...urlFilters
-    };
-
-    useConversationAnalyticsStore.getState().setFilters(mergedFilters);
-  };
-
+  const updateFilters = useConversationAnalyticsStore(state => state.updateFilters);
+  const initializeFromUrl = useConversationAnalyticsStore(state => state.initializeFromUrl);
+  const getUrlParams = useConversationAnalyticsStore(state => state.getUrlParams);
+  
   return {
+    updateFilters,
+    initializeFromUrl,
     getUrlParams,
-    initializeFromUrl
   };
 };
+
+
