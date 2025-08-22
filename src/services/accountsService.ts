@@ -1,5 +1,5 @@
-import { mockAccountsResponse } from '../mocks/accounts';
-import type { AccountsResponse, Account } from '../types/acounts';
+import { mockAccountsResponse, mockAccountsWithSessionsResponse } from '../mocks/accounts';
+import type { AccountsResponse, Account, AccountsWithSessionsResponse } from '../types/acounts';
 
 export interface AccountsMetrics {
   totalAccounts: number;
@@ -29,6 +29,12 @@ export const getAccountsData = async (): Promise<AccountsResponse> => {
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 500));
   return mockAccountsResponse;
+};
+
+export const getAccountsWithSessionsData = async (): Promise<AccountsWithSessionsResponse> => {
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 500));
+  return mockAccountsWithSessionsResponse;
 };
 
 export const calculateAccountsMetrics = (accounts: Account[]): AccountsMetrics => {

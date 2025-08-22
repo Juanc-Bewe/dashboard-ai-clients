@@ -27,3 +27,19 @@ export interface AccountsResponse {
   timestamp: string;
   path: string;
 }
+
+export interface AccountWithSessions {
+  accountId: string;
+  accountName: string;
+  sessionCount: number;
+}
+
+export interface AccountsWithSessionsResponse {
+  success: boolean;
+  message: string;
+  data: {
+    accountsWithSessions: AccountWithSessions[];
+  };
+  timestamp: string;
+  path: string;
+}

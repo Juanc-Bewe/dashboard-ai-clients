@@ -1,4 +1,4 @@
-import type { AccountsResponse } from '../types/acounts';
+import type { AccountsResponse, AccountsWithSessionsResponse } from '../types/acounts';
 
 export const mockAccountsResponse: AccountsResponse = {
   success: true,
@@ -2159,4 +2159,90 @@ export const mockAccountsResponse: AccountsResponse = {
   },
   timestamp: "2025-08-21T13:45:32.180Z",
   path: "/lite/v1/analytics/business/base?startDate=2025-08-14&endDate=2025-08-15"
+};
+
+export const mockAccountsWithSessionsResponse: AccountsWithSessionsResponse = {
+  success: true,
+  message: "Operación exitosa",
+  data: {
+    accountsWithSessions: [
+      {
+        accountId: "5f85ebdefd99d70a89d05b18",
+        accountName: "Physica ",
+        sessionCount: 1243
+      },
+      {
+        accountId: "64017a4c99bdcb6fc8584369",
+        accountName: "Miami Sun Estética y Spa",
+        sessionCount: 987
+      },
+      {
+        accountId: "640176884caadaec67c74d9c",
+        accountName: "Helados Eduardiko",
+        sessionCount: 756
+      },
+      {
+        accountId: "640166b499bdcb6fc8570953",
+        accountName: "Geriátrico Residencia Nathaniel",
+        sessionCount: 643
+      },
+      {
+        accountId: "64012f484caadaec67c05a63",
+        accountName: "BOTONERA LAVALLE",
+        sessionCount: 521
+      },
+      {
+        accountId: "6401676e99bdcb6fc85715ed",
+        accountName: "Farmacia Popular",
+        sessionCount: 498
+      },
+      {
+        accountId: "640158b899bdcb6fc85588c3",
+        accountName: "Itat - Ingenieria Tecnica de Alta Tension",
+        sessionCount: 387
+      },
+      {
+        accountId: "640165194caadaec67c62ca2",
+        accountName: "FERRETERIA CORRIENTES",
+        sessionCount: 342
+      },
+      {
+        accountId: "64011ece4caadaec67be7d17",
+        accountName: "Gaetano Sassano - Alta Costura",
+        sessionCount: 289
+      },
+      {
+        accountId: "640127284caadaec67bf67b3",
+        accountName: "Flexograf SRL",
+        sessionCount: 234
+      },
+      {
+        accountId: "68a330c6967196d1d636d8d5",
+        accountName: "Juan  Carlos  Toscano",
+        sessionCount: 198
+      },
+      {
+        accountId: "689f2fcabdf70a6b4b27da78",
+        accountName: "Mariela Essen",
+        sessionCount: 156
+      },
+      {
+        accountId: "68a324a2bdf70a6b4b2c248a",
+        accountName: "A y a School",
+        sessionCount: 134
+      },
+      {
+        accountId: "68a3a2e1bdf70a6b4b2cfb5e",
+        accountName: "Well Pilates",
+        sessionCount: 112
+      },
+      {
+        accountId: "68a4ca4fbdf70a6b4b2eac1c",
+        accountName: "Asesora Comercial Claudia Soledad Pires",
+        sessionCount: 89
+      }
+    ]
+  },
+  timestamp: "2025-08-22T04:02:55.204Z",
+  path: "/lite/v1/analytics/business/activity?startDate=2025-08-06&endDate=2025-08-13&timezoneOffset=-5"
 };
