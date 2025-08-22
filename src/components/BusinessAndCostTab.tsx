@@ -428,7 +428,7 @@ export const BusinessAndCostTab: React.FC = () => {
                 <div className="text-s mb-2">
                     Total LLM Cost
                   </div>
-                  <div className="text-2xl font-bold">
+                  <div className="text-xl font-bold">
                     {formatCurrency(
                       costByModelData.reduce((sum, item) => sum + item.cost, 0)
                     )}
@@ -587,7 +587,7 @@ export const BusinessAndCostTab: React.FC = () => {
                 <div className="text-s mb-2">
                     Total Tokens Used
                   </div>
-                  <div className="text-2xl font-bold">
+                  <div className="text-xl font-bold">
                     {tokensByModelData
                       .reduce((sum, item) => sum + item.tokens, 0)
                       .toLocaleString()}
@@ -775,7 +775,7 @@ export const BusinessAndCostTab: React.FC = () => {
                   <div className="text-s mb-2">
                     Total Agents Usage
                   </div>
-                  <div className="text-2xl font-bold">
+                  <div className="text-xl font-bold">
                     {data?.currentPeriod?.metrics?.agentsDistributionByAmount
                       ? Object.values(data.currentPeriod.metrics.agentsDistributionByAmount)
                           .reduce((sum, item) => sum + item.amount, 0)
@@ -904,7 +904,7 @@ export const BusinessAndCostTab: React.FC = () => {
                   <div className="text-s mb-2">
                     Total Tools Usage
                   </div>
-                  <div className="text-2xl font-bold">
+                  <div className="text-xl font-bold">
                     {data?.currentPeriod?.metrics?.toolsDistributionByAmount
                       ? Object.values(data.currentPeriod.metrics.toolsDistributionByAmount)
                           .reduce((sum, item) => sum + item.amount, 0)

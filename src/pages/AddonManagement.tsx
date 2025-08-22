@@ -476,7 +476,7 @@ export const AddonManagement: React.FC = () => {
                       <div className="grid grid-cols-2 gap-4">
                         <Card>
                           <CardBody className="text-center p-4">
-                            <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                            <div className="text-xl font-bold text-green-600 dark:text-green-400">
                               {formatNumber(dashboardStats.active)}
                             </div>
                             <p className="text-sm text-green-600 dark:text-green-400">Active</p>
@@ -484,7 +484,7 @@ export const AddonManagement: React.FC = () => {
                         </Card>
                         <Card>
                           <CardBody className="text-center p-4">
-                            <div className="text-2xl font-bold text-red-600 dark:text-red-400">
+                            <div className="text-xl font-bold text-red-600 dark:text-red-400">
                               {formatNumber(dashboardStats.inactive)}
                             </div>
                             <p className="text-sm text-red-600 dark:text-red-400">Inactive</p>
@@ -508,7 +508,7 @@ export const AddonManagement: React.FC = () => {
                       <div className="grid grid-cols-2 gap-4">
                         <Card>
                           <CardBody className="text-center p-4">
-                            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                            <div className="text-xl font-bold text-blue-600 dark:text-blue-400">
                               {formatNumber(dashboardStats.automodeYes)}
                             </div>
                             <p className="text-sm text-blue-600 dark:text-blue-400">Yes</p>
@@ -516,7 +516,7 @@ export const AddonManagement: React.FC = () => {
                         </Card>
                         <Card>
                           <CardBody className="text-center p-4">
-                            <div className="text-2xl font-bold text-gray-600 dark:text-gray-400">
+                            <div className="text-xl font-bold text-gray-600 dark:text-gray-400">
                               {formatNumber(dashboardStats.automodeNo)}
                             </div>
                             <p className="text-sm text-gray-600 dark:text-gray-400">No</p>
@@ -541,7 +541,7 @@ export const AddonManagement: React.FC = () => {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <Card>
                         <CardBody className="text-center p-4">
-                          <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                          <div className="text-xl font-bold text-green-600 dark:text-green-400">
                             {formatNumber(dashboardStats.completed)}
                           </div>
                           <p className="text-sm text-green-600 dark:text-green-400">Completed</p>
@@ -552,7 +552,7 @@ export const AddonManagement: React.FC = () => {
                       </Card>
                       <Card>
                         <CardBody className="text-center p-4">
-                          <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+                          <div className="text-xl font-bold text-orange-600 dark:text-orange-400">
                             {formatNumber(dashboardStats.pending)}
                           </div>
                           <p className="text-sm text-orange-600 dark:text-orange-400">Pending</p>
@@ -563,7 +563,7 @@ export const AddonManagement: React.FC = () => {
                       </Card>
                       <Card>
                         <CardBody className="text-center p-4">
-                          <div className="text-2xl font-bold text-red-600 dark:text-red-400">
+                          <div className="text-xl font-bold text-red-600 dark:text-red-400">
                             {formatNumber(dashboardStats.failed)}
                           </div>
                           <p className="text-sm text-red-600 dark:text-red-400">Failed</p>

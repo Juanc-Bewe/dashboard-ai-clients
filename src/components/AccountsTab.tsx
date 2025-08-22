@@ -77,7 +77,7 @@ const MetricCard: React.FC<MetricCardProps> = ({
             </div>
           </div>
           <div className="mb-2 md:mb-0">
-            <p className="text-2xl font-bold">{formatValue(value, format)}</p>
+            <p className="text-xl font-bold">{formatValue(value, format)}</p>
           </div>
         </div>
       </CardBody>
@@ -599,7 +599,7 @@ export const AccountsTab: React.FC = () => {
                           y="45%"
                           textAnchor="middle"
                           dominantBaseline="middle"
-                          className="fill-current text-2xl font-bold text-foreground"
+                          className="fill-current text-xl font-bold text-foreground"
                         >
                           {metrics?.totalAccounts ?? 0}
                         </text>

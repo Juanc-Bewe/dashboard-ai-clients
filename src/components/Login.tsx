@@ -30,7 +30,7 @@ export const Login: React.FC = () => {
     <Card className="w-full">
       <CardHeader className="pb-4">
         <div className="w-full text-center">
-          <h1 className="text-2xl font-bold">Access Dashboard</h1>
+          <h1 className="text-xl font-bold">Access Dashboard</h1>
           <p className="text-default-600 mt-2">Enter your access code</p>
         </div>
       </CardHeader>

@@ -99,7 +99,7 @@ export const TopExpensiveAccounts: React.FC<TopExpensiveAccountsProps> = ({
           <div className="pt-4">
             <div className="text-center">
               <div className="text-sm mb-2">Top Expensive Accounts</div>
-              <div className="text-2xl font-bold">No Data</div>
+              <div className="text-xl font-bold">No Data</div>
             </div>
           </div>
           <div className="text-center text-gray-500 dark:text-gray-400 mt-8">
@@ -117,7 +117,7 @@ export const TopExpensiveAccounts: React.FC<TopExpensiveAccountsProps> = ({
         <div className="pt-4">
           <div className="text-center">
             <div className="text-sm mb-2">Top Expensive Accounts</div>
-            <div className="text-2xl font-bold">{accounts.length} Accounts</div>
+            <div className="text-xl font-bold">{accounts.length} Accounts</div>
           </div>
         </div>
 

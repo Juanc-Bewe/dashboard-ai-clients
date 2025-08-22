@@ -149,7 +149,7 @@ const MetricCard: React.FC<MetricCardProps> = ({
                 }
                 placement="top"
               >
-                <button
+                {/* <button
                   onClick={handleCopy}
                   className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800"
                 >
@@ -158,14 +158,14 @@ const MetricCard: React.FC<MetricCardProps> = ({
                   ) : (
                     <Copy className="h-3 w-3 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" />
                   )}
-                </button>
+                </button> */}
               </Tooltip>
             </div>
           </div>
           <div className="mb-2 md:mb-0">
             {format === "percentage" && absoluteValue !== undefined ? (
               <div className="space-y-2">
-                <div className="text-2xl font-bold">
+                <div className="text-xl font-bold">
                   {formatValue(value, format)}
                 </div>
                 <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
@@ -180,13 +180,13 @@ const MetricCard: React.FC<MetricCardProps> = ({
                     }}
                   />
                 </div>
-                <div className="text-sm text-foreground-600 text-right">
+                <div className="text-xs text-foreground-600 text-right">
                   {absoluteValue.toLocaleString()} de{" "}
                   {totalValue?.toLocaleString()}
                 </div>
               </div>
             ) : (
-              <p className="text-2xl font-bold">{formatValue(value, format)}</p>
+              <p className="text-xl font-bold">{formatValue(value, format)}</p>
             )}
           </div>
           {change && (
@@ -222,17 +222,17 @@ export const StaticMetricsCard: React.FC = () => {
   // Key metrics for the overview section
   const keyMetrics = [
     {
-      title: "Cuentas Activas",
-      tooltip:
-        "Número de cuentas únicas que tuvieron al menos una conversación",
-      value: volumeMetrics?.totalAccounts ?? 0,
-      previousValue: previousMetrics?.volumeMetrics?.totalAccounts,
-    },
-    {
       title: "Conversaciones",
       tooltip: "Número total de conversaciones en el período seleccionado",
       value: volumeMetrics?.totalConversations ?? 0,
       previousValue: previousMetrics?.volumeMetrics?.totalConversations,
+    },
+    {
+      title: "Cuentas",
+      tooltip:
+        "Número de cuentas únicas que tuvieron al menos una conversación",
+      value: volumeMetrics?.totalAccounts ?? 0,
+      previousValue: previousMetrics?.volumeMetrics?.totalAccounts,
     },
     {
       title: "Mensajes/Conv",

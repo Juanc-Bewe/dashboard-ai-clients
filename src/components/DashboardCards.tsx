@@ -115,7 +115,7 @@ const MetricCard: React.FC<MetricCardProps> = ({
               </div>
             )}
           </div>
-          <p className="text-2xl font-bold mb-2 md:mb-0">
+          <p className="text-xl font-bold mb-2 md:mb-0">
             {formatValue(value, format)}
           </p>
           {change && (

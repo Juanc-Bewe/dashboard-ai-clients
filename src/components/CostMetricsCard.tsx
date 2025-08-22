@@ -428,7 +428,7 @@ export const CostMetricsCard: React.FC = () => {
               <div className="pt-4">
                 <div className="text-center">
                   <div className="text-s mb-2">Costo Total LLM</div>
-                  <div className="text-2xl font-bold">
+                  <div className="text-xl font-bold">
                     {formatCurrency(
                       costByModelData.reduce(
                         (sum, item) => sum + (item.cost || 0),
@@ -605,7 +605,7 @@ export const CostMetricsCard: React.FC = () => {
               <div className="pt-4">
                 <div className="text-center">
                   <div className="text-s mb-2">Total de Tokens Utilizados</div>
-                  <div className="text-2xl font-bold">
+                  <div className="text-xl font-bold">
                     {tokensByModelData
                       .reduce((sum, item) => sum + (item.tokens || 0), 0)
                       .toLocaleString()}
@@ -809,7 +809,7 @@ export const CostMetricsCard: React.FC = () => {
                   <div className="text-s mb-2">
                     Total de Uso de Herramientas
                   </div>
-                  <div className="text-2xl font-bold">
+                  <div className="text-xl font-bold">
                     {technologyUsage?.toolsDistributionByAmount
                       ? Object.values(technologyUsage.toolsDistributionByAmount)
                           .reduce((sum, item) => sum + (item.amount || 0), 0)

@@ -236,7 +236,7 @@ export const UseAndAdoptionTab: React.FC = () => {
 
                   {/* Center Total */}
                   <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                    <div className="text-2xl font-bold">
+                    <div className="text-xl font-bold">
                       {customerRetentionData.reduce((sum, item) => sum + item.value, 0).toLocaleString()}
                     </div>
                     <div className="text-xs text-gray-500 dark:text-gray-400 font-medium">
@@ -336,7 +336,7 @@ export const UseAndAdoptionTab: React.FC = () => {
 
                   {/* Center Total */}
                   <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                    <div className="text-2xl font-bold">
+                    <div className="text-xl font-bold">
                       {channelDistributionData.reduce((sum, item) => sum + item.value, 0).toLocaleString()}
                     </div>
                     <div className="text-xs text-gray-500 dark:text-gray-400 font-medium">
@@ -397,7 +397,7 @@ export const UseAndAdoptionTab: React.FC = () => {
                     <p className="text-xs font-medium opacity-90 mb-1">
                       {card.title}
                     </p>
-                    <p className="text-2xl font-bold">
+                    <p className="text-xl font-bold">
                       {typeof card.value === 'number' ? card.value.toLocaleString() : card.value}
                     </p>
                   </div>

@@ -220,13 +220,13 @@ export const EmailAnalytics: React.FC = () => {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                <div className="text-xl font-bold text-blue-600 dark:text-blue-400">
                   {formatTime(emailsAnalytics.averageTimeToOpen)}
                 </div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Average Time</p>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                <div className="text-xl font-bold text-blue-600 dark:text-blue-400">
                   {formatTime(emailsAnalytics.medianTimeToOpen)}
                 </div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Median Time</p>
@@ -247,13 +247,13 @@ export const EmailAnalytics: React.FC = () => {
           {/* Summary Stats */}
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+              <div className="text-xl font-bold text-blue-600 dark:text-blue-400">
                 {Object.values(emailsAnalytics.timeToOpenDistribution).reduce((sum, item) => sum + item.count, 0).toLocaleString()}
               </div>
               <p className="text-sm text-gray-600 dark:text-gray-400">Total Opens</p>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+              <div className="text-xl font-bold text-green-600 dark:text-green-400">
                 {emailsAnalytics.openRate.toFixed(1)}%
               </div>
               <p className="text-sm text-gray-600 dark:text-gray-400">Overall Open Rate</p>

@@ -163,7 +163,7 @@ export const NotificationsTab: React.FC = () => {
               placement="top"
             >
               <div className="cursor-help">
-                <div className="text-2xl font-bold text-primary">
+                <div className="text-xl font-bold text-primary">
                   {analytics.totalEmails.toLocaleString()}
                 </div>
                 <p className="text-sm text-default-500">Total de Emails</p>
@@ -179,7 +179,7 @@ export const NotificationsTab: React.FC = () => {
               placement="top"
             >
               <div className="cursor-help">
-                <div className="text-2xl font-bold text-success">
+                <div className="text-xl font-bold text-success">
                   {analytics.stateDistribution.delivered.count.toLocaleString()}
                 </div>
                 <p className="text-sm text-default-500">Entregados</p>
@@ -195,7 +195,7 @@ export const NotificationsTab: React.FC = () => {
               placement="top"
             >
               <div className="cursor-help">
-                <div className="text-2xl font-bold text-info">
+                <div className="text-xl font-bold text-info">
                   {analytics.stateDistribution.open.count.toLocaleString()}
                 </div>
                 <p className="text-sm text-default-500">Abiertos</p>
@@ -211,7 +211,7 @@ export const NotificationsTab: React.FC = () => {
               placement="top"
             >
               <div className="cursor-help">
-                <div className="text-2xl font-bold text-warning">
+                <div className="text-xl font-bold text-warning">
                   {analytics.stateDistribution.click.count.toLocaleString()}
                 </div>
                 <p className="text-sm text-default-500">Clics</p>
@@ -277,7 +277,7 @@ export const NotificationsTab: React.FC = () => {
                 placement="top"
               >
                 <div className="text-center p-4 bg-default-50 rounded-lg cursor-help">
-                  <p className="text-2xl font-bold text-info">
+                  <p className="text-xl font-bold text-info">
                     {analytics.averageTimeToOpen}h
                   </p>
                   <p className="text-sm text-default-500">Tiempo Promedio</p>
@@ -288,7 +288,7 @@ export const NotificationsTab: React.FC = () => {
                 placement="top"
               >
                 <div className="text-center p-4 bg-default-50 rounded-lg cursor-help">
-                  <p className="text-2xl font-bold text-success">
+                  <p className="text-xl font-bold text-success">
                     {analytics.medianTimeToOpen}h
                   </p>
                   <p className="text-sm text-default-500">Tiempo Mediano</p>
@@ -318,7 +318,7 @@ export const NotificationsTab: React.FC = () => {
               placement="top"
             >
               <div className="text-center cursor-help">
-                <div className="text-2xl font-bold text-info">
+                <div className="text-xl font-bold text-info">
                   {Object.values(analytics.timeToOpenDistribution)
                     .reduce((sum, item) => sum + item.count, 0)
                     .toLocaleString()}
@@ -331,7 +331,7 @@ export const NotificationsTab: React.FC = () => {
               placement="top"
             >
               <div className="text-center cursor-help">
-                <div className="text-2xl font-bold text-success">
+                <div className="text-xl font-bold text-success">
                   {analytics.openRate}%
                 </div>
                 <p className="text-sm text-default-500">
