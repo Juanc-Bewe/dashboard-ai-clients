@@ -1,5 +1,4 @@
 import type { ConversationAnalyticsResponse } from '../types/conversation-analytics';
-import { mockConversationAnalyticsData } from '../mocks/conversationAnalytics';
 import { createApiClient } from '../utils/apiHelpers';
 
 // Create API client instance
@@ -11,6 +10,7 @@ export interface ConversationAnalyticsFilters {
   enterpriseIds: string[];
   accountIds: string[];
   timezoneOffset: number;
+  channelNames?: string[];
 }
 
 // API service functions
@@ -18,25 +18,24 @@ export const conversationAnalyticsService = {
   // Fetch conversation analytics data
   async getConversationAnalytics(filters: ConversationAnalyticsFilters): Promise<ConversationAnalyticsResponse> {
     try {
-      // For now, return mock data
-      // In production, this would make an API call:
-      /*
+      const params: Record<string, any> = {
+        startDate: filters.startDate,
+        endDate: filters.endDate,
+        enterpriseIds: filters.enterpriseIds.join(','),
+        accountIds: filters.accountIds.join(','),
+        timezoneOffset: filters.timezoneOffset
+      };
+
+      // Add channelNames if provided
+      if (filters.channelNames && filters.channelNames.length > 0) {
+        params.channelNames = filters.channelNames.join(',');
+      }
+
       const response = await apiClient.get('/lite/v1/analytics/conversations', {
-        params: {
-          startDate: filters.startDate,
-          endDate: filters.endDate,
-          enterpriseIds: filters.enterpriseIds.join(','),
-          accountIds: filters.accountIds.join(','),
-          timezoneOffset: filters.timezoneOffset
-        }
+        params
       });
       return response.data;
-      */
 
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      return mockConversationAnalyticsData;
     } catch (error) {
       console.error('Error fetching conversation analytics:', error);
       throw new Error('Failed to fetch conversation analytics data');
@@ -48,13 +47,14 @@ export const conversationAnalyticsService = {
     const now = new Date();
     const endDate = now.toISOString().split('T')[0];
     const startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-    
+
     return {
       startDate,
       endDate,
       enterpriseIds: [],
       accountIds: [],
-      timezoneOffset: -new Date().getTimezoneOffset() / 60
+      timezoneOffset: -new Date().getTimezoneOffset() / 60,
+      channelNames: []
     };
   }
 };

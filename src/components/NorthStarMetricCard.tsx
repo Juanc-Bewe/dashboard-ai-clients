@@ -1,6 +1,6 @@
 import React from "react";
 import { Card, CardBody, Tooltip } from "@heroui/react";
-import { TrendingUp, Info } from "lucide-react";
+import { TrendingUp, TrendingDown, Minus, Info } from "lucide-react";
 import { useConversationAnalyticsStore } from "../contexts/ConversationAnalyticsContext";
 import type { AccountWithUsefulConversations } from "../types/conversation-analytics";
 
@@ -14,13 +14,29 @@ export const NorthStarMetricCard: React.FC = () => {
       !data?.currentPeriod?.metrics?.accountAnalytics
         ?.accountsWithUsefulConversations
     ) {
-      return 0;
+      return { current: 0, previous: 0, variation: 0, percentageChange: 0 };
     }
 
-    return data.currentPeriod.metrics.accountAnalytics.accountsWithUsefulConversations.filter(
+    const currentCount = data.currentPeriod.metrics.accountAnalytics.accountsWithUsefulConversations.filter(
       (account: AccountWithUsefulConversations) =>
         account.usefulConversationCount >= 3
     ).length;
+
+    const previousCount = data?.previousPeriod?.metrics?.accountAnalytics
+      ?.accountsWithUsefulConversations?.filter(
+        (account: AccountWithUsefulConversations) =>
+          account.usefulConversationCount >= 3
+      ).length || 0;
+
+    const variation = currentCount - previousCount;
+    const percentageChange = previousCount > 0 ? ((variation / previousCount) * 100) : 0;
+
+    return {
+      current: currentCount,
+      previous: previousCount,
+      variation,
+      percentageChange
+    };
   }, [data]);
 
   if (loading) {
@@ -57,9 +73,39 @@ export const NorthStarMetricCard: React.FC = () => {
             </div>
           </div>
 
-          <div className="py-1">
-            <div className="text-3xl font-bold text-purple-600">
-              {northStarMetric}
+          <div className="py-2">
+            <div className="text-center">
+              <div className="text-4xl font-bold text-foreground mb-1">
+                {northStarMetric.current}
+              </div>
+              
+              {/* Variation indicator below the value */}
+              {northStarMetric.previous > 0 && (
+                <div className="flex items-center justify-center gap-1">
+                  {northStarMetric.variation > 0 ? (
+                    <>
+                      <TrendingUp className="w-3 h-3 text-green-600" />
+                      <span className="text-green-600 font-semibold text-xs">
+                        +{northStarMetric.variation} (+{northStarMetric.percentageChange.toFixed(1)}%)
+                      </span>
+                    </>
+                  ) : northStarMetric.variation < 0 ? (
+                    <>
+                      <TrendingDown className="w-3 h-3 text-red-600" />
+                      <span className="text-red-600 font-semibold text-xs">
+                        {northStarMetric.variation} ({northStarMetric.percentageChange.toFixed(1)}%)
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <Minus className="w-3 h-3 text-gray-500" />
+                      <span className="text-gray-500 font-semibold text-xs">
+                        Sin cambios
+                      </span>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
