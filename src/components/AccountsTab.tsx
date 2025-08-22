@@ -469,22 +469,22 @@ export const AccountsTab: React.FC = () => {
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
             <MetricCard
-              title="Total de Cuentas"
-              tooltip="Número total de cuentas en el sistema"
+              title="Cuentas con Addon instalado"
+              tooltip="Total de cuentas en el sistema que tienen el addon instalado"
               value={metrics?.totalAccounts ?? 0}
               loading={loading}
             />
 
             <MetricCard
-              title="Cuentas Activas"
-              tooltip="Cuentas que están actualmente activas en el sistema"
+              title="Cuentas activas"
+              tooltip="Cuentas que actualmente tienen el addon activo"
               value={metrics?.activeStatus.active ?? 0}
               loading={loading}
             />
 
             <MetricCard
-              title="Cuentas Inactivas"
-              tooltip="Cuentas que están actualmente inactivas en el sistema"
+              title="Cuentas inactivas"
+              tooltip="Cuentas que actualmente tienen el addon inactivo"
               value={metrics?.activeStatus.inactive ?? 0}
               loading={loading}
             />
