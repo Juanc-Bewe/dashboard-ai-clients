@@ -12,7 +12,7 @@ import {
   NavbarMenuToggle
 } from '@heroui/react';
 import { useState } from 'react';
-import { Sun, Moon, BarChart3, Table, MessageSquare } from 'lucide-react';
+import { Sun, Moon, BarChart3, Table } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -36,18 +36,18 @@ export const PrivateLayout: React.FC<PrivateLayoutProps> = ({ children }) => {
 
   const navigationItems = [
     {
+      key: 'new-dashboard',
+      label: 'New Analytics',
+      icon: BarChart3,
+      path: '/new-dashboard',
+      description: 'Conversation metrics and analytics'
+    },
+    {
       key: 'analytics',
       label: 'Analytics',
       icon: BarChart3,
       path: '/dashboard',
       description: 'Performance metrics and insights'
-    },
-    {
-      key: 'conversation-analytics',
-      label: 'Conversations',
-      icon: MessageSquare,
-      path: '/conversation-analytics',
-      description: 'Conversation metrics and analytics'
     },
     {
       key: 'data-management',

@@ -9,7 +9,7 @@ import { LoginGuard } from './components/LoginGuard';
 import { PrivateLayout } from './layouts/PrivateLayout';
 import { Dashboard } from './pages/Dashboard';
 import { AddonManagement } from './pages/AddonManagement';
-import { NewDashboard } from './pages/ConversationAnalytics';
+import { NewDashboard } from './pages/NewDashboard';
 
 
 // Main App Content that needs theme context
@@ -48,7 +48,7 @@ const AppContent = () => {
               }
             />
             <Route
-              path="/conversation-analytics"
+              path="/new-dashboard"
               element={
                 <ProtectedRoute>
                   <PrivateLayout>
@@ -58,10 +58,10 @@ const AppContent = () => {
               }
             />
             {/* Default redirect */}
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/" element={<Navigate to="/new-dashboard" replace />} />
 
             {/* Fallback route */}
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            <Route path="*" element={<Navigate to="/new-dashboard" replace />} />
           </Routes>
         </Router>
       </AuthProvider>

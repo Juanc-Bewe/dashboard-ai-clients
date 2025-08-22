@@ -26,7 +26,7 @@ export const NewDashboard: React.FC = () => {
 
 
   const isInitialized = useRef(false);
-  const [isFiltersCollapsed, setIsFiltersCollapsed] = useState(false);
+  const [isFiltersCollapsed, setIsFiltersCollapsed] = useState(true);
 
   // Initialize store and URL sync on mount
   useEffect(() => {
