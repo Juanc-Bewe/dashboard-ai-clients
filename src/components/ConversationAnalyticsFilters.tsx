@@ -26,10 +26,17 @@ export const ConversationAnalyticsFilters: React.FC = () => {
   const filters = useConversationAnalyticsStore((state) => state.filters);
   const loading = useConversationAnalyticsStore((state) => state.loading);
   const updateFilters = useConversationAnalyticsStore((state) => state.updateFilters);
+  const setChannelNames = useConversationAnalyticsStore((state) => state.setChannelNames);
   const fetchData = useConversationAnalyticsStore((state) => state.fetchData);
 
   // Get auth data
   const { availableEnterprises, permissions } = useAuth();
+
+  // Static channel options
+  const availableChannels = [
+    { id: 'web', name: 'Web' },
+    { id: 'twilio-whatsapp', name: 'WhatsApp' }
+  ];
 
   // State to track range validation
   const [isRangeInvalid, setIsRangeInvalid] = React.useState(false);
@@ -85,6 +92,10 @@ export const ConversationAnalyticsFilters: React.FC = () => {
 
   const handleEnterpriseChange = (keys: Set<string>) => {
     updateFilters({ enterpriseIds: Array.from(keys) });
+  };
+
+  const handleChannelChange = (keys: Set<string>) => {
+    setChannelNames(Array.from(keys));
   };
 
   const handleAccountIdsChange = (value: string) => {
@@ -180,6 +191,7 @@ export const ConversationAnalyticsFilters: React.FC = () => {
       endDate: formatDate(today),
       enterpriseIds: [],
       accountIds: [],
+      channelNames: [],
     });
     setAccountIdsInput(""); // Clear the input field
     setIsRangeInvalid(false); // Reset validation state
@@ -317,6 +329,43 @@ export const ConversationAnalyticsFilters: React.FC = () => {
                       {availableEnterprises.map((enterprise) => (
                         <SelectItem key={enterprise.id}>
                           {enterprise.name}
+                        </SelectItem>
+                      ))}
+                    </Select>
+                  </div>
+                </div>
+              )}
+
+              {/* Channel Filter Group */}
+              {hasPermission("canFilterByChannel", permissions) && (
+                <div className="w-full min-w-[240px] lg:flex-[1] lg:min-w-[280px]">
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <label className="text-sm font-medium text-foreground-600">
+                        Channels
+                      </label>
+                      {filters.channelNames && filters.channelNames.length > 0 && (
+                        <span className="text-xs text-foreground-500">
+                          ({filters.channelNames.length} selected)
+                        </span>
+                      )}
+                    </div>
+                    <Select
+                      placeholder="Select channels"
+                      selectionMode="multiple"
+                      selectedKeys={new Set(filters.channelNames || [])}
+                      onSelectionChange={(keys) =>
+                        handleChannelChange(keys as Set<string>)
+                      }
+                      variant="bordered"
+                      size="sm"
+                      className="w-full mt-4"
+                      aria-label="Select channels"
+                      isDisabled={loading}
+                    >
+                      {availableChannels.map((channel) => (
+                        <SelectItem key={channel.id}>
+                          {channel.name}
                         </SelectItem>
                       ))}
                     </Select>

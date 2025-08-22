@@ -22,6 +22,9 @@ const serializeFiltersToQuery = (filters: ConversationAnalyticsFilters): URLSear
   if (filters.accountIds.length > 0) {
     params.set('accounts', filters.accountIds.join(','));
   }
+  if (filters.channelNames && filters.channelNames.length > 0) {
+    params.set('channels', filters.channelNames.join(','));
+  }
   if (filters.timezoneOffset !== 0) {
     params.set('timezoneOffset', filters.timezoneOffset.toString());
   }
@@ -36,6 +39,7 @@ const parseQueryToFilters = (searchParams: URLSearchParams): Partial<Conversatio
   const endDate = searchParams.get('endDate');
   const enterprises = searchParams.get('enterprises');
   const accounts = searchParams.get('accounts');
+  const channels = searchParams.get('channels');
   const timezoneOffset = searchParams.get('timezoneOffset');
 
   if (startDate && /^\d{4}-\d{2}-\d{2}$/.test(startDate)) {
@@ -52,6 +56,10 @@ const parseQueryToFilters = (searchParams: URLSearchParams): Partial<Conversatio
 
   if (accounts) {
     filters.accountIds = accounts.split(',').filter(id => id.trim() !== '');
+  }
+
+  if (channels) {
+    filters.channelNames = channels.split(',').filter(id => id.trim() !== '');
   }
 
   if (timezoneOffset) {
@@ -73,6 +81,7 @@ interface ConversationAnalyticsStore extends ConversationAnalyticsState {
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   setData: (data: ConversationAnalyticsData | null) => void;
+  setChannelNames: (channelNames: string[]) => void;
   initializeFromUrl: (searchParams: URLSearchParams) => void;
   getUrlParams: () => URLSearchParams;
 }
@@ -121,6 +130,11 @@ export const useConversationAnalyticsStore = create<ConversationAnalyticsStore>(
     setError: (error) => set({ error }),
     setData: (data) => set({ data }),
 
+    // Convenience method for setting channel names
+    setChannelNames: (channelNames: string[]) => {
+      get().updateFilters({ channelNames });
+    },
+
     // URL sync methods
     initializeFromUrl: (searchParams: URLSearchParams) => {
       const urlFilters = parseQueryToFilters(searchParams);
@@ -144,11 +158,13 @@ export const useUrlSync = () => {
   const updateFilters = useConversationAnalyticsStore(state => state.updateFilters);
   const initializeFromUrl = useConversationAnalyticsStore(state => state.initializeFromUrl);
   const getUrlParams = useConversationAnalyticsStore(state => state.getUrlParams);
+  const setChannelNames = useConversationAnalyticsStore(state => state.setChannelNames);
   
   return {
     updateFilters,
     initializeFromUrl,
     getUrlParams,
+    setChannelNames,
   };
 };
 
