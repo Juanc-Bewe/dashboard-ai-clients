@@ -1,3 +1,4 @@
+
 export interface EmailAnalyticsData {
   totalEmails: number;
   emailsByStatus: {

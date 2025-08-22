@@ -258,8 +258,8 @@ const DailyConversationTimeline: React.FC<DailyConversationTimelineProps> = ({ d
       </div>
 
       {/* Timeline insights - similar to DailyConversationAnalytics */}
-      <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
+      <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 text-center">
           <div>
             <p className="text-sm text-gray-600 dark:text-gray-400">Total Período</p>
             <p className="text-lg font-semibold text-blue-600 dark:text-blue-400">

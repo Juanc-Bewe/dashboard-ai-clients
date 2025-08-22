@@ -6,6 +6,8 @@ import { QualityMetricsCard } from "./QualityMetricsCard";
 import { CostMetricsCard } from "./CostMetricsCard";
 import { UseAndAdoptionTab } from "./UseAndAdoptionTab";
 import { UsabilityAndIndependenceTab } from "./UsabilityAndIndependenceTab";
+import { AccountsTab } from "./AccountsTab";
+import { NotificationsTab } from "./NotificationsTab";
 import { useAuth } from "../contexts/AuthContext";
 import { hasPermission } from "../utils/permissionHelpers";
 
@@ -28,8 +30,16 @@ export const ConversationAnalyticsTabs: React.FC = () => {
       <div className="w-full">
         <Tabs aria-label="Métricas de conversación" variant="underlined" size="lg" className="w-full">
 
+          <Tab key="accounts" title="Activación multicanal">
+            <AccountsTab />
+          </Tab>
+
           <Tab key="quality" title="Conversaciones Útiles">
             <QualityMetricsCard />
+          </Tab>
+
+          <Tab key="notifications" title="Notificaciones">
+            <NotificationsTab />
           </Tab>
 
           {hasPermission("canViewBusinessAndCostsMetrics", permissions) && (

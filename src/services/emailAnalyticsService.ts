@@ -1,61 +1,35 @@
-import type { EmailAnalyticsData } from '../types/email-analytics';
+import type { 
+  EmailAnalyticsApiResponse, 
+  EmailsAnalytics,
+  EmailAnalyticsFilters
+} from '../types/email-analytics-v2';
+import { mockEmailAnalyticsResponse } from '../mocks/emailAnalytics';
 
-// Mock data - replace with actual API endpoint
-const mockEmailData: EmailAnalyticsData = {
-  totalEmails: 15420,
-  emailsByStatus: {
-    delivered: 14100,
-    opened: 8960,
-    clicked: 2140,
-    bounced: 890,
-    spam: 320,
-    pending: 110,
-    failed: 0,
-  },
-  rates: {
-    deliveryRate: 91.4,
-    openRate: 63.5,
-    clickRate: 23.9,
-    bounceRate: 5.8,
-    spamRate: 2.1,
-  },
-  timing: {
-    averageTimeToOpen: 4.2,
-    medianTimeToOpen: 2.8,
-  },
-  summary: {
-    totalSent: 15420,
-    totalDelivered: 14100,
-    totalOpened: 8960,
-    totalClicked: 2140,
-    totalSpam: 320,
-    totalBounced: 890,
-  },
-};
 
 export const emailAnalyticsService = {
   /**
-   * Fetch email analytics data
-   * @param filters Optional filters for date range, account, etc.
-   * @returns Promise<EmailAnalyticsData>
+   * Fetch email analytics data using new API structure
+   * @param filters Optional filters for date range, timezone, account, etc.
+   * @returns Promise<EmailAnalyticsApiResponse>
    */
-  async getEmailAnalytics(filters?: {
-    startDate?: string;
-    endDate?: string;
-    accountId?: string;
-  }): Promise<EmailAnalyticsData> {
+  async getEmailAnalytics(filters?: EmailAnalyticsFilters): Promise<EmailAnalyticsApiResponse> {
     try {
       // Simulate API call delay
       await new Promise(resolve => setTimeout(resolve, 800));
 
       // In a real implementation, you would:
-      // const response = await fetch('/api/email-analytics', {
+      // const queryParams = new URLSearchParams();
+      // if (filters?.startDate) queryParams.append('startDate', filters.startDate);
+      // if (filters?.endDate) queryParams.append('endDate', filters.endDate);
+      // if (filters?.timezoneOffset) queryParams.append('timezoneOffset', filters.timezoneOffset.toString());
+      // if (filters?.accountId) queryParams.append('accountId', filters.accountId);
+      // 
+      // const response = await fetch(`/lite/v1/analytics/business/notifications?${queryParams}`, {
       //   method: 'GET',
       //   headers: {
       //     'Content-Type': 'application/json',
       //     'Authorization': `Bearer ${token}`,
       //   },
-      //   ...(filters && { body: JSON.stringify(filters) }),
       // });
       // 
       // if (!response.ok) {
@@ -65,7 +39,18 @@ export const emailAnalyticsService = {
       // return await response.json();
 
       // For now, return mock data
-      return mockEmailData;
+      const selectedMock = mockEmailAnalyticsResponse;
+      
+      return {
+        ...selectedMock,
+        timestamp: new Date().toISOString(),
+        path: `/lite/v1/analytics/business/notifications?${new URLSearchParams({
+          startDate: filters?.startDate || '2025-08-01',
+          endDate: filters?.endDate || '2025-08-19',
+          timezoneOffset: (filters?.timezoneOffset || -5).toString(),
+          ...(filters?.accountId && { accountId: filters.accountId })
+        })}`
+      };
     } catch (error) {
       console.error('Error fetching email analytics:', error);
       throw new Error('Failed to fetch email analytics data');
@@ -73,10 +58,56 @@ export const emailAnalyticsService = {
   },
 
   /**
-   * Refresh email analytics data cache
-   * @returns Promise<EmailAnalyticsData>
+   * Extract just the analytics data from the API response
+   * @param filters Optional filters for date range, timezone, account, etc.
+   * @returns Promise<EmailsAnalytics>
    */
-  async refreshEmailAnalytics(): Promise<EmailAnalyticsData> {
-    return this.getEmailAnalytics();
+  async getEmailAnalyticsData(filters?: EmailAnalyticsFilters): Promise<EmailsAnalytics> {
+    const response = await this.getEmailAnalytics(filters);
+    return response.data.emailsAnalytics;
   },
-}; 
+
+  /**
+   * Refresh email analytics data cache
+   * @param filters Optional filters for date range, timezone, account, etc.
+   * @returns Promise<EmailAnalyticsApiResponse>
+   */
+  async refreshEmailAnalytics(filters?: EmailAnalyticsFilters): Promise<EmailAnalyticsApiResponse> {
+    return this.getEmailAnalytics(filters);
+  },
+
+  /**
+   * Get email analytics for a specific date range
+   * @param startDate Start date in YYYY-MM-DD format
+   * @param endDate End date in YYYY-MM-DD format
+   * @param timezoneOffset Timezone offset in hours (default: -5)
+   * @returns Promise<EmailsAnalytics>
+   */
+  async getEmailAnalyticsByDateRange(
+    startDate: string, 
+    endDate: string, 
+    timezoneOffset: number = -5
+  ): Promise<EmailsAnalytics> {
+    return this.getEmailAnalyticsData({
+      startDate,
+      endDate,
+      timezoneOffset
+    });
+  },
+
+  /**
+   * Get email analytics for a specific account
+   * @param accountId Account ID to filter by
+   * @param filters Additional filters
+   * @returns Promise<EmailsAnalytics>
+   */
+  async getEmailAnalyticsByAccount(
+    accountId: string,
+    filters?: Omit<EmailAnalyticsFilters, 'accountId'>
+  ): Promise<EmailsAnalytics> {
+    return this.getEmailAnalyticsData({
+      ...filters,
+      accountId
+    });
+  }
+};

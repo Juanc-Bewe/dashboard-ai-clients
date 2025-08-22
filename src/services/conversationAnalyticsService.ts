@@ -32,10 +32,10 @@ export const conversationAnalyticsService = {
       });
       return response.data;
       */
-      
+
       // Simulate API delay
       await new Promise(resolve => setTimeout(resolve, 500));
-      
+
       return mockConversationAnalyticsData;
     } catch (error) {
       console.error('Error fetching conversation analytics:', error);
