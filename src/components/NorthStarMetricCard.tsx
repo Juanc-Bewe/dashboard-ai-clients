@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, CardBody, Tooltip } from "@heroui/react";
+import { Card, CardBody, Tooltip, Input } from "@heroui/react";
 import { TrendingUp, TrendingDown, Minus, Info } from "lucide-react";
 import { useConversationDataStore } from "../contexts/ConversationDataContext";
 import type { AccountWithUsefulConversations } from "../types/conversation-analytics";
@@ -7,8 +7,9 @@ import type { AccountWithUsefulConversations } from "../types/conversation-analy
 export const NorthStarMetricCard: React.FC = () => {
   const data = useConversationDataStore((state) => state.data);
   const loading = useConversationDataStore((state) => state.loading);
+  const [referenceValue, setReferenceValue] = React.useState(3);
 
-  // Calculate North Star Metric: accounts with ≥3 useful conversations
+  // Calculate North Star Metric: accounts with ≥referenceValue useful conversations
   const northStarMetric = React.useMemo(() => {
     if (
       !data?.currentPeriod?.metrics?.accountAnalytics
@@ -20,13 +21,13 @@ export const NorthStarMetricCard: React.FC = () => {
     const currentCount =
       data.currentPeriod.metrics.accountAnalytics.accountsWithUsefulConversations.filter(
         (account: AccountWithUsefulConversations) =>
-          account.usefulConversationCount >= 3
+          account.usefulConversationCount >= referenceValue
       ).length;
 
     const previousCount =
       data?.previousPeriod?.metrics?.accountAnalytics?.accountsWithUsefulConversations?.filter(
         (account: AccountWithUsefulConversations) =>
-          account.usefulConversationCount >= 3
+          account.usefulConversationCount >= referenceValue
       ).length || 0;
 
     const variation = currentCount - previousCount;
@@ -39,7 +40,7 @@ export const NorthStarMetricCard: React.FC = () => {
       variation,
       percentageChange,
     };
-  }, [data]);
+  }, [data, referenceValue]);
 
   if (loading) {
     return (
@@ -61,17 +62,41 @@ export const NorthStarMetricCard: React.FC = () => {
       <CardBody className="px-4 py-3 text-center">
         <div className="space-y-1">
           <div>
-            <div className="flex items-center justify-center gap-1">
+            <div className="flex items-center justify-center gap-1 mb-2">
               <h2 className="text-lg font-bold text-foreground mb-0.5">
                 North Star Metric
               </h2>
               <Tooltip
-                content="Cuentas activas con ≥3 conversaciones útiles"
+                content={`Cuentas activas con ≥${referenceValue} conversaciones útiles`}
                 placement="top"
                 showArrow
               >
                 <Info className="w-4 h-4 text-foreground-500 cursor-help hover:text-foreground-700" />
               </Tooltip>
+            </div>
+
+            {/* Filter control */}
+            <div className="flex items-center justify-center gap-2 mb-1">
+              <span className="text-xs text-foreground-600">≥</span>
+              <Input
+                type="number"
+                size="sm"
+                value={referenceValue.toString()}
+                onValueChange={(value) => {
+                  const numValue = parseInt(value) || 1;
+                  if (numValue >= 1 && numValue <= 100) {
+                    setReferenceValue(numValue);
+                  }
+                }}
+                className="w-16"
+                classNames={{
+                  input: "text-center text-xs",
+                  inputWrapper: "min-h-6 h-6",
+                }}
+                min={1}
+                max={100}
+              />
+              <span className="text-xs text-foreground-600">conversaciones</span>
             </div>
           </div>
 
