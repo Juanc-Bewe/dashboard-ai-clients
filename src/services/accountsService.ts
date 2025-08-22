@@ -1,4 +1,3 @@
-import { mockAccountsResponse, mockAccountsWithSessionsResponse } from '../mocks/accounts';
 import type { AccountsResponse, Account, AccountsWithSessionsResponse } from '../types/acounts';
 import { createApiClient } from '../utils/apiHelpers';
 

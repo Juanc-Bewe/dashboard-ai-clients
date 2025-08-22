@@ -265,9 +265,27 @@ const ConfigurationStatusChart: React.FC<ConfigurationStatusChartProps> = ({
             </div>
             <div className="font-bold">
               <span className="text-base text-green-600">{data.completed}</span>
-              <span className="text-xs text-gray-500 dark:text-gray-400"> ({data.completed + data.failed + data.pending + data.inProgress + data.notStarted > 0 
-                ? Math.round((data.completed / (data.completed + data.failed + data.pending + data.inProgress + data.notStarted)) * 100)
-                : 0}%)</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                {" "}
+                (
+                {data.completed +
+                  data.failed +
+                  data.pending +
+                  data.inProgress +
+                  data.notStarted >
+                0
+                  ? Math.round(
+                      (data.completed /
+                        (data.completed +
+                          data.failed +
+                          data.pending +
+                          data.inProgress +
+                          data.notStarted)) *
+                        100
+                    )
+                  : 0}
+                %)
+              </span>
             </div>
           </div>
 
@@ -285,9 +303,27 @@ const ConfigurationStatusChart: React.FC<ConfigurationStatusChartProps> = ({
             </div>
             <div className="font-bold">
               <span className="text-base text-red-600">{data.failed}</span>
-              <span className="text-xs text-gray-500 dark:text-gray-400"> ({data.completed + data.failed + data.pending + data.inProgress + data.notStarted > 0 
-                ? Math.round((data.failed / (data.completed + data.failed + data.pending + data.inProgress + data.notStarted)) * 100)
-                : 0}%)</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                {" "}
+                (
+                {data.completed +
+                  data.failed +
+                  data.pending +
+                  data.inProgress +
+                  data.notStarted >
+                0
+                  ? Math.round(
+                      (data.failed /
+                        (data.completed +
+                          data.failed +
+                          data.pending +
+                          data.inProgress +
+                          data.notStarted)) *
+                        100
+                    )
+                  : 0}
+                %)
+              </span>
             </div>
           </div>
 
@@ -305,9 +341,27 @@ const ConfigurationStatusChart: React.FC<ConfigurationStatusChartProps> = ({
             </div>
             <div className="font-bold">
               <span className="text-base text-yellow-600">{data.pending}</span>
-              <span className="text-xs text-gray-500 dark:text-gray-400"> ({data.completed + data.failed + data.pending + data.inProgress + data.notStarted > 0 
-                ? Math.round((data.pending / (data.completed + data.failed + data.pending + data.inProgress + data.notStarted)) * 100)
-                : 0}%)</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                {" "}
+                (
+                {data.completed +
+                  data.failed +
+                  data.pending +
+                  data.inProgress +
+                  data.notStarted >
+                0
+                  ? Math.round(
+                      (data.pending /
+                        (data.completed +
+                          data.failed +
+                          data.pending +
+                          data.inProgress +
+                          data.notStarted)) *
+                        100
+                    )
+                  : 0}
+                %)
+              </span>
             </div>
           </div>
 
@@ -325,9 +379,27 @@ const ConfigurationStatusChart: React.FC<ConfigurationStatusChartProps> = ({
             </div>
             <div className="font-bold">
               <span className="text-base text-blue-600">{data.inProgress}</span>
-              <span className="text-xs text-gray-500 dark:text-gray-400"> ({data.completed + data.failed + data.pending + data.inProgress + data.notStarted > 0 
-                ? Math.round((data.inProgress / (data.completed + data.failed + data.pending + data.inProgress + data.notStarted)) * 100)
-                : 0}%)</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                {" "}
+                (
+                {data.completed +
+                  data.failed +
+                  data.pending +
+                  data.inProgress +
+                  data.notStarted >
+                0
+                  ? Math.round(
+                      (data.inProgress /
+                        (data.completed +
+                          data.failed +
+                          data.pending +
+                          data.inProgress +
+                          data.notStarted)) *
+                        100
+                    )
+                  : 0}
+                %)
+              </span>
             </div>
           </div>
 
@@ -344,10 +416,30 @@ const ConfigurationStatusChart: React.FC<ConfigurationStatusChartProps> = ({
               </Tooltip>
             </div>
             <div className="font-bold">
-              <span className="text-base text-purple-600">{data.notStarted}</span>
-              <span className="text-xs text-gray-500 dark:text-gray-400"> ({data.completed + data.failed + data.pending + data.inProgress + data.notStarted > 0 
-                ? Math.round((data.notStarted / (data.completed + data.failed + data.pending + data.inProgress + data.notStarted)) * 100)
-                : 0}%)</span>
+              <span className="text-base text-purple-600">
+                {data.notStarted}
+              </span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                {" "}
+                (
+                {data.completed +
+                  data.failed +
+                  data.pending +
+                  data.inProgress +
+                  data.notStarted >
+                0
+                  ? Math.round(
+                      (data.notStarted /
+                        (data.completed +
+                          data.failed +
+                          data.pending +
+                          data.inProgress +
+                          data.notStarted)) *
+                        100
+                    )
+                  : 0}
+                %)
+              </span>
             </div>
           </div>
         </div>
@@ -1026,78 +1118,127 @@ export const AccountsTab: React.FC = () => {
                           <Info className="h-2 w-2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 cursor-help" />
                         </Tooltip>
                       </div>
-                                             <div className="font-bold">
-                         <span className="text-base text-green-600">{metrics?.channelDistribution.whatsapp.active ?? 0}</span>
-                         <span className="text-xs text-gray-500 dark:text-gray-400"> ({metrics && metrics.totalAccounts > 0 
-                           ? Math.round(((metrics.channelDistribution.whatsapp.active ?? 0) / metrics.totalAccounts) * 100)
-                           : 0}%)</span>
-                       </div>
-                     </div>
+                      <div className="font-bold">
+                        <span className="text-base text-green-600">
+                          {metrics?.channelDistribution.whatsapp.active ?? 0}
+                        </span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          {" "}
+                          (
+                          {metrics && metrics.totalAccounts > 0
+                            ? Math.round(
+                                ((metrics.channelDistribution.whatsapp.active ??
+                                  0) /
+                                  metrics.totalAccounts) *
+                                  100
+                              )
+                            : 0}
+                          %)
+                        </span>
+                      </div>
+                    </div>
 
-                     <div className="text-center border-l border-gray-300 dark:border-gray-600">
-                       <div className="flex items-center justify-center gap-1 mb-1">
-                         <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
-                           Web
-                         </span>
-                         <Tooltip
-                           content="Cuentas que tienen únicamente el canal Web activo"
-                           placement="top"
-                         >
-                           <Info className="h-2 w-2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 cursor-help" />
-                         </Tooltip>
-                       </div>
-                       <div className="font-bold">
-                         <span className="text-base text-blue-600">{metrics?.channelDistribution.web.active ?? 0}</span>
-                         <span className="text-xs text-gray-500 dark:text-gray-400"> ({metrics && metrics.totalAccounts > 0 
-                           ? Math.round(((metrics.channelDistribution.web.active ?? 0) / metrics.totalAccounts) * 100)
-                           : 0}%)</span>
-                       </div>
-                     </div>
+                    <div className="text-center border-l border-gray-300 dark:border-gray-600">
+                      <div className="flex items-center justify-center gap-1 mb-1">
+                        <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
+                          Web
+                        </span>
+                        <Tooltip
+                          content="Cuentas que tienen únicamente el canal Web activo"
+                          placement="top"
+                        >
+                          <Info className="h-2 w-2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 cursor-help" />
+                        </Tooltip>
+                      </div>
+                      <div className="font-bold">
+                        <span className="text-base text-blue-600">
+                          {metrics?.channelDistribution.web.active ?? 0}
+                        </span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          {" "}
+                          (
+                          {metrics && metrics.totalAccounts > 0
+                            ? Math.round(
+                                ((metrics.channelDistribution.web.active ?? 0) /
+                                  metrics.totalAccounts) *
+                                  100
+                              )
+                            : 0}
+                          %)
+                        </span>
+                      </div>
+                    </div>
 
-                     <div className="text-center border-l border-gray-300 dark:border-gray-600">
-                       <div className="flex items-center justify-center gap-1 mb-1">
-                         <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
-                           Ambos
-                         </span>
-                         <Tooltip
-                           content="Cuentas que tienen tanto WhatsApp como Web activos simultáneamente"
-                           placement="top"
-                         >
-                           <Info className="h-2 w-2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 cursor-help" />
-                         </Tooltip>
-                       </div>
-                       <div className="font-bold">
-                         <span className="text-base text-purple-600">{metrics?.channelDistribution.multiChannel ?? 0}</span>
-                         <span className="text-xs text-gray-500 dark:text-gray-400"> ({metrics && metrics.totalAccounts > 0 
-                           ? Math.round(((metrics.channelDistribution.multiChannel ?? 0) / metrics.totalAccounts) * 100)
-                           : 0}%)</span>
-                       </div>
-                     </div>
+                    <div className="text-center border-l border-gray-300 dark:border-gray-600">
+                      <div className="flex items-center justify-center gap-1 mb-1">
+                        <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
+                          Ambos
+                        </span>
+                        <Tooltip
+                          content="Cuentas que tienen tanto WhatsApp como Web activos simultáneamente"
+                          placement="top"
+                        >
+                          <Info className="h-2 w-2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 cursor-help" />
+                        </Tooltip>
+                      </div>
+                      <div className="font-bold">
+                        <span className="text-base text-purple-600">
+                          {metrics?.channelDistribution.multiChannel ?? 0}
+                        </span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          {" "}
+                          (
+                          {metrics && metrics.totalAccounts > 0
+                            ? Math.round(
+                                ((metrics.channelDistribution.multiChannel ??
+                                  0) /
+                                  metrics.totalAccounts) *
+                                  100
+                              )
+                            : 0}
+                          %)
+                        </span>
+                      </div>
+                    </div>
 
-                     <div className="text-center border-l border-gray-300 dark:border-gray-600">
-                       <div className="flex items-center justify-center gap-1 mb-1">
-                         <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
-                           Sin Canal
-                         </span>
-                         <Tooltip
-                           content="Cuentas que no tienen ningún canal activo"
-                           placement="top"
-                         >
-                           <Info className="h-2 w-2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 cursor-help" />
-                         </Tooltip>
-                       </div>
-                       <div className="font-bold">
-                         <span className="text-base text-orange-600">{metrics
-                           ? metrics.totalAccounts -
-                             (metrics.channelDistribution.whatsapp.active +
-                               metrics.channelDistribution.web.active +
-                               metrics.channelDistribution.multiChannel)
-                           : 0}</span>
-                         <span className="text-xs text-gray-500 dark:text-gray-400"> ({metrics && metrics.totalAccounts > 0 
-                           ? Math.round((((metrics.totalAccounts - (metrics.channelDistribution.whatsapp.active + metrics.channelDistribution.web.active + metrics.channelDistribution.multiChannel)) / metrics.totalAccounts) * 100))
-                           : 0}%)</span>
-                       </div>
-                     </div>
+                    <div className="text-center border-l border-gray-300 dark:border-gray-600">
+                      <div className="flex items-center justify-center gap-1 mb-1">
+                        <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
+                          Sin Canal
+                        </span>
+                        <Tooltip
+                          content="Cuentas que no tienen ningún canal activo"
+                          placement="top"
+                        >
+                          <Info className="h-2 w-2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 cursor-help" />
+                        </Tooltip>
+                      </div>
+                      <div className="font-bold">
+                        <span className="text-base text-orange-600">
+                          {metrics
+                            ? metrics.totalAccounts -
+                              (metrics.channelDistribution.whatsapp.active +
+                                metrics.channelDistribution.web.active +
+                                metrics.channelDistribution.multiChannel)
+                            : 0}
+                        </span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          {" "}
+                          (
+                          {metrics && metrics.totalAccounts > 0
+                            ? Math.round(
+                                ((metrics.totalAccounts -
+                                  (metrics.channelDistribution.whatsapp.active +
+                                    metrics.channelDistribution.web.active +
+                                    metrics.channelDistribution.multiChannel)) /
+                                  metrics.totalAccounts) *
+                                  100
+                              )
+                            : 0}
+                          %)
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </CardBody>
