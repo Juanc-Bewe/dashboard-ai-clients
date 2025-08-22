@@ -29,6 +29,7 @@ import {
   getAccountsData,
   calculateAccountsMetrics,
   type AccountsMetrics,
+  getDefaultBusinessFilters,
 } from "../services/accountsService";
 import type { Account } from "../types/acounts";
 
@@ -495,7 +496,7 @@ export const AccountsTab: React.FC = () => {
     const fetchAccountsData = async () => {
       try {
         setLoading(true);
-        const response = await getAccountsData();
+        const response = await getAccountsData(getDefaultBusinessFilters());
         if (response.success) {
           setAccounts(response.data.accounts);
           const calculatedMetrics = calculateAccountsMetrics(

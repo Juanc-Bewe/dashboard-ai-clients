@@ -6,16 +6,16 @@ export interface Channel {
 export interface Account {
   accountId: string;
   accountName: string;
-  hasAutomode: boolean;
+  hasAutomode?: boolean;
   apiProvider?: string;
   externalId?: string;
   onboardingCurrentState?: 'FAILED' | 'SUCCESS' | 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | '' | undefined;
-  active: boolean;
-  base: number;
-  baseUsed: number;
-  extra: number;
-  totalAvailable: number;
-  channels: Channel[];
+  active?: boolean;
+  base?: number;
+  baseUsed?: number;
+  extra?: number;
+  totalAvailable?: number;
+  channels?: Channel[];
 }
 
 export interface AccountsResponse {

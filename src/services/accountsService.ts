@@ -1,5 +1,15 @@
 import { mockAccountsResponse, mockAccountsWithSessionsResponse } from '../mocks/accounts';
 import type { AccountsResponse, Account, AccountsWithSessionsResponse } from '../types/acounts';
+import { createApiClient } from '../utils/apiHelpers';
+
+// Create API client instance
+const apiClient = createApiClient();
+
+export interface BusinessAnalyticsFilters {
+  startDate: string;
+  endDate: string;
+  timezoneOffset?: number;
+}
 
 export interface AccountsMetrics {
   totalAccounts: number;
@@ -25,16 +35,55 @@ export interface AccountsMetrics {
   };
 }
 
-export const getAccountsData = async (): Promise<AccountsResponse> => {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return mockAccountsResponse;
+export const getAccountsData = async (filters: BusinessAnalyticsFilters): Promise<AccountsResponse> => {
+  try {
+    const response = await apiClient.get('/lite/v1/analytics/business/base', {
+      params: {
+        startDate: filters.startDate,
+        endDate: filters.endDate
+      }
+    });
+    return response.data;
+
+    // Mock data fallback (commented out)
+    /*
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+    return mockAccountsResponse;
+    */
+  } catch (error) {
+    console.error('Error fetching accounts data:', error);
+    throw new Error('Failed to fetch accounts data');
+  }
 };
 
-export const getAccountsWithSessionsData = async (): Promise<AccountsWithSessionsResponse> => {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return mockAccountsWithSessionsResponse;
+export const getAccountsWithSessionsData = async (filters: BusinessAnalyticsFilters): Promise<AccountsWithSessionsResponse> => {
+  try {
+    const params: Record<string, any> = {
+      startDate: filters.startDate,
+      endDate: filters.endDate
+    };
+
+    // Add timezoneOffset if provided
+    if (filters.timezoneOffset !== undefined) {
+      params.timezoneOffset = filters.timezoneOffset;
+    }
+
+    const response = await apiClient.get('/lite/v1/analytics/business/activity', {
+      params
+    });
+    return response.data;
+
+    // Mock data fallback (commented out)
+    /*
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+    return mockAccountsWithSessionsResponse;
+    */
+  } catch (error) {
+    console.error('Error fetching accounts with sessions data:', error);
+    throw new Error('Failed to fetch accounts with sessions data');
+  }
 };
 
 export const calculateAccountsMetrics = (accounts: Account[]): AccountsMetrics => {
@@ -49,7 +98,7 @@ export const calculateAccountsMetrics = (accounts: Account[]): AccountsMetrics =
     notStarted: accounts.filter(acc => !acc.onboardingCurrentState || (acc.onboardingCurrentState as string) === '').length,
   };
 
-  // Channel Distribution
+  // Channel Distribution - with safety checks
   let whatsappActive = 0;
   let whatsappInactive = 0;
   let webActive = 0;
@@ -57,6 +106,11 @@ export const calculateAccountsMetrics = (accounts: Account[]): AccountsMetrics =
   let multiChannel = 0;
 
   accounts.forEach(account => {
+    // Safety check for channels array
+    if (!account.channels || !Array.isArray(account.channels)) {
+      return; // Skip this account if channels is not available
+    }
+
     const whatsappChannel = account.channels.find(ch => ch.type === 'whatsapp');
     const webChannel = account.channels.find(ch => ch.type === 'web');
     
@@ -104,16 +158,16 @@ export const calculateAccountsMetrics = (accounts: Account[]): AccountsMetrics =
     multiChannel
   };
 
-  // Automode Distribution
+  // Automode Distribution - with safety checks
   const automodeDistribution = {
-    withAutomode: accounts.filter(acc => acc.hasAutomode).length,
-    withoutAutomode: accounts.filter(acc => !acc.hasAutomode).length,
+    withAutomode: accounts.filter(acc => acc.hasAutomode === true).length,
+    withoutAutomode: accounts.filter(acc => acc.hasAutomode === false || acc.hasAutomode === undefined).length,
   };
 
-  // Active Status
+  // Active Status - with safety checks
   const activeStatus = {
-    active: accounts.filter(acc => acc.active).length,
-    inactive: accounts.filter(acc => !acc.active).length,
+    active: accounts.filter(acc => acc.active === true).length,
+    inactive: accounts.filter(acc => acc.active === false || acc.active === undefined).length,
   };
 
   return {
@@ -122,5 +176,18 @@ export const calculateAccountsMetrics = (accounts: Account[]): AccountsMetrics =
     channelDistribution,
     automodeDistribution,
     activeStatus,
+  };
+};
+
+// Get default filters for business analytics
+export const getDefaultBusinessFilters = (): BusinessAnalyticsFilters => {
+  const now = new Date();
+  const endDate = now.toISOString().split('T')[0];
+  const startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+  
+  return {
+    startDate,
+    endDate,
+    timezoneOffset: -new Date().getTimezoneOffset() / 60
   };
 };
