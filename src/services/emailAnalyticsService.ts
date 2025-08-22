@@ -3,8 +3,10 @@ import type {
   EmailsAnalytics,
   EmailAnalyticsFilters
 } from '../types/email-analytics-v2';
-import { mockEmailAnalyticsResponse } from '../mocks/emailAnalytics';
+import { createApiClient } from '../utils/apiHelpers';
 
+// Create API client instance
+const apiClient = createApiClient();
 
 export const emailAnalyticsService = {
   /**
@@ -14,31 +16,36 @@ export const emailAnalyticsService = {
    */
   async getEmailAnalytics(filters?: EmailAnalyticsFilters): Promise<EmailAnalyticsApiResponse> {
     try {
+      // Use default filters if none provided or if required fields are missing
+      const defaultFilters = this.getDefaultFilters();
+      const mergedFilters = { ...defaultFilters, ...filters };
+      
+      const params: Record<string, any> = {
+        startDate: mergedFilters.startDate,
+        endDate: mergedFilters.endDate,
+        timezoneOffset: mergedFilters.timezoneOffset
+      };
+      
+      // Add accountIds if provided
+      if (mergedFilters.accountIds && mergedFilters.accountIds.length > 0) {
+        params.accountIds = mergedFilters.accountIds.join(',');
+      }
+      
+      // Add enterpriseIds if provided
+      if (mergedFilters.enterpriseIds && mergedFilters.enterpriseIds.length > 0) {
+        params.enterpriseIds = mergedFilters.enterpriseIds.join(',');
+      }
+
+      const response = await apiClient.get('/lite/v1/analytics/business/notifications', {
+        params
+      });
+      return response.data;
+
+      // Mock data fallback (commented out)
+      /*
       // Simulate API call delay
       await new Promise(resolve => setTimeout(resolve, 800));
-
-      // In a real implementation, you would:
-      // const queryParams = new URLSearchParams();
-      // if (filters?.startDate) queryParams.append('startDate', filters.startDate);
-      // if (filters?.endDate) queryParams.append('endDate', filters.endDate);
-      // if (filters?.timezoneOffset) queryParams.append('timezoneOffset', filters.timezoneOffset.toString());
-      // if (filters?.accountId) queryParams.append('accountId', filters.accountId);
-      // 
-      // const response = await fetch(`/lite/v1/analytics/business/notifications?${queryParams}`, {
-      //   method: 'GET',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //     'Authorization': `Bearer ${token}`,
-      //   },
-      // });
-      // 
-      // if (!response.ok) {
-      //   throw new Error(`HTTP error! status: ${response.status}`);
-      // }
-      // 
-      // return await response.json();
-
-      // For now, return mock data
+      
       const selectedMock = mockEmailAnalyticsResponse;
       
       return {
@@ -48,9 +55,11 @@ export const emailAnalyticsService = {
           startDate: filters?.startDate || '2025-08-01',
           endDate: filters?.endDate || '2025-08-19',
           timezoneOffset: (filters?.timezoneOffset || -5).toString(),
-          ...(filters?.accountId && { accountId: filters.accountId })
+          ...(filters?.accountIds && { accountIds: filters.accountIds.join(',') }),
+          ...(filters?.enterpriseIds && { enterpriseIds: filters.enterpriseIds.join(',') })
         })}`
       };
+      */
     } catch (error) {
       console.error('Error fetching email analytics:', error);
       throw new Error('Failed to fetch email analytics data');
@@ -96,18 +105,52 @@ export const emailAnalyticsService = {
   },
 
   /**
-   * Get email analytics for a specific account
-   * @param accountId Account ID to filter by
+   * Get email analytics for specific accounts
+   * @param accountIds Array of Account IDs to filter by
    * @param filters Additional filters
    * @returns Promise<EmailsAnalytics>
    */
-  async getEmailAnalyticsByAccount(
-    accountId: string,
-    filters?: Omit<EmailAnalyticsFilters, 'accountId'>
+  async getEmailAnalyticsByAccounts(
+    accountIds: string[],
+    filters?: Omit<EmailAnalyticsFilters, 'accountIds'>
   ): Promise<EmailsAnalytics> {
     return this.getEmailAnalyticsData({
       ...filters,
-      accountId
+      accountIds
     });
+  },
+
+  /**
+   * Get email analytics for specific enterprises
+   * @param enterpriseIds Array of Enterprise IDs to filter by
+   * @param filters Additional filters
+   * @returns Promise<EmailsAnalytics>
+   */
+  async getEmailAnalyticsByEnterprises(
+    enterpriseIds: string[],
+    filters?: Omit<EmailAnalyticsFilters, 'enterpriseIds'>
+  ): Promise<EmailsAnalytics> {
+    return this.getEmailAnalyticsData({
+      ...filters,
+      enterpriseIds
+    });
+  },
+
+  /**
+   * Get default filters for email analytics
+   * @returns EmailAnalyticsFilters with default values
+   */
+  getDefaultFilters(): EmailAnalyticsFilters {
+    const now = new Date();
+    const endDate = now.toISOString().split('T')[0];
+    const startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    
+    return {
+      startDate,
+      endDate,
+      timezoneOffset: -new Date().getTimezoneOffset() / 60,
+      accountIds: [],
+      enterpriseIds: []
+    };
   }
 };

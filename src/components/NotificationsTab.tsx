@@ -55,7 +55,8 @@ export const NotificationsTab: React.FC = () => {
       try {
         setLoading(true);
         setError(null);
-        const data = await emailAnalyticsService.getEmailAnalyticsData();
+        const defaultFilters = emailAnalyticsService.getDefaultFilters();
+        const data = await emailAnalyticsService.getEmailAnalyticsData(defaultFilters);
         setAnalytics(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Error loading email analytics');

@@ -54,5 +54,6 @@ export interface EmailAnalyticsFilters {
   startDate?: string;
   endDate?: string;
   timezoneOffset?: number;
-  accountId?: string;
+  accountIds?: string[];
+  enterpriseIds?: string[];
 }
