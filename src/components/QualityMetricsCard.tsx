@@ -1,29 +1,44 @@
-import React from 'react';
-import { Card, CardBody, Skeleton, Tooltip } from '@heroui/react';
-import { Info } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
-import { useConversationAnalyticsStore } from '../contexts/ConversationAnalyticsContext';
-import type { AccountWithUsefulConversations } from '../types/conversation-analytics';
+import React from "react";
+import { Card, CardBody, Skeleton, Tooltip } from "@heroui/react";
+import { Info } from "lucide-react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip as RechartsTooltip,
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+} from "recharts";
+import { useConversationDataStore } from "../contexts/ConversationDataContext";
+import type { AccountWithUsefulConversations } from "../types/conversation-analytics";
 
 interface UsefulConversationsChartProps {
   accounts: AccountWithUsefulConversations[];
 }
 
-const UsefulConversationsChart: React.FC<UsefulConversationsChartProps> = ({ accounts }) => {
+const UsefulConversationsChart: React.FC<UsefulConversationsChartProps> = ({
+  accounts,
+}) => {
   // Find the maximum number of conversations to determine ranges dynamically
-  const maxConversations = Math.max(...accounts.map(acc => acc.usefulConversationCount), 0);
-  
+  const maxConversations = Math.max(
+    ...accounts.map((acc) => acc.usefulConversationCount),
+    0
+  );
+
   // Generate dynamic ranges based on the data
   const generateRanges = (maxValue: number) => {
     const ranges = [
-      { label: '1', min: 1, max: 1 },
-      { label: '2', min: 2, max: 2 },
-      { label: '3', min: 3, max: 3 },
-      { label: '4', min: 4, max: 4 },
-      { label: '5', min: 5, max: 5 },
-      { label: '6-10', min: 6, max: 10 },
-      { label: '11-15', min: 11, max: 15 },
-      { label: '16-20', min: 16, max: 20 },
+      { label: "1", min: 1, max: 1 },
+      { label: "2", min: 2, max: 2 },
+      { label: "3", min: 3, max: 3 },
+      { label: "4", min: 4, max: 4 },
+      { label: "5", min: 5, max: 5 },
+      { label: "6-10", min: 6, max: 10 },
+      { label: "11-15", min: 11, max: 15 },
+      { label: "16-20", min: 16, max: 20 },
     ];
 
     // Add additional ranges if we have data beyond 20
@@ -41,32 +56,38 @@ const UsefulConversationsChart: React.FC<UsefulConversationsChartProps> = ({ acc
           rangeSize = 50; // 101-150, 151-200, etc.
         }
 
-        const currentMax = Math.min(currentMin + rangeSize - 1, Math.ceil(maxValue / rangeSize) * rangeSize);
+        const currentMax = Math.min(
+          currentMin + rangeSize - 1,
+          Math.ceil(maxValue / rangeSize) * rangeSize
+        );
         ranges.push({
           label: `${currentMin}-${currentMax}`,
           min: currentMin,
-          max: currentMax
+          max: currentMax,
         });
 
         currentMin = currentMax + 1;
       }
     }
-    
+
     return ranges;
   };
 
   const ranges = generateRanges(maxConversations);
 
   // Group accounts by ranges
-  const chartData = ranges.map(range => {
-    const accountsInRange = accounts.filter(account => 
-      account.usefulConversationCount >= range.min && 
-      account.usefulConversationCount <= range.max
+  const chartData = ranges.map((range) => {
+    const accountsInRange = accounts.filter(
+      (account) =>
+        account.usefulConversationCount >= range.min &&
+        account.usefulConversationCount <= range.max
     );
     return {
       name: range.label,
       count: accountsInRange.length,
-      range: `${range.min}${range.max !== range.min ? `-${range.max}` : ''} conversaciones útiles`
+      range: `${range.min}${
+        range.max !== range.min ? `-${range.max}` : ""
+      } conversaciones útiles`,
     };
   });
 
@@ -75,7 +96,9 @@ const UsefulConversationsChart: React.FC<UsefulConversationsChartProps> = ({ acc
     if (active && payload && payload.length) {
       return (
         <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
-          <p className="font-semibold text-gray-900 dark:text-white">{payload[0].payload.range}</p>
+          <p className="font-semibold text-gray-900 dark:text-white">
+            {payload[0].payload.range}
+          </p>
           <p style={{ color: payload[0].color }} className="text-sm">
             {`${payload[0].value} cuentas`}
           </p>
@@ -99,7 +122,13 @@ const UsefulConversationsChart: React.FC<UsefulConversationsChartProps> = ({ acc
             }}
           >
             <defs>
-              <linearGradient id="usefulConversationsGradient" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient
+                id="usefulConversationsGradient"
+                x1="0"
+                y1="0"
+                x2="0"
+                y2="1"
+              >
                 <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.9} />
                 <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.2} />
               </linearGradient>
@@ -120,11 +149,11 @@ const UsefulConversationsChart: React.FC<UsefulConversationsChartProps> = ({ acc
               tickLine={false}
               axisLine={false}
               tickFormatter={(value) => value.toString()}
-              label={{ value: 'Cuentas', angle: -90, position: 'insideLeft' }}
+              label={{ value: "Cuentas", angle: -90, position: "insideLeft" }}
             />
             <RechartsTooltip content={<CustomTooltip />} />
-            <Bar 
-              dataKey="count" 
+            <Bar
+              dataKey="count"
               fill="url(#usefulConversationsGradient)"
               radius={[4, 4, 0, 0]}
             />
@@ -139,25 +168,33 @@ interface DailyConversationTimelineProps {
   dailyMetrics: any[];
 }
 
-const DailyConversationTimeline: React.FC<DailyConversationTimelineProps> = ({ dailyMetrics }) => {
+const DailyConversationTimeline: React.FC<DailyConversationTimelineProps> = ({
+  dailyMetrics,
+}) => {
   // Prepare data for the timeline chart
-  const timelineData = dailyMetrics.map(metric => {
+  const timelineData = dailyMetrics.map((metric) => {
     const totalConversations = metric.volumeMetrics?.totalConversations || 0;
-    const conversationsWithIdentification = metric.volumeMetrics?.totalConversationsWithIdentification || 0;
-    const usefulConversations = metric.volumeMetrics?.totalUsefulConversations || 0;
-    const identificationRate = totalConversations > 0 ? (conversationsWithIdentification / totalConversations) * 100 : 0;
+    const conversationsWithIdentification =
+      metric.volumeMetrics?.totalConversationsWithIdentification || 0;
+    const usefulConversations =
+      metric.volumeMetrics?.totalUsefulConversations || 0;
+    const identificationRate =
+      totalConversations > 0
+        ? (conversationsWithIdentification / totalConversations) * 100
+        : 0;
 
     return {
-      date: new Date(metric.day).toLocaleDateString('es-ES', { 
-        month: 'short',
-        day: 'numeric'
+      date: new Date(metric.day).toLocaleDateString("es-ES", {
+        month: "short",
+        day: "numeric",
       }),
       fullDate: metric.day,
       totalConversations,
       conversationsWithIdentification,
       usefulConversations,
-      conversationsWithoutIdentification: totalConversations - conversationsWithIdentification,
-      identificationRate: Math.round(identificationRate * 10) / 10
+      conversationsWithoutIdentification:
+        totalConversations - conversationsWithIdentification,
+      identificationRate: Math.round(identificationRate * 10) / 10,
     };
   });
 
@@ -168,11 +205,11 @@ const DailyConversationTimeline: React.FC<DailyConversationTimelineProps> = ({ d
       return (
         <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
           <p className="font-semibold text-gray-900 dark:text-white mb-2">
-            {new Date(data.fullDate).toLocaleDateString('es-ES', { 
-              weekday: 'long',
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
+            {new Date(data.fullDate).toLocaleDateString("es-ES", {
+              weekday: "long",
+              year: "numeric",
+              month: "long",
+              day: "numeric",
             })}
           </p>
           {payload.map((entry: any, index: number) => (
@@ -189,37 +226,59 @@ const DailyConversationTimeline: React.FC<DailyConversationTimelineProps> = ({ d
   return (
     <div className="space-y-4">
       <div className="h-80">
-        <ResponsiveContainer width="100%" height="100%" className="overflow-hidden">
-          <AreaChart 
-            data={timelineData} 
+        <ResponsiveContainer
+          width="100%"
+          height="100%"
+          className="overflow-hidden"
+        >
+          <AreaChart
+            data={timelineData}
             margin={{ top: 20, right: 30, left: 0, bottom: 30 }}
           >
             <defs>
-              <linearGradient id="totalConversationsGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
-                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1}/>
+              <linearGradient
+                id="totalConversationsGradient"
+                x1="0"
+                y1="0"
+                x2="0"
+                y2="1"
+              >
+                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8} />
+                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1} />
               </linearGradient>
-              <linearGradient id="identifiedConversationsGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#10b981" stopOpacity={0.9}/>
-                <stop offset="95%" stopColor="#10b981" stopOpacity={0.2}/>
+              <linearGradient
+                id="identifiedConversationsGradient"
+                x1="0"
+                y1="0"
+                x2="0"
+                y2="1"
+              >
+                <stop offset="5%" stopColor="#10b981" stopOpacity={0.9} />
+                <stop offset="95%" stopColor="#10b981" stopOpacity={0.2} />
               </linearGradient>
-              <linearGradient id="usefulConversationsGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.8}/>
-                <stop offset="95%" stopColor="#f59e0b" stopOpacity={0.1}/>
+              <linearGradient
+                id="usefulConversationsGradient"
+                x1="0"
+                y1="0"
+                x2="0"
+                y2="1"
+              >
+                <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.8} />
+                <stop offset="95%" stopColor="#f59e0b" stopOpacity={0.1} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" opacity={0.7} />
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke="#e5e7eb"
+              opacity={0.7}
+            />
             <XAxis
               dataKey="date"
               fontSize={12}
               axisLine={false}
               tickLine={false}
             />
-            <YAxis 
-              fontSize={12}
-              tickLine={false}
-              axisLine={false}
-            />
+            <YAxis fontSize={12} tickLine={false} axisLine={false} />
             <RechartsTooltip content={<TimelineTooltip />} />
 
             {/* Total conversations area (background) */}
@@ -261,38 +320,58 @@ const DailyConversationTimeline: React.FC<DailyConversationTimelineProps> = ({ d
       <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3 text-center">
           <div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Total Período</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Total Período
+            </p>
             <p className="text-lg font-semibold text-blue-600 dark:text-blue-400">
-              {timelineData.reduce((sum, day) => sum + day.totalConversations, 0).toLocaleString()}
+              {timelineData
+                .reduce((sum, day) => sum + day.totalConversations, 0)
+                .toLocaleString()}
             </p>
           </div>
           <div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Mejor Día</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Mejor Día
+            </p>
             <p className="text-lg font-semibold text-emerald-600 dark:text-emerald-400">
-              {timelineData.length > 0 
-                ? timelineData.reduce((max, current) => 
-                    current.totalConversations > max.totalConversations ? current : max
+              {timelineData.length > 0
+                ? timelineData.reduce((max, current) =>
+                    current.totalConversations > max.totalConversations
+                      ? current
+                      : max
                   ).date
-                : 'N/A'
-              }
+                : "N/A"}
             </p>
           </div>
           <div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Prom. Identificación</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Prom. Identificación
+            </p>
             <p className="text-lg font-semibold text-purple-600 dark:text-purple-400">
-              {timelineData.length > 0 
-                ? Math.round(timelineData.reduce((sum, day) => sum + day.identificationRate, 0) / timelineData.length)
-                : 0
-              }%
+              {timelineData.length > 0
+                ? Math.round(
+                    timelineData.reduce(
+                      (sum, day) => sum + day.identificationRate,
+                      0
+                    ) / timelineData.length
+                  )
+                : 0}
+              %
             </p>
           </div>
           <div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Promedio Diario</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Promedio Diario
+            </p>
             <p className="text-lg font-semibold text-indigo-600 dark:text-indigo-400">
-              {timelineData.length > 0 
-                ? Math.round(timelineData.reduce((sum, day) => sum + day.totalConversations, 0) / timelineData.length)
-                : 0
-              }
+              {timelineData.length > 0
+                ? Math.round(
+                    timelineData.reduce(
+                      (sum, day) => sum + day.totalConversations,
+                      0
+                    ) / timelineData.length
+                  )
+                : 0}
             </p>
           </div>
         </div>
@@ -301,17 +380,17 @@ const DailyConversationTimeline: React.FC<DailyConversationTimelineProps> = ({ d
   );
 };
 
-
-
 export const QualityMetricsCard: React.FC = () => {
-  const data = useConversationAnalyticsStore((state) => state.data);
-  const loading = useConversationAnalyticsStore((state) => state.loading);
+  const data = useConversationDataStore((state) => state.data);
+  const loading = useConversationDataStore((state) => state.loading);
 
   if (!data?.currentPeriod?.metrics && !loading) {
     return (
       <Card className="w-full">
         <CardBody className="p-6">
-          <p className="text-foreground-600 text-center">No hay datos de métricas disponibles</p>
+          <p className="text-foreground-600 text-center">
+            No hay datos de métricas disponibles
+          </p>
         </CardBody>
       </Card>
     );
@@ -319,7 +398,8 @@ export const QualityMetricsCard: React.FC = () => {
 
   const currentMetrics = data?.currentPeriod?.metrics;
 
-  const accountsData = currentMetrics?.accountAnalytics?.accountsWithUsefulConversations || [];
+  const accountsData =
+    currentMetrics?.accountAnalytics?.accountsWithUsefulConversations || [];
 
   return (
     <div className="space-y-6">
@@ -327,8 +407,13 @@ export const QualityMetricsCard: React.FC = () => {
       <div className="space-y-4">
         <div className="flex items-center gap-2">
           <div className="w-1 h-6 bg-purple-500 rounded-full"></div>
-          <h2 className="text-xl font-semibold text-foreground">Distribución de Cuentas</h2>
-          <Tooltip content="Muestra cómo se distribuyen las cuentas según el número de conversaciones útiles que han tenido" placement="top">
+          <h2 className="text-xl font-semibold text-foreground">
+            Distribución de Cuentas
+          </h2>
+          <Tooltip
+            content="Muestra cómo se distribuyen las cuentas según el número de conversaciones útiles que han tenido"
+            placement="top"
+          >
             <Info className="h-4 w-4 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 cursor-help" />
           </Tooltip>
         </div>
@@ -339,8 +424,14 @@ export const QualityMetricsCard: React.FC = () => {
               <div className="space-y-4">
                 <div className="flex items-end justify-between h-40">
                   {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-                    <div key={i} className="flex flex-col items-center gap-2 flex-1">
-                      <Skeleton className="w-8 rounded" style={{ height: `${Math.random() * 120 + 20}px` }} />
+                    <div
+                      key={i}
+                      className="flex flex-col items-center gap-2 flex-1"
+                    >
+                      <Skeleton
+                        className="w-8 rounded"
+                        style={{ height: `${Math.random() * 120 + 20}px` }}
+                      />
                       <Skeleton className="w-8 h-4" />
                     </div>
                   ))}
@@ -361,8 +452,13 @@ export const QualityMetricsCard: React.FC = () => {
       <div className="space-y-4">
         <div className="flex items-center gap-2">
           <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
-          <h2 className="text-xl font-semibold text-foreground">Analítica Diaria de Conversaciones</h2>
-          <Tooltip content="Visualiza la evolución diaria de conversaciones totales, con identificación y útiles durante el período seleccionado" placement="top">
+          <h2 className="text-xl font-semibold text-foreground">
+            Analítica Diaria de Conversaciones
+          </h2>
+          <Tooltip
+            content="Visualiza la evolución diaria de conversaciones totales, con identificación y útiles durante el período seleccionado"
+            placement="top"
+          >
             <Info className="h-4 w-4 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 cursor-help" />
           </Tooltip>
         </div>
@@ -380,8 +476,11 @@ export const QualityMetricsCard: React.FC = () => {
                   <Skeleton className="h-16 w-full" />
                 </div>
               </div>
-            ) : data?.currentPeriod?.dailyMetrics && data.currentPeriod.dailyMetrics.length > 0 ? (
-              <DailyConversationTimeline dailyMetrics={data.currentPeriod.dailyMetrics} />
+            ) : data?.currentPeriod?.dailyMetrics &&
+              data.currentPeriod.dailyMetrics.length > 0 ? (
+              <DailyConversationTimeline
+                dailyMetrics={data.currentPeriod.dailyMetrics}
+              />
             ) : (
               <div className="text-center text-foreground-600 py-8">
                 No hay datos diarios de conversaciones disponibles
@@ -390,8 +489,6 @@ export const QualityMetricsCard: React.FC = () => {
           </CardBody>
         </Card>
       </div>
-
-
     </div>
   );
 };

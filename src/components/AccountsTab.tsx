@@ -1,12 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Card, CardBody, Skeleton, Tooltip } from "@heroui/react";
 import {
   Info,
-  Users,
-  Settings,
-  Smartphone,
-  Globe,
-  Zap,
   CheckCircle,
   XCircle,
   Clock,
@@ -26,12 +21,10 @@ import {
   CartesianGrid,
 } from "recharts";
 import {
-  getAccountsData,
-  calculateAccountsMetrics,
-  type AccountsMetrics,
-  getDefaultBusinessFilters,
-} from "../services/accountsService";
-import type { Account } from "../types/acounts";
+  useAccountsDataStore,
+  useAccountsAutoSync,
+} from "../contexts/AccountsDataContext";
+import type { AccountsMetrics } from "../services/accountsService";
 
 interface MetricCardProps {
   title: string;
@@ -48,7 +41,6 @@ const MetricCard: React.FC<MetricCardProps> = ({
   value,
   format = "number",
   loading = false,
-  icon,
 }) => {
   const formatValue = (val: number | string, type: string) => {
     if (typeof val === "string") return val;
@@ -448,166 +440,12 @@ const ConfigurationStatusChart: React.FC<ConfigurationStatusChartProps> = ({
   );
 };
 
-interface ChannelDistributionChartProps {
-  data: AccountsMetrics["channelDistribution"];
-  loading: boolean;
-}
-
-const ChannelDistributionChart: React.FC<ChannelDistributionChartProps> = ({
-  data,
-  loading,
-}) => {
-  const chartData = [
-    {
-      name: "WhatsApp",
-      active: data.whatsapp.active,
-      inactive: data.whatsapp.inactive,
-      total: data.whatsapp.total,
-      percentage: data.whatsapp.percentage,
-    },
-    {
-      name: "Web",
-      active: data.web.active,
-      inactive: data.web.inactive,
-      total: data.web.total,
-      percentage: data.web.percentage,
-    },
-  ];
-
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      const data = payload[0].payload;
-      return (
-        <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
-          <p className="font-semibold text-gray-900 dark:text-white mb-2">
-            {label}
-          </p>
-          <div className="space-y-1">
-            <p className="text-sm text-green-600">Activos: {data.active}</p>
-            <p className="text-sm text-red-600">Inactivos: {data.inactive}</p>
-            <p className="text-sm text-gray-600">
-              Total: {data.total} ({data.percentage.toFixed(1)}%)
-            </p>
-          </div>
-        </div>
-      );
-    }
-    return null;
-  };
-
-  if (loading) {
-    return (
-      <div className="space-y-4">
-        <Skeleton className="h-64 w-full" />
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-4">
-      <div className="h-64">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart
-            data={chartData}
-            margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-          >
-            <CartesianGrid
-              strokeDasharray="3 3"
-              stroke="#e5e7eb"
-              opacity={0.7}
-            />
-            <XAxis
-              dataKey="name"
-              fontSize={12}
-              axisLine={false}
-              tickLine={false}
-            />
-            <YAxis fontSize={12} tickLine={false} axisLine={false} />
-            <RechartsTooltip content={<CustomTooltip />} />
-            <Bar
-              dataKey="active"
-              stackId="a"
-              fill="#10b981"
-              name="Activos"
-              radius={[0, 0, 0, 0]}
-            />
-            <Bar
-              dataKey="inactive"
-              stackId="a"
-              fill="#ef4444"
-              name="Inactivos"
-              radius={[4, 4, 0, 0]}
-            />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-
-      {/* Summary */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-          <div className="flex items-center gap-2 mb-2">
-            <Smartphone className="h-5 w-5 text-green-600" />
-            <span className="font-medium">WhatsApp</span>
-          </div>
-          <div className="text-sm text-gray-600 dark:text-gray-400">
-            <p>
-              {data.whatsapp.active} activos de {data.whatsapp.total} total
-            </p>
-            <p className="font-medium">
-              {data.whatsapp.percentage.toFixed(1)}% de cuentas
-            </p>
-          </div>
-        </div>
-
-        <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-          <div className="flex items-center gap-2 mb-2">
-            <Globe className="h-5 w-5 text-blue-600" />
-            <span className="font-medium">Web</span>
-          </div>
-          <div className="text-sm text-gray-600 dark:text-gray-400">
-            <p>
-              {data.web.active} activos de {data.web.total} total
-            </p>
-            <p className="font-medium">
-              {data.web.percentage.toFixed(1)}% de cuentas
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 export const AccountsTab: React.FC = () => {
-  const [accounts, setAccounts] = useState<Account[]>([]);
-  const [metrics, setMetrics] = useState<AccountsMetrics | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // Get data from accounts store
+  const { metrics, loading, error } = useAccountsDataStore();
 
-  useEffect(() => {
-    const fetchAccountsData = async () => {
-      try {
-        setLoading(true);
-        const response = await getAccountsData(getDefaultBusinessFilters());
-        if (response.success) {
-          setAccounts(response.data.accounts);
-          const calculatedMetrics = calculateAccountsMetrics(
-            response.data.accounts
-          );
-          setMetrics(calculatedMetrics);
-        } else {
-          setError("Error al cargar los datos de cuentas");
-        }
-      } catch (err) {
-        setError("Error al cargar los datos de cuentas");
-        console.error("Error fetching accounts data:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAccountsData();
-  }, []);
+  // Auto-sync with filter changes (this handles both initial fetch and filter changes)
+  useAccountsAutoSync();
 
   if (error) {
     return (

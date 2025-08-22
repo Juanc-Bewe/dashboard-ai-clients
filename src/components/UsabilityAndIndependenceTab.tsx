@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
-import { Card, CardBody, Skeleton, Tooltip } from '@heroui/react';
-import { Info, Copy, Check } from 'lucide-react';
-import { useConversationAnalyticsStore } from '../contexts/ConversationAnalyticsContext';
-
+import React, { useState } from "react";
+import { Card, CardBody, Skeleton, Tooltip } from "@heroui/react";
+import { Info, Copy, Check } from "lucide-react";
+import { useConversationDataStore } from "../contexts/ConversationDataContext";
 
 interface AdoptionMetricCardProps {
   title: string;
@@ -21,7 +20,7 @@ const AdoptionMetricCard: React.FC<AdoptionMetricCardProps> = ({
   percentage,
   totalAccounts,
   loading = false,
-  color = '#10b981'
+  color = "#10b981",
 }) => {
   const [copied, setCopied] = useState(false);
 
@@ -31,7 +30,7 @@ const AdoptionMetricCard: React.FC<AdoptionMetricCardProps> = ({
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error('Failed to copy text: ', err);
+      console.error("Failed to copy text: ", err);
     }
   };
 
@@ -62,14 +61,12 @@ const AdoptionMetricCard: React.FC<AdoptionMetricCardProps> = ({
       <CardBody className="p-8">
         <div className="flex flex-col items-center">
           <div className="flex items-center gap-1 mb-6">
-            <p className="text-sm font-medium text-center">
-              {title}
-            </p>
+            <p className="text-sm font-medium text-center">{title}</p>
             <Tooltip content={tooltip} placement="top">
               <Info className="h-4 w-4 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 cursor-help" />
             </Tooltip>
-            <Tooltip 
-              content={copied ? "¡Copiado!" : "Copiar cantidad"} 
+            <Tooltip
+              content={copied ? "¡Copiado!" : "Copiar cantidad"}
               placement="top"
             >
               <button
@@ -87,7 +84,10 @@ const AdoptionMetricCard: React.FC<AdoptionMetricCardProps> = ({
 
           {/* Circular Progress - Made bigger */}
           <div className="relative mb-6">
-            <svg className="w-48 h-48 transform -rotate-90" viewBox="0 0 192 192">
+            <svg
+              className="w-48 h-48 transform -rotate-90"
+              viewBox="0 0 192 192"
+            >
               {/* Background circle */}
               <circle
                 cx="96"
@@ -118,12 +118,10 @@ const AdoptionMetricCard: React.FC<AdoptionMetricCardProps> = ({
               <div className="text-lg font-medium" style={{ color }}>
                 {percentage.toFixed(0)}%
               </div>
-              <div className="text-4xl font-bold text-foreground">
-                {count}
-              </div>
+              <div className="text-4xl font-bold text-foreground">{count}</div>
             </div>
           </div>
-          
+
           <div className="text-sm text-foreground-600 text-center">
             de {totalAccounts.toLocaleString()} cuentas
           </div>
@@ -134,14 +132,16 @@ const AdoptionMetricCard: React.FC<AdoptionMetricCardProps> = ({
 };
 
 export const UsabilityAndIndependenceTab: React.FC = () => {
-  const data = useConversationAnalyticsStore((state) => state.data);
-  const loading = useConversationAnalyticsStore((state) => state.loading);
+  const data = useConversationDataStore((state) => state.data);
+  const loading = useConversationDataStore((state) => state.loading);
 
   if (!data && !loading) {
     return (
       <Card className="w-full">
         <CardBody className="p-6">
-          <p className="text-foreground-600 text-center">No hay datos de uso y adopción disponibles</p>
+          <p className="text-foreground-600 text-center">
+            No hay datos de uso y adopción disponibles
+          </p>
         </CardBody>
       </Card>
     );
@@ -151,27 +151,37 @@ export const UsabilityAndIndependenceTab: React.FC = () => {
   const currentMetrics = data?.currentPeriod?.metrics;
 
   // Calculate metrics for "Cuentas con Igual o Más Conversaciones"
-  const totalAccountsWithEqualOrMore = comparisonData?.totalAccountsWithEqualOrMore ?? 0;
+  const totalAccountsWithEqualOrMore =
+    comparisonData?.totalAccountsWithEqualOrMore ?? 0;
   const totalCurrentAccounts = comparisonData?.totalCurrentAccounts ?? 1;
-  const percentageEqualOrMore = totalCurrentAccounts > 0
-    ? (totalAccountsWithEqualOrMore / totalCurrentAccounts) * 100
-    : 0;
+  const percentageEqualOrMore =
+    totalCurrentAccounts > 0
+      ? (totalAccountsWithEqualOrMore / totalCurrentAccounts) * 100
+      : 0;
 
   // Calculate metrics for "Cuentas con Más de 50 Conversaciones"
-  const accountsWithMoreFiftyConversations = currentMetrics?.accountAnalytics?.accountsWithMoreFiftyConversations ?? [];
+  const accountsWithMoreFiftyConversations =
+    currentMetrics?.accountAnalytics?.accountsWithMoreFiftyConversations ?? [];
   const totalAccountsWithMoreFifty = accountsWithMoreFiftyConversations.length;
-  const totalAccountsWithConversations = currentMetrics?.volumeMetrics?.totalAccounts ?? 1;
-  const percentageMoreFifty = totalAccountsWithConversations > 0
-    ? (totalAccountsWithMoreFifty / totalAccountsWithConversations) * 100
-    : 0;
+  const totalAccountsWithConversations =
+    currentMetrics?.volumeMetrics?.totalAccounts ?? 1;
+  const percentageMoreFifty =
+    totalAccountsWithConversations > 0
+      ? (totalAccountsWithMoreFifty / totalAccountsWithConversations) * 100
+      : 0;
 
   return (
     <div className="space-y-6">
       {/* Title */}
       <div className="flex items-center gap-2">
         <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
-        <h2 className="text-xl font-semibold text-foreground">Métricas de Uso y Adopción</h2>
-        <Tooltip content="Indicadores que miden el nivel de adopción y uso del sistema por parte de las cuentas" placement="top">
+        <h2 className="text-xl font-semibold text-foreground">
+          Métricas de Uso y Adopción
+        </h2>
+        <Tooltip
+          content="Indicadores que miden el nivel de adopción y uso del sistema por parte de las cuentas"
+          placement="top"
+        >
           <Info className="h-4 w-4 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 cursor-help" />
         </Tooltip>
       </div>

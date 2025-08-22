@@ -1,12 +1,12 @@
 import React from "react";
 import { Card, CardBody, Tooltip } from "@heroui/react";
 import { TrendingUp, TrendingDown, Minus, Info } from "lucide-react";
-import { useConversationAnalyticsStore } from "../contexts/ConversationAnalyticsContext";
+import { useConversationDataStore } from "../contexts/ConversationDataContext";
 import type { AccountWithUsefulConversations } from "../types/conversation-analytics";
 
 export const NorthStarMetricCard: React.FC = () => {
-  const data = useConversationAnalyticsStore((state) => state.data);
-  const loading = useConversationAnalyticsStore((state) => state.loading);
+  const data = useConversationDataStore((state) => state.data);
+  const loading = useConversationDataStore((state) => state.loading);
 
   // Calculate North Star Metric: accounts with ≥3 useful conversations
   const northStarMetric = React.useMemo(() => {
@@ -17,25 +17,27 @@ export const NorthStarMetricCard: React.FC = () => {
       return { current: 0, previous: 0, variation: 0, percentageChange: 0 };
     }
 
-    const currentCount = data.currentPeriod.metrics.accountAnalytics.accountsWithUsefulConversations.filter(
-      (account: AccountWithUsefulConversations) =>
-        account.usefulConversationCount >= 3
-    ).length;
+    const currentCount =
+      data.currentPeriod.metrics.accountAnalytics.accountsWithUsefulConversations.filter(
+        (account: AccountWithUsefulConversations) =>
+          account.usefulConversationCount >= 3
+      ).length;
 
-    const previousCount = data?.previousPeriod?.metrics?.accountAnalytics
-      ?.accountsWithUsefulConversations?.filter(
+    const previousCount =
+      data?.previousPeriod?.metrics?.accountAnalytics?.accountsWithUsefulConversations?.filter(
         (account: AccountWithUsefulConversations) =>
           account.usefulConversationCount >= 3
       ).length || 0;
 
     const variation = currentCount - previousCount;
-    const percentageChange = previousCount > 0 ? ((variation / previousCount) * 100) : 0;
+    const percentageChange =
+      previousCount > 0 ? (variation / previousCount) * 100 : 0;
 
     return {
       current: currentCount,
       previous: previousCount,
       variation,
-      percentageChange
+      percentageChange,
     };
   }, [data]);
 
@@ -78,7 +80,7 @@ export const NorthStarMetricCard: React.FC = () => {
               <div className="text-4xl font-bold text-foreground mb-1">
                 {northStarMetric.current}
               </div>
-              
+
               {/* Variation indicator below the value */}
               {northStarMetric.previous > 0 && (
                 <div className="flex items-center justify-center gap-1">
@@ -86,14 +88,16 @@ export const NorthStarMetricCard: React.FC = () => {
                     <>
                       <TrendingUp className="w-3 h-3 text-green-600" />
                       <span className="text-green-600 font-semibold text-xs">
-                        +{northStarMetric.variation} (+{northStarMetric.percentageChange.toFixed(1)}%)
+                        +{northStarMetric.variation} (+
+                        {northStarMetric.percentageChange.toFixed(1)}%)
                       </span>
                     </>
                   ) : northStarMetric.variation < 0 ? (
                     <>
                       <TrendingDown className="w-3 h-3 text-red-600" />
                       <span className="text-red-600 font-semibold text-xs">
-                        {northStarMetric.variation} ({northStarMetric.percentageChange.toFixed(1)}%)
+                        {northStarMetric.variation} (
+                        {northStarMetric.percentageChange.toFixed(1)}%)
                       </span>
                     </>
                   ) : (

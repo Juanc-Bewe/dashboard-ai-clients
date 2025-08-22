@@ -1,57 +1,58 @@
-import React, { useState } from 'react';
-import { Card, CardBody, Skeleton, Tooltip } from '@heroui/react';
-import { Info, TrendingUp, TrendingDown, Copy, Check } from 'lucide-react';
-import { useConversationAnalyticsStore } from '../contexts/ConversationAnalyticsContext';
+import React, { useState } from "react";
+import { Card, CardBody, Skeleton, Tooltip } from "@heroui/react";
+import { Info, TrendingUp, TrendingDown, Copy, Check } from "lucide-react";
+import { useConversationDataStore } from "../contexts/ConversationDataContext";
 
 interface MetricCardProps {
   title: string;
   tooltip: string;
   value: number | string;
   previousValue?: number | string;
-  format?: 'number' | 'percentage' | 'duration' | 'decimal';
+  format?: "number" | "percentage" | "duration" | "decimal";
   loading?: boolean;
   invertColors?: boolean;
   absoluteValue?: number;
   totalValue?: number;
 }
 
-const MetricCard: React.FC<MetricCardProps> = ({ 
-  title, 
+const MetricCard: React.FC<MetricCardProps> = ({
+  title,
   tooltip,
-  value, 
-  previousValue, 
-  format = 'number',
+  value,
+  previousValue,
+  format = "number",
   loading = false,
   invertColors = false,
   absoluteValue,
-  totalValue
+  totalValue,
 }) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
     // For percentage cards, copy the absolute value instead of the percentage
-    const textToCopy = format === 'percentage' && absoluteValue !== undefined 
-      ? absoluteValue.toString() 
-      : formatValue(value, format);
-    
+    const textToCopy =
+      format === "percentage" && absoluteValue !== undefined
+        ? absoluteValue.toString()
+        : formatValue(value, format);
+
     try {
       await navigator.clipboard.writeText(textToCopy);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000); // Reset after 2 seconds
     } catch (err) {
-      console.error('Failed to copy text: ', err);
+      console.error("Failed to copy text: ", err);
     }
   };
 
   const formatValue = (val: number | string, type: string) => {
-    if (typeof val === 'string') return val;
+    if (typeof val === "string") return val;
 
     switch (type) {
-      case 'percentage':
+      case "percentage":
         return `${val.toFixed(2)}%`;
-      case 'duration':
+      case "duration":
         return `${Math.round(val)}s`;
-      case 'decimal':
+      case "decimal":
         // Dynamic decimal places based on value size
         if (val < 0.1) return val.toFixed(4);
         if (val < 1) return val.toFixed(2);
@@ -62,42 +63,48 @@ const MetricCard: React.FC<MetricCardProps> = ({
   };
 
   const calculateChange = () => {
-    if (previousValue === undefined || typeof value !== 'number' || typeof previousValue !== 'number') {
+    if (
+      previousValue === undefined ||
+      typeof value !== "number" ||
+      typeof previousValue !== "number"
+    ) {
       return null;
     }
 
-    if (previousValue === 0) return value > 0 ? '+100%' : '0%';
+    if (previousValue === 0) return value > 0 ? "+100%" : "0%";
 
     const change = ((value - previousValue) / previousValue) * 100;
     return change > 0 ? `+${change.toFixed(1)}%` : `${change.toFixed(1)}%`;
   };
 
   const change = calculateChange();
-  const isPositive = change && change.startsWith('+');
+  const isPositive = change && change.startsWith("+");
 
   const getChangeColor = () => {
-    if (!change || change === '0%') return 'text-gray-600 dark:text-gray-400';
+    if (!change || change === "0%") return "text-gray-600 dark:text-gray-400";
 
     if (invertColors) {
-      return isPositive 
-        ? 'text-red-600 dark:text-red-400'
-        : 'text-green-600 dark:text-green-400';
+      return isPositive
+        ? "text-red-600 dark:text-red-400"
+        : "text-green-600 dark:text-green-400";
     } else {
       return isPositive
-        ? 'text-green-600 dark:text-green-400'
-        : 'text-red-600 dark:text-red-400';
+        ? "text-green-600 dark:text-green-400"
+        : "text-red-600 dark:text-red-400";
     }
   };
 
   const getTrendIcon = () => {
-    if (!change || change === '0%') return null;
+    if (!change || change === "0%") return null;
 
     const iconClass = "h-4 w-4";
     const colorClass = getChangeColor();
 
-    return isPositive
-      ? <TrendingUp className={`${iconClass} ${colorClass}`} />
-      : <TrendingDown className={`${iconClass} ${colorClass}`} />;
+    return isPositive ? (
+      <TrendingUp className={`${iconClass} ${colorClass}`} />
+    ) : (
+      <TrendingDown className={`${iconClass} ${colorClass}`} />
+    );
   };
 
   if (loading) {
@@ -118,9 +125,7 @@ const MetricCard: React.FC<MetricCardProps> = ({
         <div className="flex flex-col">
           <div className="flex items-start justify-between mb-1">
             <div className="flex items-center gap-1">
-              <p className="text-sm font-medium">
-                {title}
-              </p>
+              <p className="text-sm font-medium">{title}</p>
               <Tooltip content={tooltip} placement="top">
                 <Info className="h-4 w-4 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 cursor-help" />
               </Tooltip>
@@ -134,14 +139,14 @@ const MetricCard: React.FC<MetricCardProps> = ({
                   </span>
                 </div>
               )}
-              <Tooltip 
+              <Tooltip
                 content={
-                  copied 
+                  copied
                     ? "¡Copiado!"
-                    : format === 'percentage' && absoluteValue !== undefined
-                      ? `Copiar cantidad (${absoluteValue})`
-                      : "Copiar valor"
-                } 
+                    : format === "percentage" && absoluteValue !== undefined
+                    ? `Copiar cantidad (${absoluteValue})`
+                    : "Copiar valor"
+                }
                 placement="top"
               >
                 <button
@@ -158,27 +163,30 @@ const MetricCard: React.FC<MetricCardProps> = ({
             </div>
           </div>
           <div className="mb-2 md:mb-0">
-            {format === 'percentage' && absoluteValue !== undefined ? (
+            {format === "percentage" && absoluteValue !== undefined ? (
               <div className="space-y-2">
                 <div className="text-2xl font-bold">
                   {formatValue(value, format)}
                 </div>
                 <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                  <div 
+                  <div
                     className="bg-current h-full rounded-full transition-all duration-500"
-                    style={{ 
-                      width: `${totalValue && totalValue > 0 ? (absoluteValue / totalValue) * 100 : 0}%`
+                    style={{
+                      width: `${
+                        totalValue && totalValue > 0
+                          ? (absoluteValue / totalValue) * 100
+                          : 0
+                      }%`,
                     }}
                   />
                 </div>
                 <div className="text-sm text-foreground-600 text-right">
-                  {absoluteValue.toLocaleString()} de {totalValue?.toLocaleString()}
+                  {absoluteValue.toLocaleString()} de{" "}
+                  {totalValue?.toLocaleString()}
                 </div>
               </div>
             ) : (
-              <p className="text-2xl font-bold">
-                {formatValue(value, format)}
-              </p>
+              <p className="text-2xl font-bold">{formatValue(value, format)}</p>
             )}
           </div>
           {change && (
@@ -196,8 +204,8 @@ const MetricCard: React.FC<MetricCardProps> = ({
 };
 
 export const StaticMetricsCard: React.FC = () => {
-  const data = useConversationAnalyticsStore((state) => state.data);
-  const loading = useConversationAnalyticsStore((state) => state.loading);
+  const data = useConversationDataStore((state) => state.data);
+  const loading = useConversationDataStore((state) => state.loading);
 
   if (!data?.currentPeriod?.metrics && !loading) {
     return null;
@@ -214,64 +222,74 @@ export const StaticMetricsCard: React.FC = () => {
   // Key metrics for the overview section
   const keyMetrics = [
     {
-      title: 'Cuentas Activas',
-      tooltip: 'Número de cuentas únicas que tuvieron al menos una conversación',
+      title: "Cuentas Activas",
+      tooltip:
+        "Número de cuentas únicas que tuvieron al menos una conversación",
       value: volumeMetrics?.totalAccounts ?? 0,
       previousValue: previousMetrics?.volumeMetrics?.totalAccounts,
     },
     {
-      title: 'Conversaciones',
-      tooltip: 'Número total de conversaciones en el período seleccionado',
+      title: "Conversaciones",
+      tooltip: "Número total de conversaciones en el período seleccionado",
       value: volumeMetrics?.totalConversations ?? 0,
       previousValue: previousMetrics?.volumeMetrics?.totalConversations,
     },
     {
-      title: 'Mensajes/Conv',
-      tooltip: 'Número promedio de mensajes intercambiados por conversación',
+      title: "Mensajes/Conv",
+      tooltip: "Número promedio de mensajes intercambiados por conversación",
       value: conversationMetrics?.averageMessagesPerConversation ?? 0,
-      previousValue: previousMetrics?.conversationMetrics?.averageMessagesPerConversation,
-      format: 'decimal' as const,
+      previousValue:
+        previousMetrics?.conversationMetrics?.averageMessagesPerConversation,
+      format: "decimal" as const,
     },
     {
-      title: 'Útiles por Día',
-      tooltip: 'Promedio de conversaciones útiles por día en el período seleccionado',
+      title: "Útiles por Día",
+      tooltip:
+        "Promedio de conversaciones útiles por día en el período seleccionado",
       value: temporalAnalytics?.averageUsefulConversationPerDay ?? 0,
-      previousValue: previousMetrics?.temporalAnalytics?.averageUsefulConversationPerDay,
-      format: 'decimal' as const,
+      previousValue:
+        previousMetrics?.temporalAnalytics?.averageUsefulConversationPerDay,
+      format: "decimal" as const,
     },
     {
-      title: 'Conversaciones Útiles',
-      tooltip: 'Porcentaje de conversaciones útiles del total de conversaciones',
+      title: "Conversaciones Útiles",
+      tooltip:
+        "Porcentaje de conversaciones útiles del total de conversaciones",
       value: qualityMetrics?.percentageOfUsefulConversations ?? 0,
-      previousValue: previousMetrics?.qualityMetrics?.percentageOfUsefulConversations,
-      format: 'percentage' as const,
+      previousValue:
+        previousMetrics?.qualityMetrics?.percentageOfUsefulConversations,
+      format: "percentage" as const,
       absoluteValue: volumeMetrics?.totalUsefulConversations ?? 0,
       totalValue: volumeMetrics?.totalConversations ?? 0,
     },
     {
-      title: 'Tasa de Identificación',
-      tooltip: 'Porcentaje de conversaciones donde se identificó exitosamente al usuario',
+      title: "Tasa de Identificación",
+      tooltip:
+        "Porcentaje de conversaciones donde se identificó exitosamente al usuario",
       value: qualityMetrics?.identificationPercentage ?? 0,
       previousValue: previousMetrics?.qualityMetrics?.identificationPercentage,
-      format: 'percentage' as const,
+      format: "percentage" as const,
       absoluteValue: volumeMetrics?.totalConversationsWithIdentification ?? 0,
       totalValue: volumeMetrics?.totalConversations ?? 0,
     },
     {
-      title: 'Retención',
-      tooltip: 'Porcentaje de clientes que regresaron para múltiples conversaciones',
+      title: "Retención",
+      tooltip:
+        "Porcentaje de clientes que regresaron para múltiples conversaciones",
       value: customerAnalytics?.customerRetentionPercentage ?? 0,
-      previousValue: previousMetrics?.customerAnalytics?.customerRetentionPercentage,
-      format: 'percentage' as const,
+      previousValue:
+        previousMetrics?.customerAnalytics?.customerRetentionPercentage,
+      format: "percentage" as const,
       absoluteValue: customerAnalytics?.returningClients ?? 0,
       totalValue: customerAnalytics?.totalUniqueClients ?? 0,
     },
     {
-      title: 'Tasa de Error',
-      tooltip: 'Porcentaje de conversaciones que resultaron en errores o respuestas fallidas',
+      title: "Tasa de Error",
+      tooltip:
+        "Porcentaje de conversaciones que resultaron en errores o respuestas fallidas",
       value: qualityMetrics?.errorRate ?? 0,
       previousValue: previousMetrics?.qualityMetrics?.errorRate,
-      format: 'percentage' as const,
+      format: "percentage" as const,
       invertColors: true,
       absoluteValue: volumeMetrics?.totalConversationsWithErrors ?? 0,
       totalValue: volumeMetrics?.totalConversations ?? 0,
@@ -282,20 +300,22 @@ export const StaticMetricsCard: React.FC = () => {
     <div className="space-y-6">
       {/* Quantity Metrics */}
       <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {keyMetrics.filter(metric => metric.format !== 'percentage').map((metric, index) => (
-          <MetricCard
-            key={`${metric.title}-${index}`}
-            title={metric.title}
-            tooltip={metric.tooltip}
-            value={metric.value}
-            previousValue={metric.previousValue}
-            format={metric.format}
-            loading={loading}
-            invertColors={metric.invertColors}
-            absoluteValue={metric.absoluteValue}
-            totalValue={metric.totalValue}
-          />
-        ))}
+        {keyMetrics
+          .filter((metric) => metric.format !== "percentage")
+          .map((metric, index) => (
+            <MetricCard
+              key={`${metric.title}-${index}`}
+              title={metric.title}
+              tooltip={metric.tooltip}
+              value={metric.value}
+              previousValue={metric.previousValue}
+              format={metric.format}
+              loading={loading}
+              invertColors={metric.invertColors}
+              absoluteValue={metric.absoluteValue}
+              totalValue={metric.totalValue}
+            />
+          ))}
       </div>
 
       {/* Divider */}
@@ -303,20 +323,22 @@ export const StaticMetricsCard: React.FC = () => {
 
       {/* Percentage Metrics */}
       <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {keyMetrics.filter(metric => metric.format === 'percentage').map((metric, index) => (
-          <MetricCard
-            key={`${metric.title}-${index}`}
-            title={metric.title}
-            tooltip={metric.tooltip}
-            value={metric.value}
-            previousValue={metric.previousValue}
-            format={metric.format}
-            loading={loading}
-            invertColors={metric.invertColors}
-            absoluteValue={metric.absoluteValue}
-            totalValue={metric.totalValue}
-          />
-        ))}
+        {keyMetrics
+          .filter((metric) => metric.format === "percentage")
+          .map((metric, index) => (
+            <MetricCard
+              key={`${metric.title}-${index}`}
+              title={metric.title}
+              tooltip={metric.tooltip}
+              value={metric.value}
+              previousValue={metric.previousValue}
+              format={metric.format}
+              loading={loading}
+              invertColors={metric.invertColors}
+              absoluteValue={metric.absoluteValue}
+              totalValue={metric.totalValue}
+            />
+          ))}
       </div>
     </div>
   );

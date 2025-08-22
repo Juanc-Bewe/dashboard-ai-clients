@@ -1,5 +1,5 @@
-import React from 'react';
-import { Card, CardBody, Skeleton } from '@heroui/react';
+import React from "react";
+import { Card, CardBody, Skeleton } from "@heroui/react";
 import {
   PieChart as RechartsPieChart,
   Pie,
@@ -12,8 +12,8 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { useConversationAnalyticsStore } from '../contexts/ConversationAnalyticsContext';
-import { formatCurrency } from '../utils/currencyHelpers';
+import { useConversationDataStore } from "../contexts/ConversationDataContext";
+import { formatCurrency } from "../utils/currencyHelpers";
 
 // Professional color palette with better contrast
 const CHART_COLORS = {
@@ -49,7 +49,7 @@ const CostMetricsSkeleton: React.FC = () => {
     <div className="space-y-8">
       <div>
         <Skeleton className="h-7 w-80 mb-6 rounded-lg" />
-        
+
         {/* Esqueleto de Tarjetas de Costos */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card className="rounded-2xl w-full max-w-2xl">
@@ -65,7 +65,7 @@ const CostMetricsSkeleton: React.FC = () => {
               </div>
             </CardBody>
           </Card>
-          
+
           <Card className="rounded-2xl">
             <CardBody className="p-6">
               <Skeleton className="h-6 w-40 mb-4 rounded-lg" />
@@ -139,8 +139,8 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 export const CostMetricsCard: React.FC = () => {
-  const data = useConversationAnalyticsStore((state) => state.data);
-  const loading = useConversationAnalyticsStore((state) => state.loading);
+  const data = useConversationDataStore((state) => state.data);
+  const loading = useConversationDataStore((state) => state.loading);
 
   // Show skeleton while loading
   if (loading) {
@@ -154,7 +154,9 @@ export const CostMetricsCard: React.FC = () => {
     return (
       <Card className="w-full">
         <CardBody className="p-6">
-          <p className="text-foreground-600 text-center">No hay datos de métricas de costos disponibles</p>
+          <p className="text-foreground-600 text-center">
+            No hay datos de métricas de costos disponibles
+          </p>
         </CardBody>
       </Card>
     );
@@ -238,9 +240,7 @@ export const CostMetricsCard: React.FC = () => {
               {/* Resumen de Costo Total */}
               <div className="pt-4">
                 <div className="text-center">
-                  <div className="text-s mb-2">
-                    Costo Total
-                  </div>
+                  <div className="text-s mb-2">Costo Total</div>
                   <div className="text-3xl font-bold">
                     {formatCurrency(totalCost)}
                   </div>
@@ -386,26 +386,28 @@ export const CostMetricsCard: React.FC = () => {
                 Cuentas Más Costosas
               </h3>
               <div className="space-y-3">
-                {costAnalytics.topExpensiveAccounts.slice(0, 5).map((account, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg"
-                  >
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-                        {account.accountName}
+                {costAnalytics.topExpensiveAccounts
+                  .slice(0, 5)
+                  .map((account, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                          {account.accountName}
+                        </div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                          {account.sessionCount} sesiones
+                        </div>
                       </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
-                        {account.sessionCount} sesiones
+                      <div className="text-right ml-4">
+                        <div className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                          {formatCurrency(account.totalCost)}
+                        </div>
                       </div>
                     </div>
-                    <div className="text-right ml-4">
-                      <div className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                        {formatCurrency(account.totalCost)}
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                  ))}
               </div>
             </CardBody>
           </Card>
@@ -425,12 +427,13 @@ export const CostMetricsCard: React.FC = () => {
               {/* Resumen de Costos */}
               <div className="pt-4">
                 <div className="text-center">
-                  <div className="text-s mb-2">
-                    Costo Total LLM
-                  </div>
+                  <div className="text-s mb-2">Costo Total LLM</div>
                   <div className="text-2xl font-bold">
                     {formatCurrency(
-                      costByModelData.reduce((sum, item) => sum + (item.cost || 0), 0)
+                      costByModelData.reduce(
+                        (sum, item) => sum + (item.cost || 0),
+                        0
+                      )
                     )}
                   </div>
                 </div>
@@ -601,9 +604,7 @@ export const CostMetricsCard: React.FC = () => {
               {/* Resumen de Tokens */}
               <div className="pt-4">
                 <div className="text-center">
-                  <div className="text-s mb-2">
-                    Total de Tokens Utilizados
-                  </div>
+                  <div className="text-s mb-2">Total de Tokens Utilizados</div>
                   <div className="text-2xl font-bold">
                     {tokensByModelData
                       .reduce((sum, item) => sum + (item.tokens || 0), 0)
@@ -757,7 +758,8 @@ export const CostMetricsCard: React.FC = () => {
                   );
                   const percentage =
                     total > 0
-                      ? Math.round(((entry.tokens || 0) / total) * 100 * 10) / 10
+                      ? Math.round(((entry.tokens || 0) / total) * 100 * 10) /
+                        10
                       : 0;
 
                   return (
@@ -812,7 +814,7 @@ export const CostMetricsCard: React.FC = () => {
                       ? Object.values(technologyUsage.toolsDistributionByAmount)
                           .reduce((sum, item) => sum + (item.amount || 0), 0)
                           .toLocaleString()
-                      : '0'}
+                      : "0"}
                   </div>
                 </div>
               </div>
@@ -820,21 +822,32 @@ export const CostMetricsCard: React.FC = () => {
               <div className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
-                    data={technologyUsage?.toolsDistributionByAmount
-                      ? Object.entries(technologyUsage.toolsDistributionByAmount).map(([toolName, data], index) => ({
-                          name: toolName
-                            .replace(/_/g, ' ')
-                            .replace(/([A-Z])/g, ' $1')
-                            .trim()
-                            .split(' ')
-                            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-                            .join(' '),
-                          amount: data.amount || 0,
-                          percentage: data.percentage,
-                          fullName: toolName,
-                          color: CHART_COLORS.primary[index % CHART_COLORS.primary.length],
-                        }))
-                      : []}
+                    data={
+                      technologyUsage?.toolsDistributionByAmount
+                        ? Object.entries(
+                            technologyUsage.toolsDistributionByAmount
+                          ).map(([toolName, data], index) => ({
+                            name: toolName
+                              .replace(/_/g, " ")
+                              .replace(/([A-Z])/g, " $1")
+                              .trim()
+                              .split(" ")
+                              .map(
+                                (word) =>
+                                  word.charAt(0).toUpperCase() +
+                                  word.slice(1).toLowerCase()
+                              )
+                              .join(" "),
+                            amount: data.amount || 0,
+                            percentage: data.percentage,
+                            fullName: toolName,
+                            color:
+                              CHART_COLORS.primary[
+                                index % CHART_COLORS.primary.length
+                              ],
+                          }))
+                        : []
+                    }
                     margin={{
                       top: 5,
                       right: 30,
@@ -870,25 +883,25 @@ export const CostMetricsCard: React.FC = () => {
                       stroke="#e5e7eb"
                       opacity={0.7}
                     />
-                    <XAxis
-                      dataKey="name"
-                      hide={true}
-                    />
-                    <YAxis
-                      fontSize={12}
-                      axisLine={false}
-                      tickLine={false}
-                    />
-                    <Tooltip 
+                    <XAxis dataKey="name" hide={true} />
+                    <YAxis fontSize={12} axisLine={false} tickLine={false} />
+                    <Tooltip
                       content={({ active, payload, label }) => {
                         if (active && payload && payload.length) {
                           return (
                             <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
-                              <p className="font-semibold text-gray-900 dark:text-white">{label}</p>
-                              <p style={{ color: payload[0].color }} className="text-sm">
+                              <p className="font-semibold text-gray-900 dark:text-white">
+                                {label}
+                              </p>
+                              <p
+                                style={{ color: payload[0].color }}
+                                className="text-sm"
+                              >
                                 {`${payload[0].value?.toLocaleString()} usos`}
                                 {payload[0].payload.percentage &&
-                                  ` (${payload[0].payload.percentage.toFixed(1)}%)`}
+                                  ` (${payload[0].payload.percentage.toFixed(
+                                    1
+                                  )}%)`}
                               </p>
                             </div>
                           );
@@ -898,10 +911,14 @@ export const CostMetricsCard: React.FC = () => {
                     />
                     <Bar dataKey="amount" radius={[4, 4, 0, 0]}>
                       {technologyUsage?.toolsDistributionByAmount &&
-                        Object.entries(technologyUsage.toolsDistributionByAmount).map((_, index) => (
+                        Object.entries(
+                          technologyUsage.toolsDistributionByAmount
+                        ).map((_, index) => (
                           <Cell
                             key={`cell-${index}`}
-                            fill={`url(#toolsUsageGradient${index % CHART_COLORS.primary.length})`}
+                            fill={`url(#toolsUsageGradient${
+                              index % CHART_COLORS.primary.length
+                            })`}
                           />
                         ))}
                     </Bar>
@@ -912,41 +929,50 @@ export const CostMetricsCard: React.FC = () => {
               {/* Leyenda Mejorada con Estadísticas */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 mb-4">
                 {technologyUsage?.toolsDistributionByAmount &&
-                  Object.entries(technologyUsage.toolsDistributionByAmount).map(([toolName, toolData], index) => {
-                    const displayName = toolName
-                      .replace(/_/g, ' ')
-                      .replace(/([A-Z])/g, ' $1')
-                      .trim()
-                      .split(' ')
-                      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-                      .join(' ');
-                    const color = CHART_COLORS.primary[index % CHART_COLORS.primary.length];
+                  Object.entries(technologyUsage.toolsDistributionByAmount).map(
+                    ([toolName, toolData], index) => {
+                      const displayName = toolName
+                        .replace(/_/g, " ")
+                        .replace(/([A-Z])/g, " $1")
+                        .trim()
+                        .split(" ")
+                        .map(
+                          (word) =>
+                            word.charAt(0).toUpperCase() +
+                            word.slice(1).toLowerCase()
+                        )
+                        .join(" ");
+                      const color =
+                        CHART_COLORS.primary[
+                          index % CHART_COLORS.primary.length
+                        ];
 
-                    return (
-                      <div
-                        key={index}
-                        className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800/50 rounded-lg"
-                      >
-                        <div className="flex items-center gap-2">
-                          <div
-                            className="w-3 h-3 rounded-full shadow-sm flex-shrink-0"
-                            style={{ backgroundColor: color }}
-                          ></div>
-                          <span className="text-xs font-medium text-gray-700 dark:text-gray-300 truncate">
-                            {displayName}
-                          </span>
+                      return (
+                        <div
+                          key={index}
+                          className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800/50 rounded-lg"
+                        >
+                          <div className="flex items-center gap-2">
+                            <div
+                              className="w-3 h-3 rounded-full shadow-sm flex-shrink-0"
+                              style={{ backgroundColor: color }}
+                            ></div>
+                            <span className="text-xs font-medium text-gray-700 dark:text-gray-300 truncate">
+                              {displayName}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1 ml-2">
+                            <span className="text-xs font-bold text-gray-900 dark:text-gray-100">
+                              {(toolData.amount || 0).toLocaleString()}
+                            </span>
+                            <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                              ({(toolData.percentage || 0).toFixed(1)}%)
+                            </span>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-1 ml-2">
-                          <span className="text-xs font-bold text-gray-900 dark:text-gray-100">
-                            {(toolData.amount || 0).toLocaleString()}
-                          </span>
-                          <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
-                            ({(toolData.percentage || 0).toFixed(1)}%)
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    }
+                  )}
               </div>
             </CardBody>
           </Card>

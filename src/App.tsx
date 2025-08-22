@@ -9,7 +9,7 @@ import { LoginGuard } from './components/LoginGuard';
 import { PrivateLayout } from './layouts/PrivateLayout';
 import { Dashboard } from './pages/Dashboard';
 import { AddonManagement } from './pages/AddonManagement';
-import { ConversationAnalytics } from './pages/ConversationAnalytics';
+import { NewDashboard } from './pages/ConversationAnalytics';
 
 
 // Main App Content that needs theme context
@@ -52,7 +52,7 @@ const AppContent = () => {
               element={
                 <ProtectedRoute>
                   <PrivateLayout>
-                    <ConversationAnalytics />
+                    <NewDashboard />
                   </PrivateLayout>
                 </ProtectedRoute>
               }

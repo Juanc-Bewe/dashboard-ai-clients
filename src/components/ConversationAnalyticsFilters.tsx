@@ -17,25 +17,27 @@ import {
   Calendar,
   CalendarDays,
 } from "lucide-react";
-import { useConversationAnalyticsStore } from "../contexts/ConversationAnalyticsContext";
+import { useFiltersStore } from "../contexts/FiltersContext";
+import { useTabRefresh } from "../contexts/TabManagementContext";
 import { useAuth } from "../contexts/AuthContext";
 import { hasPermission } from "../utils/permissionHelpers";
 import type { DateRangeValue } from "../types/dashboard";
 
 export const ConversationAnalyticsFilters: React.FC = () => {
-  const filters = useConversationAnalyticsStore((state) => state.filters);
-  const loading = useConversationAnalyticsStore((state) => state.loading);
-  const updateFilters = useConversationAnalyticsStore((state) => state.updateFilters);
-  const setChannelNames = useConversationAnalyticsStore((state) => state.setChannelNames);
-  const fetchData = useConversationAnalyticsStore((state) => state.fetchData);
+  const filters = useFiltersStore((state) => state.filters);
+  const updateFilters = useFiltersStore((state) => state.updateFilters);
+  const setChannelNames = useFiltersStore((state) => state.setChannelNames);
+  const resetFilters = useFiltersStore((state) => state.resetFilters);
+
+  const { refreshActiveTab, isRefreshing } = useTabRefresh();
 
   // Get auth data
   const { availableEnterprises, permissions } = useAuth();
 
   // Static channel options
   const availableChannels = [
-    { id: 'web', name: 'Web' },
-    { id: 'twilio-whatsapp', name: 'WhatsApp' }
+    { id: "web", name: "Web" },
+    { id: "twilio-whatsapp", name: "WhatsApp" },
   ];
 
   // State to track range validation
@@ -68,21 +70,21 @@ export const ConversationAnalyticsFilters: React.FC = () => {
     if (value) {
       const startDate = value.start.toString();
       const endDate = value.end.toString();
-      
+
       // Validate date range (max 31 days)
       const start = new Date(startDate);
       const end = new Date(endDate);
       const diffTime = Math.abs(end.getTime() - start.getTime());
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      
+
       if (diffDays > 31) {
         setIsRangeInvalid(true);
         return;
       }
-      
+
       setIsRangeInvalid(false);
       updateFilters({ startDate, endDate });
-      
+
       // Clear the shortcut selection when manually changing dates
       setSelectedShortcut("");
     } else {
@@ -114,8 +116,8 @@ export const ConversationAnalyticsFilters: React.FC = () => {
     setAccountIdsInput(accountIds.join(", "));
   };
 
-  const handleRefresh = () => {
-    fetchData();
+  const handleRefresh = async () => {
+    await refreshActiveTab();
   };
 
   // Date shortcut functions
@@ -133,9 +135,9 @@ export const ConversationAnalyticsFilters: React.FC = () => {
     startOfWeek.setDate(today.getDate() - daysToMonday);
 
     // Calculate past days using setTime for more reliable date arithmetic
-    past7Days.setTime(today.getTime() - (7 * 24 * 60 * 60 * 1000));
-    past15Days.setTime(today.getTime() - (15 * 24 * 60 * 60 * 1000));
-    past30Days.setTime(today.getTime() - (30 * 24 * 60 * 60 * 1000));
+    past7Days.setTime(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+    past15Days.setTime(today.getTime() - 15 * 24 * 60 * 60 * 1000);
+    past30Days.setTime(today.getTime() - 30 * 24 * 60 * 60 * 1000);
 
     const formatDate = (date: Date) => {
       return date.toISOString().split("T")[0];
@@ -170,7 +172,13 @@ export const ConversationAnalyticsFilters: React.FC = () => {
   };
 
   const handleDateShortcut = (
-    shortcut: "today" | "thisWeek" | "currentMonth" | "past7Days" | "past15Days" | "past30Days"
+    shortcut:
+      | "today"
+      | "thisWeek"
+      | "currentMonth"
+      | "past7Days"
+      | "past15Days"
+      | "past30Days"
   ) => {
     const shortcuts = getDateShortcuts();
     const range = shortcuts[shortcut];
@@ -179,27 +187,14 @@ export const ConversationAnalyticsFilters: React.FC = () => {
   };
 
   const handleClearAllFilters = () => {
-    // Reset all filters to defaults - set to past 7 days
-    const today = new Date();
-    const past7Days = new Date(today);
-    past7Days.setDate(today.getDate() - 7);
-    
-    const formatDate = (date: Date) => date.toISOString().split("T")[0];
-
-    updateFilters({
-      startDate: formatDate(past7Days),
-      endDate: formatDate(today),
-      enterpriseIds: [],
-      accountIds: [],
-      channelNames: [],
-    });
+    resetFilters();
     setAccountIdsInput(""); // Clear the input field
     setIsRangeInvalid(false); // Reset validation state
     setSelectedShortcut("past7Days"); // Set default shortcut selection
   };
 
   return (
-    <div className="dark:border dark:border-gray-700 rounded-xl dark:shadow-lg p-4 sm:p-6">
+    <div className="border border-gray-200 dark:border-gray-700 rounded-xl dark:shadow-lg p-4 sm:p-6">
       {/* Main Layout: Filters Container + Button */}
       <div className="flex flex-col lg:flex-row gap-6 lg:items-center">
         {/* Filters Container */}
@@ -211,7 +206,7 @@ export const ConversationAnalyticsFilters: React.FC = () => {
               <div className="w-full min-w-[320px] lg:flex-[2] lg:min-w-[400px]">
                 <div className="space-y-3">
                   <label className="text-sm font-medium text-foreground-600">
-                    Date Range
+                    Rango de Fechas
                   </label>
                   <div className="space-y-3">
                     <I18nProvider locale="en-CA">
@@ -222,12 +217,12 @@ export const ConversationAnalyticsFilters: React.FC = () => {
                         className="w-full"
                         granularity="day"
                         variant="bordered"
-                        aria-label="Select date range"
+                        aria-label="Seleccionar rango de fechas"
                         isInvalid={isRangeInvalid}
-                        isDisabled={loading}
+                        isDisabled={isRefreshing}
                         errorMessage={
                           isRangeInvalid
-                            ? "Date range cannot exceed 31 days"
+                            ? "El rango de fechas no puede exceder 31 días"
                             : undefined
                         }
                         minValue={parseDate("2025-06-15")}
@@ -240,59 +235,95 @@ export const ConversationAnalyticsFilters: React.FC = () => {
                     <div className="flex flex-wrap gap-2">
                       <Button
                         size="sm"
-                        variant={selectedShortcut === "today" ? "solid" : "bordered"}
-                        color={selectedShortcut === "today" ? "primary" : "default"}
+                        variant={
+                          selectedShortcut === "today" ? "solid" : "bordered"
+                        }
+                        color={
+                          selectedShortcut === "today" ? "primary" : "default"
+                        }
                         onPress={() => handleDateShortcut("today")}
                         startContent={<Clock className="w-3 h-3" />}
-                        isDisabled={loading}
+                        isDisabled={isRefreshing}
                         className="text-xs px-2 h-7"
                       >
-                        Today
+                        Hoy
                       </Button>
 
                       <Button
                         size="sm"
-                        variant={selectedShortcut === "past7Days" ? "solid" : "bordered"}
-                        color={selectedShortcut === "past7Days" ? "primary" : "default"}
+                        variant={
+                          selectedShortcut === "past7Days"
+                            ? "solid"
+                            : "bordered"
+                        }
+                        color={
+                          selectedShortcut === "past7Days"
+                            ? "primary"
+                            : "default"
+                        }
                         onPress={() => handleDateShortcut("past7Days")}
                         startContent={<CalendarDays className="w-3 h-3" />}
-                        isDisabled={loading}
+                        isDisabled={isRefreshing}
                         className="text-xs px-2 h-7"
                       >
-                        Past 7 Days
+                        Últimos 7 Días
                       </Button>
                       <Button
                         size="sm"
-                        variant={selectedShortcut === "past15Days" ? "solid" : "bordered"}
-                        color={selectedShortcut === "past15Days" ? "primary" : "default"}
+                        variant={
+                          selectedShortcut === "past15Days"
+                            ? "solid"
+                            : "bordered"
+                        }
+                        color={
+                          selectedShortcut === "past15Days"
+                            ? "primary"
+                            : "default"
+                        }
                         onPress={() => handleDateShortcut("past15Days")}
                         startContent={<CalendarDays className="w-3 h-3" />}
-                        isDisabled={loading}
+                        isDisabled={isRefreshing}
                         className="text-xs px-2 h-7"
                       >
-                        Past 15 Days
+                        Últimos 15 Días
                       </Button>
                       <Button
                         size="sm"
-                        variant={selectedShortcut === "past30Days" ? "solid" : "bordered"}
-                        color={selectedShortcut === "past30Days" ? "primary" : "default"}
+                        variant={
+                          selectedShortcut === "past30Days"
+                            ? "solid"
+                            : "bordered"
+                        }
+                        color={
+                          selectedShortcut === "past30Days"
+                            ? "primary"
+                            : "default"
+                        }
                         onPress={() => handleDateShortcut("past30Days")}
                         startContent={<CalendarDays className="w-3 h-3" />}
-                        isDisabled={loading}
+                        isDisabled={isRefreshing}
                         className="text-xs px-2 h-7"
                       >
-                        Past 30 Days
+                        Últimos 30 Días
                       </Button>
                       <Button
                         size="sm"
-                        variant={selectedShortcut === "currentMonth" ? "solid" : "bordered"}
-                        color={selectedShortcut === "currentMonth" ? "primary" : "default"}
+                        variant={
+                          selectedShortcut === "currentMonth"
+                            ? "solid"
+                            : "bordered"
+                        }
+                        color={
+                          selectedShortcut === "currentMonth"
+                            ? "primary"
+                            : "default"
+                        }
                         onPress={() => handleDateShortcut("currentMonth")}
                         startContent={<Calendar className="w-3 h-3" />}
-                        isDisabled={loading}
+                        isDisabled={isRefreshing}
                         className="text-xs px-2 h-7"
                       >
-                        This Month
+                        Este Mes
                       </Button>
                     </div>
                   </div>
@@ -300,41 +331,42 @@ export const ConversationAnalyticsFilters: React.FC = () => {
               </div>
 
               {/* Enterprise Filter Group - Only show if more than one enterprise */}
-              {availableEnterprises.length > 1 && hasPermission("canFilterByEnterprise", permissions) && (
-                <div className="w-full min-w-[240px] lg:flex-[1] lg:min-w-[280px]">
-                  <div>
-                    <div className="flex items-center justify-between">
-                      <label className="text-sm font-medium text-foreground-600">
-                        Enterprises
-                      </label>
-                      {filters.enterpriseIds.length > 0 && (
-                        <span className="text-xs text-foreground-500">
-                          ({filters.enterpriseIds.length} selected)
-                        </span>
-                      )}
+              {availableEnterprises.length > 1 &&
+                hasPermission("canFilterByEnterprise", permissions) && (
+                  <div className="w-full min-w-[240px] lg:flex-[1] lg:min-w-[280px]">
+                    <div>
+                      <div className="flex items-center justify-between">
+                        <label className="text-sm font-medium text-foreground-600">
+                          Enterprises
+                        </label>
+                        {filters.enterpriseIds.length > 0 && (
+                          <span className="text-xs text-foreground-500">
+                            ({filters.enterpriseIds.length} seleccionados)
+                          </span>
+                        )}
+                      </div>
+                      <Select
+                        placeholder="Seleccionar enterprises"
+                        selectionMode="multiple"
+                        selectedKeys={new Set(filters.enterpriseIds)}
+                        onSelectionChange={(keys) =>
+                          handleEnterpriseChange(keys as Set<string>)
+                        }
+                        variant="bordered"
+                        size="sm"
+                        className="w-full mt-4"
+                        aria-label="Seleccionar enterprises"
+                        isDisabled={isRefreshing}
+                      >
+                        {availableEnterprises.map((enterprise) => (
+                          <SelectItem key={enterprise.id}>
+                            {enterprise.name}
+                          </SelectItem>
+                        ))}
+                      </Select>
                     </div>
-                    <Select
-                      placeholder="Select enterprises"
-                      selectionMode="multiple"
-                      selectedKeys={new Set(filters.enterpriseIds)}
-                      onSelectionChange={(keys) =>
-                        handleEnterpriseChange(keys as Set<string>)
-                      }
-                      variant="bordered"
-                      size="sm"
-                      className="w-full mt-4"
-                      aria-label="Select enterprises"
-                      isDisabled={loading}
-                    >
-                      {availableEnterprises.map((enterprise) => (
-                        <SelectItem key={enterprise.id}>
-                          {enterprise.name}
-                        </SelectItem>
-                      ))}
-                    </Select>
                   </div>
-                </div>
-              )}
+                )}
 
               {/* Channel Filter Group */}
               {hasPermission("canFilterByChannel", permissions) && (
@@ -342,16 +374,17 @@ export const ConversationAnalyticsFilters: React.FC = () => {
                   <div>
                     <div className="flex items-center justify-between">
                       <label className="text-sm font-medium text-foreground-600">
-                        Channels
+                        Canales
                       </label>
-                      {filters.channelNames && filters.channelNames.length > 0 && (
-                        <span className="text-xs text-foreground-500">
-                          ({filters.channelNames.length} selected)
-                        </span>
-                      )}
+                      {filters.channelNames &&
+                        filters.channelNames.length > 0 && (
+                          <span className="text-xs text-foreground-500">
+                            ({filters.channelNames.length} seleccionados)
+                          </span>
+                        )}
                     </div>
                     <Select
-                      placeholder="Select channels"
+                      placeholder="Seleccionar canales"
                       selectionMode="multiple"
                       selectedKeys={new Set(filters.channelNames || [])}
                       onSelectionChange={(keys) =>
@@ -360,13 +393,11 @@ export const ConversationAnalyticsFilters: React.FC = () => {
                       variant="bordered"
                       size="sm"
                       className="w-full mt-4"
-                      aria-label="Select channels"
-                      isDisabled={loading}
+                      aria-label="Seleccionar canales"
+                      isDisabled={isRefreshing}
                     >
                       {availableChannels.map((channel) => (
-                        <SelectItem key={channel.id}>
-                          {channel.name}
-                        </SelectItem>
+                        <SelectItem key={channel.id}>{channel.name}</SelectItem>
                       ))}
                     </Select>
                   </div>
@@ -380,26 +411,28 @@ export const ConversationAnalyticsFilters: React.FC = () => {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <label className="text-sm font-medium text-foreground-600">
-                      Account IDs
+                      IDs de Cuenta
                     </label>
                     {filters.accountIds.length > 0 && (
                       <span className="text-xs text-foreground-500">
-                        ({filters.accountIds.length} selected)
+                        ({filters.accountIds.length} seleccionados)
                       </span>
                     )}
                   </div>
                   <Input
-                    placeholder="Enter account IDs (comma separated)"
+                    placeholder="Ingrese IDs de cuenta (separados por comas)"
                     value={accountIdsInput}
                     onValueChange={handleAccountIdsChange}
                     onBlur={handleAccountIdsBlur}
                     variant="bordered"
                     size="sm"
                     className="w-full"
-                    startContent={<Hash className="w-3 h-3 text-foreground-400" />}
-                    aria-label="Enter account IDs"
-                    description="Enter alphanumeric account IDs separated by commas"
-                    isDisabled={loading}
+                    startContent={
+                      <Hash className="w-3 h-3 text-foreground-400" />
+                    }
+                    aria-label="Ingresar IDs de cuenta"
+                    description="Ingrese IDs de cuenta alfanuméricos separados por comas"
+                    isDisabled={isRefreshing}
                   />
                 </div>
               </div>
@@ -416,31 +449,31 @@ export const ConversationAnalyticsFilters: React.FC = () => {
               variant="flat"
               size="sm"
               startContent={<Trash2 className="w-4 h-4" />}
-              aria-label="Clear all filters"
+              aria-label="Limpiar todos los filtros"
               className="px-3"
-              isDisabled={loading}
+              isDisabled={isRefreshing}
             >
-              Clear All
+              Limpiar Todo
             </Button>
-            <Tooltip 
-              content="Refresh conversation analytics data"
+            <Tooltip
+              content="Actualizar datos de análisis de conversaciones"
               placement="top"
               delay={500}
             >
               <Button
                 color="primary"
                 onPress={handleRefresh}
-                isLoading={loading}
-                isDisabled={loading}
+                isLoading={isRefreshing}
+                isDisabled={isRefreshing}
                 variant="flat"
                 size="sm"
                 startContent={
-                  !loading ? <RefreshCw className="w-4 h-4" /> : undefined
+                  !isRefreshing ? <RefreshCw className="w-4 h-4" /> : undefined
                 }
-                aria-label="Refresh data"
+                aria-label="Actualizar datos"
                 className="px-3"
               >
-                {loading ? 'Refreshing...' : 'Refresh'}
+                {isRefreshing ? "Actualizando..." : "Actualizar"}
               </Button>
             </Tooltip>
           </div>

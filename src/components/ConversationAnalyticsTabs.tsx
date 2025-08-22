@@ -9,9 +9,27 @@ import { AccountsTab } from "./AccountsTab";
 import { NotificationsTab } from "./NotificationsTab";
 import { useAuth } from "../contexts/AuthContext";
 import { hasPermission } from "../utils/permissionHelpers";
+import {
+  useTabManagementStore,
+  type TabKey,
+} from "../contexts/TabManagementContext";
+import { useConversationAutoSync } from "../contexts/ConversationDataContext";
 
 export const ConversationAnalyticsTabs: React.FC = () => {
   const { permissions } = useAuth();
+  const setActiveTab = useTabManagementStore((state) => state.setActiveTab);
+
+  // Auto-sync conversation data (for NorthStar, Static, Quality, UsabilityAndIndependence, and Cost tabs)
+  useConversationAutoSync();
+
+  // Set initial active tab
+  React.useEffect(() => {
+    setActiveTab("accounts");
+  }, [setActiveTab]);
+
+  const handleTabChange = (key: React.Key) => {
+    setActiveTab(key as TabKey);
+  };
 
   return (
     <div className="w-full space-y-6">
@@ -27,8 +45,14 @@ export const ConversationAnalyticsTabs: React.FC = () => {
 
       {/* Tabs with other metrics below */}
       <div className="w-full">
-        <Tabs aria-label="Métricas de conversación" variant="underlined" size="lg" className="w-full">
-
+        <Tabs
+          aria-label="Métricas de conversación"
+          variant="underlined"
+          size="lg"
+          className="w-full"
+          onSelectionChange={handleTabChange}
+          defaultSelectedKey="accounts"
+        >
           <Tab key="accounts" title="Activación multicanal">
             <AccountsTab />
           </Tab>
@@ -50,7 +74,6 @@ export const ConversationAnalyticsTabs: React.FC = () => {
               <CostMetricsCard />
             </Tab>
           )}
-
         </Tabs>
       </div>
     </div>
