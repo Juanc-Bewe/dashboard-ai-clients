@@ -4,7 +4,6 @@ import { NorthStarMetricCard } from "./NorthStarMetricCard";
 import { StaticMetricsCard } from "./StaticMetricsCard";
 import { QualityMetricsCard } from "./QualityMetricsCard";
 import { CostMetricsCard } from "./CostMetricsCard";
-import { UseAndAdoptionTab } from "./UseAndAdoptionTab";
 import { UsabilityAndIndependenceTab } from "./UsabilityAndIndependenceTab";
 import { AccountsTab } from "./AccountsTab";
 import { NotificationsTab } from "./NotificationsTab";
@@ -42,19 +41,16 @@ export const ConversationAnalyticsTabs: React.FC = () => {
             <NotificationsTab />
           </Tab>
 
+          <Tab key="adoption-metrics" title="Uso y Adopción">
+            <UsabilityAndIndependenceTab />
+          </Tab>
+
           {hasPermission("canViewBusinessAndCostsMetrics", permissions) && (
             <Tab key="costs" title="Costos">
               <CostMetricsCard />
             </Tab>
           )}
 
-          <Tab key="adoption" title="Adopción">
-            <UseAndAdoptionTab />
-          </Tab>
-
-          <Tab key="adoption-metrics" title="Uso y Adopción">
-            <UsabilityAndIndependenceTab />
-          </Tab>
         </Tabs>
       </div>
     </div>
