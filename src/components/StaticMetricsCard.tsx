@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import { Card, CardBody, Skeleton, Tooltip } from "@heroui/react";
-import { Info, TrendingUp, TrendingDown, Copy, Check } from "lucide-react";
+import { Info, TrendingUp, TrendingDown } from "lucide-react";
 import { useConversationDataStore } from "../contexts/ConversationDataContext";
 
 interface MetricCardProps {
@@ -21,29 +21,10 @@ const MetricCard: React.FC<MetricCardProps> = ({
   value,
   previousValue,
   format = "number",
-  loading = false,
   invertColors = false,
   absoluteValue,
   totalValue,
 }) => {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = async () => {
-    // For percentage cards, copy the absolute value instead of the percentage
-    const textToCopy =
-      format === "percentage" && absoluteValue !== undefined
-        ? absoluteValue.toString()
-        : formatValue(value, format);
-
-    try {
-      await navigator.clipboard.writeText(textToCopy);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000); // Reset after 2 seconds
-    } catch (err) {
-      console.error("Failed to copy text: ", err);
-    }
-  };
-
   const formatValue = (val: number | string, type: string) => {
     if (typeof val === "string") return val;
 
@@ -107,17 +88,7 @@ const MetricCard: React.FC<MetricCardProps> = ({
     );
   };
 
-  if (loading) {
-    return (
-      <Card className="">
-        <CardBody className="p-6">
-          <Skeleton className="h-4 w-3/4 mb-2" />
-          <Skeleton className="h-8 w-1/2 mb-2" />
-          <Skeleton className="h-3 w-1/3" />
-        </CardBody>
-      </Card>
-    );
-  }
+
 
   return (
     <Card className="group relative">
@@ -207,7 +178,42 @@ export const StaticMetricsCard: React.FC = () => {
   const data = useConversationDataStore((state) => state.data);
   const loading = useConversationDataStore((state) => state.loading);
 
-  if (!data?.currentPeriod?.metrics && !loading) {
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        {/* Quantity Metrics Skeleton */}
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {Array.from({ length: 4 }, (_, index) => (
+            <Card key={`quantity-skeleton-${index}`} className="">
+              <CardBody className="p-6">
+                <Skeleton className="h-4 w-3/4 mb-2" />
+                <Skeleton className="h-8 w-1/2 mb-2" />
+                <Skeleton className="h-3 w-1/3" />
+              </CardBody>
+            </Card>
+          ))}
+        </div>
+
+        {/* Divider */}
+        <div className="border-t border-gray-200 dark:border-gray-700"></div>
+
+        {/* Percentage Metrics Skeleton */}
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {Array.from({ length: 4 }, (_, index) => (
+            <Card key={`percentage-skeleton-${index}`} className="">
+              <CardBody className="p-6">
+                <Skeleton className="h-4 w-3/4 mb-2" />
+                <Skeleton className="h-8 w-1/2 mb-2" />
+                <Skeleton className="h-3 w-1/3" />
+              </CardBody>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (!data?.currentPeriod?.metrics) {
     return null;
   }
 

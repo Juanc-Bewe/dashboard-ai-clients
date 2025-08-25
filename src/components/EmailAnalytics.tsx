@@ -96,7 +96,7 @@ export const EmailAnalytics: React.FC = () => {
     return `${hours.toFixed(1)}h`;
   };
 
-  if (loading && !emailsAnalytics) {
+  if (loading) {
     return (
       <div className="space-y-6">
         {/* Overview Section Skeleton */}

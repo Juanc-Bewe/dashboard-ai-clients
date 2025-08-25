@@ -7,6 +7,7 @@ import { CostMetricsCard } from "./CostMetricsCard";
 import { UsabilityAndIndependenceTab } from "./UsabilityAndIndependenceTab";
 import { AccountsTab } from "./AccountsTab";
 import { NotificationsTab } from "./NotificationsTab";
+import { ChatEventsAnalyticsTab } from "./ChatEventsAnalyticsTab";
 import { useAuth } from "../contexts/AuthContext";
 import { hasPermission } from "../utils/permissionHelpers";
 import {
@@ -67,6 +68,10 @@ export const ConversationAnalyticsTabs: React.FC = () => {
 
           <Tab key="adoption-metrics" title="Uso y Adopción">
             <UsabilityAndIndependenceTab />
+          </Tab>
+
+          <Tab key="chat-events" title="Eventos de Chat">
+            <ChatEventsAnalyticsTab />
           </Tab>
 
           {hasPermission("canViewBusinessAndCostsMetrics", permissions) && (

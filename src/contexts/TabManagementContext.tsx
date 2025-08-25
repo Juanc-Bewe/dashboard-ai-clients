@@ -2,9 +2,11 @@ import { create } from 'zustand';
 import { useConversationDataStore } from './ConversationDataContext';
 import { useNotificationsDataStore } from './NotificationsDataContext';
 import { useAccountsDataStore } from './AccountsDataContext';
+import { useChatEventsAnalyticsStore } from './ChatEventsAnalyticsContext';
+import { serviceWorkerManager } from '../utils/serviceWorkerUtils';
 
 // Define available tabs
-export type TabKey = 'accounts' | 'quality' | 'notifications' | 'adoption-metrics' | 'costs';
+export type TabKey = 'accounts' | 'quality' | 'notifications' | 'adoption-metrics' | 'costs' | 'chat-events';
 
 export interface TabManagementState {
   activeTab: TabKey | null;
@@ -37,24 +39,42 @@ export const useTabManagementStore = create<TabManagementStore>((set, get) => ({
 
     set({ isRefreshing: true });
 
-    try {
-      switch (activeTab) {
-        case 'notifications':
-          await useNotificationsDataStore.getState().refreshData();
-          break;
-        case 'accounts':
-          await useAccountsDataStore.getState().refreshData();
-          break;
-        case 'quality':
-        case 'adoption-metrics':
-        case 'costs':
-          // These tabs use conversation data
-          await useConversationDataStore.getState().refreshData();
-          break;
-        default:
-          console.warn(`Unknown tab: ${activeTab}`);
-      }
-    } catch (error) {
+          try {
+        // Clear service worker cache before refreshing data
+        if (serviceWorkerManager.isServiceWorkerRegistered()) {
+          console.log('Clearing service worker cache before refresh...');
+          await serviceWorkerManager.clearCache();
+        }
+
+        // Prepare promises for parallel execution
+        const refreshPromises = [
+          // Always refresh conversation data (for StaticMetricsCard and NorthStarMetricCard)
+          useConversationDataStore.getState().refreshData(),
+        ];
+
+        // Add tab-specific data refresh
+        switch (activeTab) {
+          case 'notifications':
+            refreshPromises.push(useNotificationsDataStore.getState().refreshData());
+            break;
+          case 'accounts':
+            refreshPromises.push(useAccountsDataStore.getState().refreshData());
+            break;
+          case 'chat-events':
+            refreshPromises.push(useChatEventsAnalyticsStore.getState().refreshData());
+            break;
+          case 'quality':
+          case 'adoption-metrics':
+          case 'costs':
+            // Conversation data already included above
+            break;
+          default:
+            console.warn(`Unknown tab: ${activeTab}`);
+        }
+
+        // Execute all refreshes in parallel
+        await Promise.all(refreshPromises);
+      } catch (error) {
       console.error('Error refreshing active tab:', error);
     } finally {
       set({ isRefreshing: false });
@@ -66,11 +86,18 @@ export const useTabManagementStore = create<TabManagementStore>((set, get) => ({
     set({ isRefreshing: true });
 
     try {
+      // Clear service worker cache before refreshing all data
+      if (serviceWorkerManager.isServiceWorkerRegistered()) {
+        console.log('Clearing service worker cache before refreshing all tabs...');
+        await serviceWorkerManager.clearCache();
+      }
+
       // Run all refreshes in parallel
       await Promise.all([
         useConversationDataStore.getState().refreshData(),
         useNotificationsDataStore.getState().refreshData(),
         useAccountsDataStore.getState().refreshData(),
+        useChatEventsAnalyticsStore.getState().refreshData(),
       ]);
     } catch (error) {
       console.error('Error refreshing all tabs:', error);
