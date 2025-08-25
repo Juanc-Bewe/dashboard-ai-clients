@@ -1,5 +1,6 @@
-const CACHE_NAME = 'dashboard-api-cache-v1';
-const API_CACHE_NAME = 'dashboard-api-data-v1';
+// Consolidated cache name for all dashboard data
+const CACHE_NAME = 'dashboard-cache-v1';
+const API_CACHE_NAME = 'dashboard-cache-v1'; // Same as CACHE_NAME for simplicity
 
 // Cache configuration
 const CACHE_CONFIG = {
@@ -180,10 +181,25 @@ self.addEventListener('message', async (event) => {
 
 // Clear all cache
 async function clearCache() {
-  const cache = await caches.open(API_CACHE_NAME);
-  const keys = await cache.keys();
-  await Promise.all(keys.map(key => cache.delete(key)));
-  console.log('Service Worker: All cache cleared');
+  try {
+    // Get all cache names
+    const cacheNames = await caches.keys();
+    console.log('Service Worker: Found caches:', cacheNames);
+    
+    // Delete all caches
+    await Promise.all(
+      cacheNames.map(cacheName => {
+        console.log('Service Worker: Deleting cache:', cacheName);
+        return caches.delete(cacheName);
+      })
+    );
+    
+    console.log('Service Worker: All caches cleared');
+    return true;
+  } catch (error) {
+    console.error('Service Worker: Error clearing caches:', error);
+    return false;
+  }
 }
 
 // Clear cache for specific endpoint

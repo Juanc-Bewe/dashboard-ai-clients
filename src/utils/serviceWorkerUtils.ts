@@ -95,8 +95,13 @@ export class ServiceWorkerManager {
   // Clear all cache
   async clearCache(): Promise<boolean> {
     try {
-      await this.sendMessage({ action: 'CLEAR_CACHE' });
-      console.log('All cache cleared');
+      if (this.isServiceWorkerRegistered()) {
+        await this.sendMessage({ action: 'CLEAR_CACHE' });
+      }
+
+      // Also clear caches directly via browser API as fallback
+      const cacheNames = await caches.keys();
+      await Promise.all(cacheNames.map(name => caches.delete(name)));
       return true;
     } catch (error) {
       console.error('Failed to clear cache:', error);
@@ -149,6 +154,7 @@ export class ServiceWorkerManager {
 
   // Check if service worker is registered
   isServiceWorkerRegistered(): boolean {
+    console.log('isServiceWorkerRegistered', this.isRegistered);
     return this.isRegistered;
   }
 
@@ -171,6 +177,34 @@ export class ServiceWorkerManager {
 
 // Create singleton instance
 export const serviceWorkerManager = new ServiceWorkerManager();
+
+// Global function for manual cache clearing (for debugging)
+(window as any).clearAllCaches = async () => {
+  try {
+    console.log('Manual cache clearing initiated...');
+    
+    // Clear via service worker manager
+    const result = await serviceWorkerManager.clearCache();
+    console.log('Service worker manager result:', result);
+    
+    // Clear browser storage
+    localStorage.clear();
+    sessionStorage.clear();
+    console.log('Browser storage cleared');
+    
+    // Clear all cookies
+    document.cookie.split(";").forEach(function(c) { 
+      document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+    });
+    console.log('Cookies cleared');
+    
+    console.log('All caches and storage cleared manually');
+    return true;
+  } catch (error) {
+    console.error('Error in manual cache clearing:', error);
+    return false;
+  }
+};
 
 // Helper function to format cache age
 export const formatCacheAge = (age: number): string => {

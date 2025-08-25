@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { dashboardService } from '../services/dashboardService';
+import { ServiceWorkerManager } from '../utils/serviceWorkerUtils';
 
 // Types for authentication response
 interface Enterprise {
@@ -28,7 +29,7 @@ interface AuthContextType {
   availableEnterprises: Enterprise[];
   availableChannels: Channel[];
   login: (pin: string) => Promise<boolean>;
-  logout: () => void;
+  logout: () => Promise<void>;
   loading: boolean;
   isLoggingOut: boolean;
 }
@@ -68,6 +69,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [authData, setAuthData] = useState<AuthData | null>(null);
   const [loading, setLoading] = useState(true);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  // Initialize service worker manager
+  const serviceWorkerManager = new ServiceWorkerManager();
 
   const isAuthenticated = !!pin && !!authData;
   const permissions = authData?.permissions || [];
@@ -127,14 +131,40 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const logout = () => {
+    const logout = async () => {
     setIsLoggingOut(true);
+    
+    try {
+      // Clear service worker caches
+      if (serviceWorkerManager.isServiceWorkerRegistered()) {
+        await serviceWorkerManager.clearCache();
+      } else {
+        // Fallback: clear caches directly if service worker is not available
+        const cacheNames = await caches.keys();
+        await Promise.all(cacheNames.map(name => caches.delete(name)));
+        console.log('Browser caches cleared directly');
+      }
+
+      // Clear browser storage
+      console.log('Clearing localStorage and sessionStorage...');
+      localStorage.clear();
+      sessionStorage.clear();
+      console.log('Browser storage cleared');
+
+    } catch (error) {
+      console.error('Error clearing cache during logout:', error);
+      // Continue with logout even if cache clearing fails
+    }
+
+    // Remove authentication cookie
+    console.log('Removing authentication cookie...');
     removeCookie(PIN_KEY);
     setPin(null);
     setAuthData(null);
 
     // Navigate to login page without preserving any state or search parameters
     // This ensures a clean logout that doesn't remember previous URL parameters
+    console.log('Redirecting to login page...');
     window.location.href = '/login';
   };
 

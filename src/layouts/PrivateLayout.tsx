@@ -28,8 +28,8 @@ export const PrivateLayout: React.FC<PrivateLayoutProps> = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
   };
 
   const ThemeIcon = theme === 'light' ? Sun : Moon;

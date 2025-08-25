@@ -30,15 +30,15 @@ export const chatEventsAnalyticsService = {
 
       // Add optional filters if provided
       if (filters.enterpriseIds && filters.enterpriseIds.length > 0) {
-        params.enterpriseIds = filters.enterpriseIds;
+        params.enterpriseIds = filters.enterpriseIds.join(',');
       }
 
       if (filters.accountIds && filters.accountIds.length > 0) {
-        params.accountIds = filters.accountIds;
+        params.accountIds = filters.accountIds.join(',');
       }
 
       if (filters.channelNames && filters.channelNames.length > 0) {
-        params.channelNames = filters.channelNames;
+        params.channelNames = filters.channelNames.join(',');
       }
 
       const response = await apiClient.get('/lite/v1/analytics/chat/events', {
