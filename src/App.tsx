@@ -3,12 +3,12 @@ import { BrowserRouter as Router, Routes, Route, Navigate} from 'react-router-do
 import { HeroUIProvider } from '@heroui/react';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
-import { AddonManagementProvider } from './contexts/AddonManagementContext';
+// import { AddonManagementProvider } from './contexts/AddonManagementContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { LoginGuard } from './components/LoginGuard';
 import { PrivateLayout } from './layouts/PrivateLayout';
-import { Dashboard } from './pages/Dashboard';
-import { AddonManagement } from './pages/AddonManagement';
+// import { Dashboard } from './pages/Dashboard';
+// import { AddonManagement } from './pages/AddonManagement';
 import { NewDashboard } from './pages/NewDashboard';
 
 
@@ -25,7 +25,7 @@ const AppContent = () => {
             <Route path="/login" element={<LoginGuard />} />
 
             {/* Protected Routes */}
-            <Route
+            {/* <Route
               path="/dashboard"
               element={
                 <ProtectedRoute>
@@ -46,7 +46,7 @@ const AppContent = () => {
                   </PrivateLayout>
                 </ProtectedRoute>
               }
-            />
+            /> */}
             <Route
               path="/new-dashboard"
               element={
