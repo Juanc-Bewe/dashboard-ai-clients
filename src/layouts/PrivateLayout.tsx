@@ -41,20 +41,6 @@ export const PrivateLayout: React.FC<PrivateLayoutProps> = ({ children }) => {
       icon: BarChart3,
       path: '/new-dashboard',
       description: 'Conversation metrics and analytics'
-    },
-    {
-      key: 'analytics',
-      label: 'Analytics',
-      icon: BarChart3,
-      path: '/dashboard',
-      description: 'Performance metrics and insights'
-    },
-    {
-      key: 'data-management',
-      label: 'Data Management',
-      icon: Table,
-      path: '/data-management',
-      description: 'Manage and explore your data'
     }
   ];
 
@@ -78,7 +64,7 @@ export const PrivateLayout: React.FC<PrivateLayoutProps> = ({ children }) => {
           </NavbarBrand>
 
           {/* Desktop Menu - Centered Navigation */}
-          <div className="hidden sm:flex flex-1 justify-center">
+          {/* <div className="hidden sm:flex flex-1 justify-center">
             <div className="flex items-center bg-default-100 rounded-lg p-1 gap-1">
               {navigationItems.map((item) => {
                 const Icon = item.icon;
@@ -105,7 +91,7 @@ export const PrivateLayout: React.FC<PrivateLayoutProps> = ({ children }) => {
                 );
               })}
             </div>
-          </div>
+          </div> */}
 
           {/* Desktop Actions */}
           <NavbarContent className="hidden sm:flex flex-shrink-0" justify="end">
@@ -145,7 +131,7 @@ export const PrivateLayout: React.FC<PrivateLayoutProps> = ({ children }) => {
           <NavbarMenuItem>
             <div className="flex flex-col gap-4 pt-4">
               {/* Mobile Navigation */}
-              <div className="flex flex-col gap-2">
+              {/* <div className="flex flex-col gap-2">
                 <span className="text-small text-default-500 font-medium">Navigation</span>
                 {navigationItems.map((item) => {
                   const Icon = item.icon;
@@ -171,10 +157,13 @@ export const PrivateLayout: React.FC<PrivateLayoutProps> = ({ children }) => {
                     </Button>
                   );
                 })}
-              </div>
+              </div> */}
 
               {/* Mobile Theme Toggle */}
-              <div className="flex items-center justify-between pt-2 border-t border-default-200">
+              <div 
+                className="flex items-center justify-between pt-4 pb-4 border-t border-default-200 hover:bg-default-100 rounded-lg px-4 py-3 -mx-4 -my-1 cursor-pointer transition-colors min-h-[60px]"
+                onClick={toggleTheme}
+              >
                 <span className="text-small text-default-500">
                   {theme === 'light' ? 'Light Mode' : 'Dark Mode'}
                 </span>
@@ -183,7 +172,7 @@ export const PrivateLayout: React.FC<PrivateLayoutProps> = ({ children }) => {
                   variant="light"
                   onPress={toggleTheme}
                   aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-                  className="text-default-500 hover:text-default-700 hover:bg-default-100"
+                  className="text-default-500 hover:text-default-700"
                   radius="md"
                 >
                   <ThemeIcon size={20} />

@@ -64,15 +64,6 @@ export const NewDashboard: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      {/* Page Header */}
-      <div className="pb-4 border-b border-gray-200 dark:border-gray-700">
-        <h1 className="text-3xl font-bold text-foreground">
-          Análisis de Conversaciones
-        </h1>
-        <p className="mt-2 text-foreground-600">
-          Monitorea las métricas de conversaciones y el rendimiento de cuentas
-        </p>
-      </div>
 
       {/* Filters Section */}
       <section className="relative">
