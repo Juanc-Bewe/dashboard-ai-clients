@@ -111,7 +111,7 @@ interface ConversionFunnelProps {
 const ConversionFunnel: React.FC<ConversionFunnelProps> = ({ data, loading }) => {
   const funnelData = [
     {
-      name: "Sesiones Totales",
+      name: "Renderizaciones del Chat",
       value: data.totalSessions,
       percentage: 100,
       color: "#3b82f6",
@@ -549,8 +549,8 @@ export const ChatEventsAnalyticsTab: React.FC = () => {
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <MetricCard
-            title="Sesiones Totales"
-            tooltip="Total de sesiones de chat analizadas en el período"
+            title="Renderizaciones del Chat"
+            tooltip="Total de veces que el chat fue renderizado/mostrado en páginas web durante el período"
             value={metrics?.totalSessions ?? 0}
             icon={<Users className="h-4 w-4" />}
             color="blue"
