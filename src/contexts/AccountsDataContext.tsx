@@ -24,8 +24,7 @@ const convertToBusinessFilters = (commonFilters: CommonFilters) => {
     enterpriseIds: commonFilters.enterpriseIds,
     accountIds: commonFilters.accountIds,
     timezoneOffset: commonFilters.timezoneOffset,
-    // Note: accounts service might not use all common filters
-    // Adjust this based on what the accounts service actually accepts
+    channelNames: commonFilters.channelNames,
   };
 };
 

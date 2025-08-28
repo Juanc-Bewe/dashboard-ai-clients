@@ -8,6 +8,9 @@ export interface BusinessAnalyticsFilters {
   startDate: string;
   endDate: string;
   timezoneOffset?: number;
+  enterpriseIds?: string[];
+  accountIds?: string[];
+  channelNames?: string[];
 }
 
 export interface AccountsMetrics {
@@ -36,11 +39,21 @@ export interface AccountsMetrics {
 
 export const getAccountsData = async (filters: BusinessAnalyticsFilters): Promise<AccountsResponse> => {
   try {
+    const params: Record<string, any> = {};
+
+    // Add optional filters if provided (no date params - accounts data is atemporal)
+    if (filters.enterpriseIds && filters.enterpriseIds.length > 0) {
+      params.enterpriseIds = filters.enterpriseIds.join(',');
+    }
+    if (filters.accountIds && filters.accountIds.length > 0) {
+      params.accountIds = filters.accountIds.join(',');
+    }
+    if (filters.channelNames && filters.channelNames.length > 0) {
+      params.channelNames = filters.channelNames.join(',');
+    }
+
     const response = await apiClient.get('/lite/v1/analytics/business/base', {
-      params: {
-        startDate: filters.startDate,
-        endDate: filters.endDate
-      }
+      params
     });
     return response.data;
 
@@ -63,9 +76,18 @@ export const getAccountsWithSessionsData = async (filters: BusinessAnalyticsFilt
       endDate: filters.endDate
     };
 
-    // Add timezoneOffset if provided
+    // Add optional filters if provided
     if (filters.timezoneOffset !== undefined) {
       params.timezoneOffset = filters.timezoneOffset;
+    }
+    if (filters.enterpriseIds && filters.enterpriseIds.length > 0) {
+      params.enterpriseIds = filters.enterpriseIds.join(',');
+    }
+    if (filters.accountIds && filters.accountIds.length > 0) {
+      params.accountIds = filters.accountIds.join(',');
+    }
+    if (filters.channelNames && filters.channelNames.length > 0) {
+      params.channelNames = filters.channelNames.join(',');
     }
 
     const response = await apiClient.get('/lite/v1/analytics/business/activity', {
