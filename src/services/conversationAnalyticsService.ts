@@ -21,18 +21,43 @@ export const conversationAnalyticsService = {
       const params: Record<string, any> = {
         startDate: filters.startDate,
         endDate: filters.endDate,
-        enterpriseIds: filters.enterpriseIds.join(','),
-        accountIds: filters.accountIds.join(','),
         timezoneOffset: filters.timezoneOffset
       };
 
-      // Add channelNames if provided
-      if (filters.channelNames && filters.channelNames.length > 0) {
-        params.channelNames = filters.channelNames.join(',');
-      }
+      // Handle array parameters for replication
+      const enterpriseIdsArray = filters.enterpriseIds || [];
+      const accountIdsArray = filters.accountIds || [];
+      const channelNamesArray = filters.channelNames || [];
 
       const response = await apiClient.get('/lite/v1/analytics/conversations', {
-        params
+        params,
+        paramsSerializer: (params) => {
+          const searchParams = new URLSearchParams();
+          
+          // Add regular params
+          Object.entries(params).forEach(([key, value]) => {
+            if (key !== 'enterpriseIds' && key !== 'accountIds' && key !== 'channelNames') {
+              searchParams.append(key, String(value));
+            }
+          });
+          
+          // Add each enterpriseId as a separate parameter
+          enterpriseIdsArray.forEach(id => {
+            searchParams.append('enterpriseIds', id);
+          });
+          
+          // Add each accountId as a separate parameter
+          accountIdsArray.forEach(id => {
+            searchParams.append('accountIds', id);
+          });
+          
+          // Add each channelName as a separate parameter
+          channelNamesArray.forEach(name => {
+            searchParams.append('channelNames', name);
+          });
+          
+          return searchParams.toString();
+        }
       });
       return response.data;
 

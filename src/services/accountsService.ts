@@ -41,19 +41,51 @@ export const getAccountsData = async (filters: BusinessAnalyticsFilters): Promis
   try {
     const params: Record<string, any> = {};
 
-    // Add optional filters if provided (no date params - accounts data is atemporal)
+    // Handle array parameters for replication
+    let enterpriseIdsArray: string[] = [];
     if (filters.enterpriseIds && filters.enterpriseIds.length > 0) {
-      params.enterpriseIds = filters.enterpriseIds.join(',');
+      enterpriseIdsArray = filters.enterpriseIds;
     }
+    
+    let accountIdsArray: string[] = [];
     if (filters.accountIds && filters.accountIds.length > 0) {
-      params.accountIds = filters.accountIds.join(',');
+      accountIdsArray = filters.accountIds;
     }
+    
+    let channelNamesArray: string[] = [];
     if (filters.channelNames && filters.channelNames.length > 0) {
-      params.channelNames = filters.channelNames.join(',');
+      channelNamesArray = filters.channelNames;
     }
 
     const response = await apiClient.get('/lite/v1/analytics/business/base', {
-      params
+      params,
+      paramsSerializer: (params) => {
+        const searchParams = new URLSearchParams();
+        
+        // Add regular params
+        Object.entries(params).forEach(([key, value]) => {
+          if (key !== 'enterpriseIds' && key !== 'accountIds' && key !== 'channelNames') {
+            searchParams.append(key, String(value));
+          }
+        });
+        
+        // Add each enterpriseId as a separate parameter
+        enterpriseIdsArray.forEach(id => {
+          searchParams.append('enterpriseIds', id);
+        });
+        
+        // Add each accountId as a separate parameter
+        accountIdsArray.forEach(id => {
+          searchParams.append('accountIds', id);
+        });
+        
+        // Add each channelName as a separate parameter
+        channelNamesArray.forEach(name => {
+          searchParams.append('channelNames', name);
+        });
+        
+        return searchParams.toString();
+      }
     });
     return response.data;
 
@@ -80,18 +112,52 @@ export const getAccountsWithSessionsData = async (filters: BusinessAnalyticsFilt
     if (filters.timezoneOffset !== undefined) {
       params.timezoneOffset = filters.timezoneOffset;
     }
+
+    // Handle array parameters for replication
+    let enterpriseIdsArray: string[] = [];
     if (filters.enterpriseIds && filters.enterpriseIds.length > 0) {
-      params.enterpriseIds = filters.enterpriseIds.join(',');
+      enterpriseIdsArray = filters.enterpriseIds;
     }
+    
+    let accountIdsArray: string[] = [];
     if (filters.accountIds && filters.accountIds.length > 0) {
-      params.accountIds = filters.accountIds.join(',');
+      accountIdsArray = filters.accountIds;
     }
+    
+    let channelNamesArray: string[] = [];
     if (filters.channelNames && filters.channelNames.length > 0) {
-      params.channelNames = filters.channelNames.join(',');
+      channelNamesArray = filters.channelNames;
     }
 
     const response = await apiClient.get('/lite/v1/analytics/business/activity', {
-      params
+      params,
+      paramsSerializer: (params) => {
+        const searchParams = new URLSearchParams();
+        
+        // Add regular params
+        Object.entries(params).forEach(([key, value]) => {
+          if (key !== 'enterpriseIds' && key !== 'accountIds' && key !== 'channelNames') {
+            searchParams.append(key, String(value));
+          }
+        });
+        
+        // Add each enterpriseId as a separate parameter
+        enterpriseIdsArray.forEach(id => {
+          searchParams.append('enterpriseIds', id);
+        });
+        
+        // Add each accountId as a separate parameter
+        accountIdsArray.forEach(id => {
+          searchParams.append('accountIds', id);
+        });
+        
+        // Add each channelName as a separate parameter
+        channelNamesArray.forEach(name => {
+          searchParams.append('channelNames', name);
+        });
+        
+        return searchParams.toString();
+      }
     });
     return response.data;
 

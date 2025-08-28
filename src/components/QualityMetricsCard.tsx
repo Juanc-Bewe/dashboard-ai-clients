@@ -129,8 +129,8 @@ const UsefulConversationsChart: React.FC<UsefulConversationsChartProps> = ({
                 x2="0"
                 y2="1"
               >
-                <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.9} />
-                <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.2} />
+                <stop offset="5%" stopColor="#a855f7" stopOpacity={0.9} />
+                <stop offset="95%" stopColor="#a855f7" stopOpacity={0.2} />
               </linearGradient>
             </defs>
             <CartesianGrid
@@ -263,8 +263,8 @@ const DailyConversationTimeline: React.FC<DailyConversationTimelineProps> = ({
                 x2="0"
                 y2="1"
               >
-                <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="#f59e0b" stopOpacity={0.1} />
+                <stop offset="5%" stopColor="#a855f7" stopOpacity={0.8} />
+                <stop offset="95%" stopColor="#a855f7" stopOpacity={0.1} />
               </linearGradient>
             </defs>
             <CartesianGrid
@@ -307,7 +307,7 @@ const DailyConversationTimeline: React.FC<DailyConversationTimelineProps> = ({
             <Area
               type="monotone"
               dataKey="usefulConversations"
-              stroke="#f59e0b"
+              stroke="#a855f7"
               strokeWidth={3}
               fill="url(#usefulConversationsGradient)"
               name="Conversaciones Útiles"

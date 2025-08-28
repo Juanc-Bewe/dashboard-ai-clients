@@ -26,18 +26,34 @@ export const emailAnalyticsService = {
         timezoneOffset: mergedFilters.timezoneOffset
       };
 
-      // Add accountIds if provided
-      if (mergedFilters.accountIds && mergedFilters.accountIds.length > 0) {
-        params.accountIds = mergedFilters.accountIds.join(',');
-      }
-
-      // Add enterpriseIds if provided
-      if (mergedFilters.enterpriseIds && mergedFilters.enterpriseIds.length > 0) {
-        params.enterpriseIds = mergedFilters.enterpriseIds.join(',');
-      }
+      // Handle array parameters for replication
+      const accountIdsArray = (mergedFilters.accountIds && mergedFilters.accountIds.length > 0) ? mergedFilters.accountIds : [];
+      const enterpriseIdsArray = (mergedFilters.enterpriseIds && mergedFilters.enterpriseIds.length > 0) ? mergedFilters.enterpriseIds : [];
 
       const response = await apiClient.get('/lite/v1/analytics/business/notifications', {
-        params
+        params,
+        paramsSerializer: (params) => {
+          const searchParams = new URLSearchParams();
+
+          // Add regular params
+          Object.entries(params).forEach(([key, value]) => {
+            if (key !== 'accountIds' && key !== 'enterpriseIds') {
+              searchParams.append(key, String(value));
+            }
+          });
+
+          // Add each accountId as a separate parameter
+          accountIdsArray.forEach(id => {
+            searchParams.append('accountIds', id);
+          });
+
+          // Add each enterpriseId as a separate parameter
+          enterpriseIdsArray.forEach(id => {
+            searchParams.append('enterpriseIds', id);
+          });
+
+          return searchParams.toString();
+        }
       });
       return response.data;
 

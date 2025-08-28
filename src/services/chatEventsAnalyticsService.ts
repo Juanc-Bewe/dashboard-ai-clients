@@ -28,21 +28,40 @@ export const chatEventsAnalyticsService = {
         timezoneOffset: filters.timezoneOffset
       };
 
-      // Add optional filters if provided
-      if (filters.enterpriseIds && filters.enterpriseIds.length > 0) {
-        params.enterpriseIds = filters.enterpriseIds.join(',');
-      }
-
-      if (filters.accountIds && filters.accountIds.length > 0) {
-        params.accountIds = filters.accountIds.join(',');
-      }
-
-      if (filters.channelNames && filters.channelNames.length > 0) {
-        params.channelNames = filters.channelNames.join(',');
-      }
+      // Handle array parameters for replication
+      const enterpriseIdsArray = (filters.enterpriseIds && filters.enterpriseIds.length > 0) ? filters.enterpriseIds : [];
+      const accountIdsArray = (filters.accountIds && filters.accountIds.length > 0) ? filters.accountIds : [];
+      const channelNamesArray = (filters.channelNames && filters.channelNames.length > 0) ? filters.channelNames : [];
 
       const response = await apiClient.get('/lite/v1/analytics/chat/events', {
-        params
+        params,
+        paramsSerializer: (params) => {
+          const searchParams = new URLSearchParams();
+          
+          // Add regular params
+          Object.entries(params).forEach(([key, value]) => {
+            if (key !== 'enterpriseIds' && key !== 'accountIds' && key !== 'channelNames') {
+              searchParams.append(key, String(value));
+            }
+          });
+          
+          // Add each enterpriseId as a separate parameter
+          enterpriseIdsArray.forEach(id => {
+            searchParams.append('enterpriseIds', id);
+          });
+          
+          // Add each accountId as a separate parameter
+          accountIdsArray.forEach(id => {
+            searchParams.append('accountIds', id);
+          });
+          
+          // Add each channelName as a separate parameter
+          channelNamesArray.forEach(name => {
+            searchParams.append('channelNames', name);
+          });
+          
+          return searchParams.toString();
+        }
       });
 
       console.log('do chat events analytics', response.data);
