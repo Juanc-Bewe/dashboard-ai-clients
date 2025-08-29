@@ -9,6 +9,7 @@ export interface AccountWithUsefulConversations {
   accountId: string;
   accountName: string;
   usefulConversationCount: number;
+  channels?: ("twilio-whatsapp" | "web")[];
 }
 
 export interface AccountComparison {
