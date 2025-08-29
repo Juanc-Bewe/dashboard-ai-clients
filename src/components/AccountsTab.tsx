@@ -24,6 +24,11 @@ import {
   useAccountsDataStore,
   useAccountsAutoSync,
 } from "../contexts/AccountsDataContext";
+import { 
+  useConversationDataStore, 
+  useConversationAutoSync 
+} from "../contexts/ConversationDataContext";
+import { ConversationsPerChannelChart } from "./ConversationsPerChannelChart";
 import type { AccountsMetrics } from "../services/accountsService";
 
 interface MetricCardProps {
@@ -443,9 +448,13 @@ const ConfigurationStatusChart: React.FC<ConfigurationStatusChartProps> = ({
 export const AccountsTab: React.FC = () => {
   // Get data from accounts store
   const { metrics, loading, error } = useAccountsDataStore();
+  
+  // Get conversation analytics data for conversations per channel
+  const { data: conversationData, loading: conversationLoading } = useConversationDataStore();
 
   // Auto-sync with filter changes (this handles both initial fetch and filter changes)
   useAccountsAutoSync();
+  useConversationAutoSync();
 
   if (error) {
     return (
@@ -506,7 +515,7 @@ export const AccountsTab: React.FC = () => {
           <h3 className="text-lg font-medium text-foreground mb-4">
             Distribución Detallada
           </h3>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
             {/* Automode Distribution - Donut Chart */}
             <Card className="rounded-2xl border-0 bg-gradient-to-b">
               <CardBody className="p-6">
@@ -709,6 +718,30 @@ export const AccountsTab: React.FC = () => {
                     );
                   })}
                 </div>
+              </CardBody>
+            </Card>
+
+            {/* Conversations per Channel Chart */}
+            <Card className="rounded-2xl border-0 bg-gradient-to-b">
+              <CardBody className="p-6">
+                <div className="pt-4">
+                  <div className="text-center">
+                    <div className="text-s mb-2 flex items-center justify-center gap-1">
+                      Conversaciones por Canal
+                      <Tooltip
+                        content="Distribución de conversaciones realizadas por cada canal de comunicación"
+                        placement="top"
+                      >
+                        <Info className="h-3 w-3 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 cursor-help" />
+                      </Tooltip>
+                    </div>
+                  </div>
+                </div>
+
+                <ConversationsPerChannelChart
+                  data={conversationData?.currentPeriod?.metrics?.channelAndTiming?.channelDistribution || { web: { count: 0, percentage: 0 }, "twilio-whatsapp": { count: 0, percentage: 0 } }}
+                  loading={conversationLoading}
+                />
               </CardBody>
             </Card>
 

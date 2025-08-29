@@ -40,8 +40,12 @@ export default {
 				"totalSpam": 19,
 				"channelDistribution": {
 					"web": {
-						"count": 394,
-						"percentage": 100
+						"count": 294,
+						"percentage": 74.62
+					},
+					"twilio-whatsapp": {
+						"count": 100,
+						"percentage": 25.38
 					}
 				},
 				"peakUsageHours": {

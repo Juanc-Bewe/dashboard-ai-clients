@@ -5593,8 +5593,12 @@ export const mockConversationAnalyticsData: ConversationAnalyticsResponse = {
                 "channelAndTiming": {
                     "channelDistribution": {
                         "web": {
-                            "count": 4660,
-                            "percentage": 100
+                            "count": 3496,
+                            "percentage": 75.04
+                        },
+                        "twilio-whatsapp": {
+                            "count": 1164,
+                            "percentage": 24.96
                         }
                     },
                     "peakUsageHours": {

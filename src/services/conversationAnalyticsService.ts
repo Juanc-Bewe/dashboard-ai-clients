@@ -33,29 +33,29 @@ export const conversationAnalyticsService = {
         params,
         paramsSerializer: (params) => {
           const searchParams = new URLSearchParams();
-          
+
           // Add regular params
           Object.entries(params).forEach(([key, value]) => {
             if (key !== 'enterpriseIds' && key !== 'accountIds' && key !== 'channelNames') {
               searchParams.append(key, String(value));
             }
           });
-          
+
           // Add each enterpriseId as a separate parameter
           enterpriseIdsArray.forEach(id => {
             searchParams.append('enterpriseIds', id);
           });
-          
+
           // Add each accountId as a separate parameter
           accountIdsArray.forEach(id => {
             searchParams.append('accountIds', id);
           });
-          
+
           // Add each channelName as a separate parameter
           channelNamesArray.forEach(name => {
             searchParams.append('channelNames', name);
           });
-          
+
           return searchParams.toString();
         }
       });

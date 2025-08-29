@@ -103,7 +103,11 @@ export interface UserExperience {
 
 // Channel and timing interface
 export interface ChannelDistribution {
-  web: {
+  "web"?: {
+    count: number;
+    percentage: number;
+  };
+  "twilio-whatsapp"?: {
     count: number;
     percentage: number;
   };
