@@ -24,7 +24,7 @@ const convertToBusinessFilters = (commonFilters: CommonFilters) => {
     enterpriseIds: commonFilters.enterpriseIds,
     accountIds: commonFilters.accountIds,
     timezoneOffset: commonFilters.timezoneOffset,
-    channelNames: commonFilters.channelNames,
+    // channelNames: commonFilters.channelNames,
   };
 };
 

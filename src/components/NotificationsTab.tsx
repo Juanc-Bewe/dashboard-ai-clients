@@ -77,59 +77,103 @@ export const NotificationsTab: React.FC = () => {
     return <NotificationsSkeleton />;
   }
 
-  if (error || !analytics) {
+  if (error) {
     return (
       <Card className="h-32">
         <CardBody className="flex items-center justify-center">
           <p className="text-danger">
-            Error: {error || "No hay datos disponibles"}
+            Error: {error}
           </p>
         </CardBody>
       </Card>
     );
   }
 
-  // Prepare data for time distribution chart
+  // Handle case when analytics is null or incomplete
+  if (!analytics) {
+    return (
+      <Card className="h-32">
+        <CardBody className="flex items-center justify-center">
+          <div className="text-center">
+            <p className="text-default-500 mb-2">No hay datos disponibles</p>
+            <p className="text-sm text-default-400">
+              Intenta ajustar los filtros o verifica la conexión
+            </p>
+          </div>
+        </CardBody>
+      </Card>
+    );
+  }
+
+  // Provide default values to prevent runtime errors
+  const defaultStateDistribution = {
+    pending: { count: 0, percentage: 0 },
+    sended: { count: 0, percentage: 0 },
+    delivered: { count: 0, percentage: 0 },
+    processed: { count: 0, percentage: 0 },
+    open: { count: 0, percentage: 0 },
+    bounced: { count: 0, percentage: 0 },
+    click: { count: 0, percentage: 0 },
+    dropped: { count: 0, percentage: 0 }
+  };
+
+  const safeAnalytics = {
+    totalEmails: analytics.totalEmails || 0,
+    stateDistribution: {
+      ...defaultStateDistribution,
+      ...analytics.stateDistribution
+    },
+    deliveryRate: analytics.deliveryRate || 0,
+    openRate: analytics.openRate || 0,
+    clickRate: analytics.clickRate || 0,
+    processedRate: analytics.processedRate || 0,
+    bouncedRate: analytics.bouncedRate || 0,
+    averageTimeToOpen: analytics.averageTimeToOpen || 0,
+    medianTimeToOpen: analytics.medianTimeToOpen || 0,
+    timeToOpenDistribution: analytics.timeToOpenDistribution || {}
+  };
+
+  // Prepare data for time distribution chart with safe access
   const timeDistributionData = Object.entries(
-    analytics.timeToOpenDistribution
+    safeAnalytics.timeToOpenDistribution
   ).map(([timeRange, data]) => ({
     timeRange,
-    count: data.count,
-    percentage: data.percentage,
+    count: data?.count || 0,
+    percentage: data?.percentage || 0,
   }));
 
   const ratesData = [
     {
       name: "Tasa de Entrega",
-      value: analytics.deliveryRate,
+      value: safeAnalytics.deliveryRate,
       color: CHART_COLORS.success,
       tooltip:
         "Porcentaje de emails que fueron entregados exitosamente a los destinatarios",
     },
     {
       name: "Tasa de Apertura",
-      value: analytics.openRate,
+      value: safeAnalytics.openRate,
       color: CHART_COLORS.info,
       tooltip:
         "Porcentaje de emails entregados que fueron abiertos por los destinatarios",
     },
     {
       name: "Tasa de Clics",
-      value: analytics.clickRate,
+      value: safeAnalytics.clickRate,
       color: CHART_COLORS.warning,
       tooltip:
         "Porcentaje de emails abiertos en los que se hizo clic en algún enlace",
     },
     {
       name: "Tasa de Procesamiento",
-      value: analytics.processedRate,
+      value: safeAnalytics.processedRate,
       color: CHART_COLORS.primary,
       tooltip:
         "Porcentaje de emails que fueron procesados correctamente por el sistema",
     },
     {
       name: "Tasa de Rebote",
-      value: analytics.bouncedRate,
+      value: safeAnalytics.bouncedRate,
       color: CHART_COLORS.danger,
       tooltip:
         "Porcentaje de emails que no pudieron ser entregados (rebotaron)",
@@ -164,7 +208,7 @@ export const NotificationsTab: React.FC = () => {
             >
               <div className="cursor-help">
                 <div className="text-xl font-bold text-primary">
-                  {analytics.totalEmails.toLocaleString()}
+                  {safeAnalytics.totalEmails.toLocaleString()}
                 </div>
                 <p className="text-sm text-default-500">Total de Emails</p>
               </div>
@@ -180,7 +224,7 @@ export const NotificationsTab: React.FC = () => {
             >
               <div className="cursor-help">
                 <div className="text-xl font-bold text-success">
-                  {analytics.stateDistribution.delivered.count.toLocaleString()}
+                  {safeAnalytics.stateDistribution.delivered.count.toLocaleString()}
                 </div>
                 <p className="text-sm text-default-500">Entregados</p>
               </div>
@@ -196,7 +240,7 @@ export const NotificationsTab: React.FC = () => {
             >
               <div className="cursor-help">
                 <div className="text-xl font-bold text-info">
-                  {analytics.stateDistribution.open.count.toLocaleString()}
+                  {safeAnalytics.stateDistribution.open.count.toLocaleString()}
                 </div>
                 <p className="text-sm text-default-500">Abiertos</p>
               </div>
@@ -212,7 +256,7 @@ export const NotificationsTab: React.FC = () => {
             >
               <div className="cursor-help">
                 <div className="text-xl font-bold text-warning">
-                  {analytics.stateDistribution.click.count.toLocaleString()}
+                  {safeAnalytics.stateDistribution.click.count.toLocaleString()}
                 </div>
                 <p className="text-sm text-default-500">Clics</p>
               </div>
@@ -278,7 +322,7 @@ export const NotificationsTab: React.FC = () => {
               >
                 <div className="text-center p-4 bg-default-50 rounded-lg cursor-help">
                   <p className="text-xl font-bold text-info">
-                    {analytics.averageTimeToOpen}h
+                    {safeAnalytics.averageTimeToOpen}h
                   </p>
                   <p className="text-sm text-default-500">Tiempo Promedio</p>
                 </div>
@@ -289,7 +333,7 @@ export const NotificationsTab: React.FC = () => {
               >
                 <div className="text-center p-4 bg-default-50 rounded-lg cursor-help">
                   <p className="text-xl font-bold text-success">
-                    {analytics.medianTimeToOpen}h
+                    {safeAnalytics.medianTimeToOpen}h
                   </p>
                   <p className="text-sm text-default-500">Tiempo Mediano</p>
                 </div>
@@ -319,8 +363,8 @@ export const NotificationsTab: React.FC = () => {
             >
               <div className="text-center cursor-help">
                 <div className="text-xl font-bold text-info">
-                  {Object.values(analytics.timeToOpenDistribution)
-                    .reduce((sum, item) => sum + item.count, 0)
+                  {Object.values(safeAnalytics.timeToOpenDistribution)
+                    .reduce((sum, item) => sum + (item?.count || 0), 0)
                     .toLocaleString()}
                 </div>
                 <p className="text-sm text-default-500">Total de Aperturas</p>
@@ -332,7 +376,7 @@ export const NotificationsTab: React.FC = () => {
             >
               <div className="text-center cursor-help">
                 <div className="text-xl font-bold text-success">
-                  {analytics.openRate}%
+                  {safeAnalytics.openRate}%
                 </div>
                 <p className="text-sm text-default-500">
                   Tasa General de Apertura
@@ -343,11 +387,12 @@ export const NotificationsTab: React.FC = () => {
 
           {/* Area Chart */}
           <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart
-                data={timeDistributionData}
-                margin={{ top: 20, right: 30, left: 0, bottom: 30 }}
-              >
+            {timeDistributionData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart
+                  data={timeDistributionData}
+                  margin={{ top: 20, right: 30, left: 0, bottom: 30 }}
+                >
                 <defs>
                   <linearGradient
                     id="timeDistributionGradient"
@@ -390,6 +435,16 @@ export const NotificationsTab: React.FC = () => {
                 />
               </AreaChart>
             </ResponsiveContainer>
+            ) : (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center">
+                  <p className="text-default-500 mb-2">No hay datos de distribución temporal</p>
+                  <p className="text-sm text-default-400">
+                    Los datos del gráfico no están disponibles
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         </CardBody>
       </Card>
