@@ -791,8 +791,7 @@ export const AccountsTab: React.FC = () => {
                             value: metrics
                               ? metrics.totalAccounts -
                                 (metrics.channelDistribution.whatsapp.active +
-                                  metrics.channelDistribution.web.active +
-                                  metrics.channelDistribution.multiChannel)
+                                  metrics.channelDistribution.web.active)
                               : 0,
                             percentage:
                               metrics && metrics.totalAccounts > 0
@@ -800,9 +799,7 @@ export const AccountsTab: React.FC = () => {
                                     ((metrics.totalAccounts -
                                       (metrics.channelDistribution.whatsapp
                                         .active +
-                                        metrics.channelDistribution.web.active +
-                                        metrics.channelDistribution
-                                          .multiChannel)) /
+                                        metrics.channelDistribution.web.active)) /
                                       metrics.totalAccounts) *
                                       100
                                   )
