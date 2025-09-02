@@ -445,7 +445,6 @@ const ConfigurationStatusChart: React.FC<ConfigurationStatusChartProps> = ({
 export const AccountsTab: React.FC = () => {
   // Get data from accounts store
   const { metrics, loading, error } = useAccountsDataStore();
-  
   // Auto-sync with filter changes (this handles both initial fetch and filter changes)
   useAccountsAutoSync();
 
@@ -788,18 +787,11 @@ export const AccountsTab: React.FC = () => {
                           },
                           {
                             name: "Sin Canal",
-                            value: metrics
-                              ? metrics.totalAccounts -
-                                (metrics.channelDistribution.whatsapp.active +
-                                  metrics.channelDistribution.web.active)
-                              : 0,
+                            value: metrics?.channelDistribution.noActiveChannels ?? 0,
                             percentage:
                               metrics && metrics.totalAccounts > 0
                                 ? Math.round(
-                                    ((metrics.totalAccounts -
-                                      (metrics.channelDistribution.whatsapp
-                                        .active +
-                                        metrics.channelDistribution.web.active)) /
+                                    ((metrics.channelDistribution.noActiveChannels ?? 0) /
                                       metrics.totalAccounts) *
                                       100
                                   )
@@ -1056,7 +1048,7 @@ export const AccountsTab: React.FC = () => {
                           Sin Canal
                         </span>
                         <Tooltip
-                          content="Cuentas que no tienen ningún canal activo"
+                          content="Cuentas que no tienen ningún canal activo (incluye cuentas con canales inactivos como whatsapp.inactive y web.inactive)"
                           placement="top"
                         >
                           <Info className="h-2 w-2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 cursor-help" />
@@ -1064,22 +1056,14 @@ export const AccountsTab: React.FC = () => {
                       </div>
                       <div className="font-bold">
                         <span className="text-base text-orange-600">
-                          {metrics
-                            ? metrics.totalAccounts -
-                              (metrics.channelDistribution.whatsapp.active +
-                                metrics.channelDistribution.web.active +
-                                metrics.channelDistribution.multiChannel)
-                            : 0}
+                          {metrics?.channelDistribution.noActiveChannels ?? 0}
                         </span>
                         <span className="text-xs text-gray-500 dark:text-gray-400">
                           {" "}
                           (
                           {metrics && metrics.totalAccounts > 0
                             ? Math.round(
-                                ((metrics.totalAccounts -
-                                  (metrics.channelDistribution.whatsapp.active +
-                                    metrics.channelDistribution.web.active +
-                                    metrics.channelDistribution.multiChannel)) /
+                                ((metrics.channelDistribution.noActiveChannels ?? 0) /
                                   metrics.totalAccounts) *
                                   100
                               )

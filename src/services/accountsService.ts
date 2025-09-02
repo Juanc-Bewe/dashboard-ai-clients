@@ -26,6 +26,7 @@ export interface AccountsMetrics {
     whatsapp: { active: number; inactive: number; total: number; percentage: number };
     web: { active: number; inactive: number; total: number; percentage: number };
     multiChannel: number;
+    noActiveChannels: number;
   };
   automodeDistribution: {
     withAutomode: number;
@@ -191,11 +192,14 @@ export const calculateAccountsMetrics = (accounts: Account[]): AccountsMetrics =
   let webActive = 0;
   let webInactive = 0;
   let multiChannel = 0;
+  let noActiveChannels = 0;
 
   accounts.forEach(account => {
     // Safety check for channels array
     if (!account.channels || !Array.isArray(account.channels)) {
-      return; // Skip this account if channels is not available
+      // If no channels data, count as "sin canal"
+      noActiveChannels++;
+      return;
     }
 
     const whatsappChannel = account.channels.find(ch => ch.type === 'whatsapp');
@@ -203,7 +207,11 @@ export const calculateAccountsMetrics = (accounts: Account[]): AccountsMetrics =
     
     // Count active channels per account
     const activeChannels = account.channels.filter(ch => ch.active).length;
-    if (activeChannels > 1) {
+    
+    // If no active channels, count as "sin canal"
+    if (activeChannels === 0) {
+      noActiveChannels++;
+    } else if (activeChannels > 1) {
       multiChannel++;
     }
 
@@ -242,7 +250,8 @@ export const calculateAccountsMetrics = (accounts: Account[]): AccountsMetrics =
       total: webTotal,
       percentage: totalAccounts > 0 ? (webTotal / totalAccounts) * 100 : 0
     },
-    multiChannel
+    multiChannel,
+    noActiveChannels
   };
 
   // Automode Distribution - with safety checks
