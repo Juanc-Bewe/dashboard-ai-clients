@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Card, CardBody, Skeleton, Tooltip } from "@heroui/react";
+import { Card, CardBody, Skeleton, Tooltip, Pagination } from "@heroui/react";
 import { Info, Copy, Check } from "lucide-react";
 import { useConversationDataStore } from "../contexts/ConversationDataContext";
 
@@ -134,6 +134,8 @@ const AdoptionMetricCard: React.FC<AdoptionMetricCardProps> = ({
 export const UsabilityAndIndependenceTab: React.FC = () => {
   const data = useConversationDataStore((state) => state.data);
   const loading = useConversationDataStore((state) => state.loading);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   if (!data && !loading) {
     return (
@@ -169,6 +171,16 @@ export const UsabilityAndIndependenceTab: React.FC = () => {
     totalAccountsWithConversations > 0
       ? (totalAccountsWithMoreFifty / totalAccountsWithConversations) * 100
       : 0;
+
+  // Get top accounts by cost (ordered)
+  const topExpensiveAccounts =
+    currentMetrics?.costAnalytics?.topExpensiveAccounts ?? [];
+
+  // Pagination calculations
+  const totalPages = Math.ceil(topExpensiveAccounts.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedAccounts = topExpensiveAccounts.slice(startIndex, endIndex);
 
   return (
     <div className="space-y-6">
@@ -207,6 +219,86 @@ export const UsabilityAndIndependenceTab: React.FC = () => {
           loading={loading}
           color="#6366f1"
         />
+      </div>
+
+      {/* Top Active Accounts by Engagement */}
+      <div>
+        <div className="flex items-center gap-2 mb-4">
+          <div className="w-1 h-6 bg-purple-500 rounded-full"></div>
+          <h2 className="text-xl font-semibold text-foreground">
+            Cuentas con mas uso/costo
+          </h2>
+          <Tooltip
+            content="Cuentas ordenadas por nivel de uso/costo"
+            placement="top"
+          >
+            <Info className="h-4 w-4 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 cursor-help" />
+          </Tooltip>
+        </div>
+
+        <Card className="rounded-2xl border-0 bg-gradient-to-b">
+          <CardBody className="p-6">
+            {loading ? (
+              <div className="space-y-3">
+                <Skeleton className="h-16 w-full rounded-lg" />
+                <Skeleton className="h-16 w-full rounded-lg" />
+                <Skeleton className="h-16 w-full rounded-lg" />
+                <Skeleton className="h-16 w-full rounded-lg" />
+                <Skeleton className="h-16 w-full rounded-lg" />
+              </div>
+            ) : topExpensiveAccounts.length > 0 ? (
+              <>
+                <div className="space-y-3">
+                  {paginatedAccounts.map((account, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                    >
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 font-semibold text-sm flex-shrink-0">
+                          {startIndex + index + 1}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                            {account.accountName}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 ml-4">
+                        <div className="text-right">
+                          <div className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                            {account.sessionCount}
+                          </div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                            sesiones
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="flex justify-center mt-6">
+                    <Pagination
+                      total={totalPages}
+                      page={currentPage}
+                      onChange={setCurrentPage}
+                      showControls
+                      color="secondary"
+                      size="lg"
+                    />
+                  </div>
+                )}
+              </>
+            ) : (
+              <p className="text-foreground-600 text-center py-4">
+                No hay datos de cuentas disponibles
+              </p>
+            )}
+          </CardBody>
+        </Card>
       </div>
     </div>
   );
